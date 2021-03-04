@@ -23,7 +23,7 @@ starter.json
             "saveInterval": 900,
             "backupSaves": true,
             "backupInterval": 3600,
-            "enable_astrochat_integration": false
+            "enableAstrochatIntegration": false
         },
         {
             "id": "server2",
@@ -34,7 +34,7 @@ starter.json
             "consolePort": 42070,
             "consolePassword": "theremotepassword",
             "whitelist": true,
-            "enable_astrochat_integration": true
+            "enableAstrochatIntegration": true
         }
     ]
 }
