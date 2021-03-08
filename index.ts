@@ -1,5 +1,6 @@
-import { path, fs, unZipFromURL, io } from "./deps.ts"
+import { path, fs, unZipFromURL, io, Colors } from "./deps.ts"
 import { info, warn, error } from "./logging.ts"
+import { defaultConfig } from "./defaultConfig.ts"
 
 interface ConfigFileServer {
     id?: string
@@ -36,12 +37,13 @@ class Server {
         public saveInterval: number,
         public backupSaves: boolean,
         public backupInterval: number,
-        public enableAstrochatIntegration: boolean
+        public enableAstrochatIntegration: boolean,
+        public owner: string
     )
     {
         //console.log("server with id ", this.id)
 
-        // TODO parse IP and et public
+        // TODO parse IP and get public
     }
 }
 
@@ -49,9 +51,10 @@ class Starter {
     private servers: Server[] = []
     private webserverPort = 5000
     private owner = ""
+    private latestVersion = ""
 
     constructor(private dir: string) {
-        info("astro-starter, work dir: " + dir)
+        info("astro-starter, work dir: " + dir + "\n")
 
         this.readConfig()
     }
@@ -61,14 +64,15 @@ class Starter {
 
         // create default config
         if (!fs.existsSync(configPath)) {
+            info("No config file found, creating new one")
+
             // create start.bat
             Deno.writeTextFileSync(path.join(this.dir, "start.bat"), '"./astro-starter.exe"\npause')
 
             // create config file
-            Deno.writeTextFileSync(configPath, JSON.stringify({
-                webserverPort: 5000, owner: "", servers: []
-            }, null, "  "))
+            Deno.writeTextFileSync(configPath, JSON.stringify(defaultConfig, null, "    "))
 
+            info(Colors.brightBlue("Please edit starter.json"))
             Deno.exit(0)
         }
 
@@ -77,7 +81,7 @@ class Starter {
         try {
             config = JSON.parse(configJson)
         } catch (e) {
-            console.error("parsing config file failed")
+            console.error("Parsing config file failed")
         }
 
         this.webserverPort = config.webserverPort ?? 5000
@@ -98,21 +102,33 @@ class Starter {
                 s.backupSaves ?? true,
                 s.backupInterval ?? 3600,
                 s.enableAstrochatIntegration ?? false,
+                this.owner
             ))
         }
     }
 
     async start() {
-        console.log("start")
-        // console.log("servers: ", this.servers)
-
+        // ensure data dis exists
         fs.ensureDirSync(path.join(this.dir, "starter_data"))
 
-        await this.updateSteam()
+        // check if any servers are configured
+        if (this.servers.length === 0) {
+            warn("No servers configured, exiting")
+            Deno.exit(0)
+        }
+
+        // fetch latest server version
+        this.latestVersion = (await (await fetch("https://servercheck.spycibot.com/stats")).json())["LatestVersion"]
+
+        // only deal with local servers when there are any
+        if (this.servers.filter(s => s.serverType === "local").length > 0) {
+            await this.updateSteam()
+        }
     }
 
+    // download and run steamcmd to download server files
     async updateSteam() {
-        // download and run steamcmd to download server files
+        // check steam dir
         const steamDir = path.join(this.dir, "starter_data", "steamcmd")
         fs.ensureDirSync(steamDir)
 
@@ -122,7 +138,16 @@ class Starter {
             await unZipFromURL("https://steamcdn-a.akamaihd.net/client/installer/steamcmd.zip", steamDir)
         }
 
+        // check if server is already updated
+        const versionPath = path.join(steamDir, "steamapps", "common", "ASTRONEER Dedicated Server", "build.version")
+        if (fs.existsSync(versionPath)) {
+            const version = (await Deno.readTextFile(versionPath)).split(" ")[0]
+            if (version === this.latestVersion) return
+        }
+
         info("Downlaoding server files from steam...")
+        info(Colors.brightBlue("This will take a few minutes"))
+        // run steamcmd
         const p = Deno.run({
             cmd: [
                 path.join(steamDir, "steamcmd.exe"),
