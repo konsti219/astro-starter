@@ -65,7 +65,8 @@ class Server {
         fs.ensureDirSync(this.serverDir)
     }
 
-    start() {
+    async start() {
+        info("Starting server " + this.name)
         if (this.running) {
             warn("Tried to start server while it's already running, id: " + this.id)
             return
@@ -73,9 +74,9 @@ class Server {
 
         // only do some thinhs if the server is locally hosted
         if (this.serverType === "local") {
+            fs.ensureDirSync(path.join(this.serverDir, "serverFiles"))
 
-            // if local
-
+            await this.update()
             // update
             // write config
 
@@ -84,17 +85,53 @@ class Server {
         }
 
         // start rcon
+
+        // load player data
     }
 
-    update() {
+    async update() {
         // check if updated
+        const versionPath = path.join(this.serverDir, "serverFiles", "build.version")
+        if (fs.existsSync(versionPath)) {
+            const version = (await Deno.readTextFile(versionPath)).split(" ")[0]
+            if (version === this.starter.latestVersion) return
+        }
+
+        info("Updating server " + this.name)
 
         // backup SaveGames/Paks
+        const savedPath = path.join(this.serverDir, "serverFiles","Astro", "Saved")
+        const hasSaves = fs.existsSync(path.join(savedPath, "SaveGames"))
+        const hasPaks = fs.existsSync(path.join(savedPath, "Paks"))
+        
+        Deno.mkdirSync(path.join(this.serverDir, "temp"))
+        if (hasSaves) {
+            await fs.copy(path.join(savedPath, "SaveGames"), path.join(this.serverDir, "temp", "SaveGames"))
+        }
+        if (hasPaks) {
+            await fs.copy(path.join(savedPath, "Paks"), path.join(this.serverDir, "temp", "Paks"))
+        }
 
-        // rm folder
-        // copy files
+        // remove folder
+        if (fs.existsSync(path.join(this.serverDir, "serverFiles"))) {
+            await Deno.remove(path.join(this.serverDir, "serverFiles"), { recursive: true });
+        }
+        // copy fresh files from steam
+        info("Copying files...")
+        await fs.copy(
+            path.join(this.starter.dir, "starterData", "steamcmd", "steamapps", "common", "ASTRONEER Dedicated Server"),
+            path.join(this.serverDir, "serverFiles"))
+        
 
         // restore SaveGames/Paks
+        if (hasSaves) {
+            await fs.copy(path.join(this.serverDir, "temp", "SaveGames"), path.join(savedPath, "SaveGames"))
+        }
+        if (hasPaks) {
+            await fs.copy(path.join(this.serverDir, "temp", "Paks"), path.join(savedPath, "Paks"))
+        }
+        // remove temp folder
+        await Deno.remove(path.join(this.serverDir, "temp"), { recursive: true });
     }
 
     writeConfig() {
@@ -107,6 +144,10 @@ class Server {
             warn("Tried to stop server while it's already running, id: " + this.id)
             return
         }
+
+        // end server process
+
+        // end rcon
     }
 }
 
@@ -182,19 +223,29 @@ class Starter {
             Deno.exit(0)
         }
 
+        info("Fetching data...")
+
         // fetch latest server version
         this.latestVersion = (await (await fetch("https://servercheck.spycibot.com/stats")).json())["LatestVersion"]
+        info("Latest server version: " + this.latestVersion)
 
         // fetch Public IP
         this.publicIP = (await (await fetch("https://api.ipify.org/")).text())
+        info("Public IP: " + this.publicIP)
 
         // only deal with local servers when there are any
         if (this.servers.filter(s => s.serverType === "local").length > 0) {
             await this.updateSteam()
         }
 
+        // init servers (only called once)
         for (const server of this.servers) {
-            server.init()
+            await server.init()
+        }
+
+        // start servers
+        for (const server of this.servers) {
+            await server.start()
         }
     }
 
