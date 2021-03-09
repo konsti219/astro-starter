@@ -38,7 +38,8 @@ class Server {
         public backupSaves: boolean,
         public backupInterval: number,
         public enableAstrochatIntegration: boolean,
-        public owner: string
+        public owner: string,
+        private starter: Starter
     )
     {
         //console.log("server with id ", this.id)
@@ -50,8 +51,9 @@ class Server {
 class Starter {
     private servers: Server[] = []
     private webserverPort = 5000
-    private owner = ""
-    private latestVersion = ""
+    public owner = ""
+    public latestVersion = ""
+    public publicIP = ""
 
     constructor(private dir: string) {
         info("astro-starter, work dir: " + dir + "\n")
@@ -102,14 +104,15 @@ class Starter {
                 s.backupSaves ?? true,
                 s.backupInterval ?? 3600,
                 s.enableAstrochatIntegration ?? false,
-                this.owner
+                this.owner,
+                this
             ))
         }
     }
 
     async start() {
-        // ensure data dis exists
-        fs.ensureDirSync(path.join(this.dir, "starter_data"))
+        // ensure data dir exists
+        fs.ensureDirSync(path.join(this.dir, "starterData"))
 
         // check if any servers are configured
         if (this.servers.length === 0) {
@@ -120,6 +123,9 @@ class Starter {
         // fetch latest server version
         this.latestVersion = (await (await fetch("https://servercheck.spycibot.com/stats")).json())["LatestVersion"]
 
+        // fetch Public IP
+        this.publicIP = (await (await fetch("https://api.ipify.org/")).text())
+
         // only deal with local servers when there are any
         if (this.servers.filter(s => s.serverType === "local").length > 0) {
             await this.updateSteam()
@@ -129,7 +135,7 @@ class Starter {
     // download and run steamcmd to download server files
     async updateSteam() {
         // check steam dir
-        const steamDir = path.join(this.dir, "starter_data", "steamcmd")
+        const steamDir = path.join(this.dir, "starterData", "steamcmd")
         fs.ensureDirSync(steamDir)
 
         // check if steamcmd is already downlaoded, if not downlaod
