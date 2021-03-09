@@ -21,10 +21,18 @@ interface ConfigFile {
     owner?: string
     servers: ConfigFileServer[]
 }
+interface ConfigAddr {
+    configIP: string
+    port: number
+    consolePort: string
+}
 
 class Server {
-    private serverAddr = "0.0.0.0:0"
+    public serverAddr = "0.0.0.0:0"
     private consoleAddr = "0.0.0.0:0"
+    private addrConfig: ConfigAddr = { configIP: "", port: 0, consolePort: "" }
+    private serverDir = ""
+    public running = false
 
     constructor(
         public id: string,
@@ -42,9 +50,63 @@ class Server {
         private starter: Starter
     )
     {
-        //console.log("server with id ", this.id)
+        this.addrConfig = { configIP, port, consolePort }
+    }
 
-        // TODO parse IP and get public
+    init() {
+        // parse addresses from config file
+        const { configIP, port, consolePort } = this.addrConfig
+        const IP = configIP === "_public" ? this.starter.publicIP : configIP
+        this.serverAddr = IP + ":" + port
+        this.consoleAddr = IP + ":" + (consolePort === "_auto" ? port + 1 : consolePort)
+
+        // configure server dir
+        this.serverDir = path.join(this.starter.dir, "starterData", "servers", this.id)
+        fs.ensureDirSync(this.serverDir)
+    }
+
+    start() {
+        if (this.running) {
+            warn("Tried to start server while it's already running, id: " + this.id)
+            return
+        }
+
+        // only do some thinhs if the server is locally hosted
+        if (this.serverType === "local") {
+
+            // if local
+
+            // update
+            // write config
+
+            // 
+
+        }
+
+        // start rcon
+    }
+
+    update() {
+        // check if updated
+
+        // backup SaveGames/Paks
+
+        // rm folder
+        // copy files
+
+        // restore SaveGames/Paks
+    }
+
+    writeConfig() {
+        // AstroServerSettings.ini
+        // Engine.ini
+    }
+
+    stop() {
+        if (!this.running) {
+            warn("Tried to stop server while it's already running, id: " + this.id)
+            return
+        }
     }
 }
 
@@ -55,7 +117,7 @@ class Starter {
     public latestVersion = ""
     public publicIP = ""
 
-    constructor(private dir: string) {
+    constructor(public dir: string) {
         info("astro-starter, work dir: " + dir + "\n")
 
         this.readConfig()
@@ -111,8 +173,8 @@ class Starter {
     }
 
     async start() {
-        // ensure data dir exists
-        fs.ensureDirSync(path.join(this.dir, "starterData"))
+        // ensure data and servers dir exists
+        fs.ensureDirSync(path.join(this.dir, "starterData", "servers"))
 
         // check if any servers are configured
         if (this.servers.length === 0) {
@@ -129,6 +191,10 @@ class Starter {
         // only deal with local servers when there are any
         if (this.servers.filter(s => s.serverType === "local").length > 0) {
             await this.updateSteam()
+        }
+
+        for (const server of this.servers) {
+            server.init()
         }
     }
 
