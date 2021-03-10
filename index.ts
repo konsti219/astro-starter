@@ -175,6 +175,22 @@ HeartbeatInterval=55
         await Deno.writeTextFile(path.join(configPath, "AstroServerSettings.ini"), astroConfig)
         
         // Engine.ini
+        let engineConfig = `
+[URL]
+Port=${this.serverAddr.split(":")[1]}
+[/Script/OnlineSubsystemUtils.IpNetDriver]
+MaxClientRate=1000000
+MaxInternetClientRate=1000000
+        `
+
+        if (this.enableAstrochatIntegration) {
+            engineConfig += `
+[/Game/ChatMod/ChatManager.ChatManager_C]
+WebhookUrl="http://localhost:5001/api/rodata"
+            `
+        }
+
+        await Deno.writeTextFile(path.join(configPath, "Engine.ini"), engineConfig)
     }
 
     stop() {
