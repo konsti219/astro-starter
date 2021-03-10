@@ -51,3 +51,11 @@ deno run -A --unstable index.ts
 ```
 deno compile -A --unstable --lite index.ts
 ```
+
+## TODO
+
+-   Keep track of players
+-   Do playfab
+-   Do RCON
+-   Manage backups
+-   Webinterface
