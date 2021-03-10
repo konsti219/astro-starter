@@ -1,4 +1,4 @@
-import { path, fs, unZipFromURL, io, Colors } from "./deps.ts"
+import { path, fs, unZipFromURL, io, Colors, serve } from "./deps.ts"
 import { info, warn, error } from "./logging.ts"
 import { defaultConfig } from "./defaultConfig.ts"
 
@@ -141,6 +141,7 @@ class Server {
 
     async writeConfig() {
         const configPath = path.join(this.serverDir, "serverFiles", "Astro", "Saved", "Config", "WindowsServer")
+        fs.ensureDirSync(configPath)
         
         // AstroServerSettings.ini
         let astroConfig = `
@@ -297,6 +298,21 @@ class Starter {
         for (const server of this.servers) {
             await server.init()
         }
+
+        // start webserver (run async)
+        const webServer = serve({ hostname: "0.0.0.0", port: this.webserverPort })
+        info("Running web server on localhost:" + this.webserverPort);
+
+        (async () => {
+            for await (const req of webServer) {
+                console.log(req.method, req.url)
+
+                let bodyContent = "Your user-agent is:\n\n"
+                bodyContent += req.headers.get("user-agent") || "Unknown"
+
+                req.respond({ status: 200, body: bodyContent })
+            }
+        })()
 
         // start servers
         for (const server of this.servers) {
