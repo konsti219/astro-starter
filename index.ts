@@ -247,6 +247,13 @@ class Starter {
         for (const server of this.servers) {
             await server.start()
         }
+
+        // not implemented on windows
+        // wait for SIGINT to shutdown
+        /*for await (const _ of Deno.signal(Deno.Signal.SIGINT)) {
+            console.log("interrupted!");
+            Deno.exit();
+        }*/
     }
 
     // download and run steamcmd to download server files
