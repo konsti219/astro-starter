@@ -13,7 +13,8 @@ class Server {
     private consoleAddr = "0.0.0.0:0"
     private addrConfig: ConfigAddr = { configIP: "", port: 0, consolePort: "" }
     private serverDir = ""
-    public running = false
+    public status = "stopped"
+    private process?: Deno.Process
 
     constructor(
         public id: string,
@@ -53,8 +54,8 @@ class Server {
 
     async start() {
         info("Starting server " + this.name)
-        if (this.running) {
-            warn("Tried to start server while it's already running, id: " + this.id)
+        if (this.status !== "stopped") {
+            warn("Tried to start server that is not stopped, id: " + this.id)
             return
         }
 
@@ -68,7 +69,22 @@ class Server {
             // write config
             await this.writeConfig()
 
+            // start server process
+            info("Starting Server process for " + this.name)
+            this.process = Deno.run({
+                cmd: [path.join(this.serverDir, "serverFiles", "Astro", "Binaries", "Win64", "AstroServer-Win64-Shipping.exe")],
+                stdout: "null",
+                stderr: "null",
+            });
+
+            (async () => {
+                const { code } = await this.process?.status() ?? { code: 69 }
+                info(`Server process has quit, id: ${this.id}, code: ${code}`)
+            })()
+            
         }
+
+        this.status = "running";
 
         // start rcon
 
@@ -176,10 +192,17 @@ WebhookUrl="http://localhost:5001/api/rodata"
     }
 
     stop() {
-        if (!this.running) {
-            warn("Tried to stop server while it's already running, id: " + this.id)
+        if (this.status !== "running") {
+            warn("Tried to stop server that is not running, id: " + this.id)
             return
         }
+
+        // TODO: clean shutdown with rcon
+        if (this.serverType === "local") {
+            this.process?.kill(Deno.Signal.SIGINT)
+        }
+
+        this.status = "stopped"
 
         // end server process
 

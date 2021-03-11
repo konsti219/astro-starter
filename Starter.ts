@@ -55,7 +55,7 @@ class Starter {
         info("Latest server version: " + this.latestVersion)
 
         // fetch Public IP
-        this.publicIP = (await (await fetch("https://api.ipify.org/")).text())
+        this.publicIP = (await (await fetch("https://ip4.seeip.org/")).text())
         info("Public IP: " + this.publicIP)
 
         // only deal with local servers when there are any
@@ -76,8 +76,18 @@ class Starter {
             for await (const req of webServer) {
                 console.log(req.method, req.url)
 
-                let bodyContent = "Your user-agent is:\n\n"
-                bodyContent += req.headers.get("user-agent") || "Unknown"
+                let bodyContent = ""
+                if (req.url === "/") {
+                    bodyContent = "Astro Starter <a href='/stop'>Stop servers</a>"
+                } else if (req.url === "/stop") {
+                    bodyContent = "Stopping servers"
+
+                    for (const server of this.servers) {
+                        server.stop()
+                    }
+                } else {
+                    bodyContent = "not found"
+                }
 
                 req.respond({ status: 200, body: bodyContent })
             }
@@ -87,6 +97,7 @@ class Starter {
         for (const server of this.servers) {
             await server.start()
         }
+        info("Server processes started")
 
         // not implemented on windows
         // wait for SIGINT to shutdown
