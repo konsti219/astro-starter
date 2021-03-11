@@ -1,4 +1,4 @@
-import { path, fs, unZipFromURL, io, Colors, serve } from "./deps.ts"
+import { path, fs, io, Colors, serve } from "./deps.ts"
 import { Server } from "./Server.ts";
 import { parseConfig } from "./config.ts"
 import { info, warn, error } from "./logging.ts"
@@ -102,10 +102,47 @@ class Starter {
         const steamDir = path.join(this.dir, "starterData", "steamcmd")
         fs.ensureDirSync(steamDir)
 
-        // check if steamcmd is already downlaoded, if not downlaod
-        if (!fs.existsSync(path.join(steamDir, "steamcmd.exe"))) {
-            info("Downlaoding steamcmd...")
-            await unZipFromURL("https://steamcdn-a.akamaihd.net/client/installer/steamcmd.zip", steamDir)
+        // download/install steamcmd
+        if (Deno.build.os === "windows") {
+            // windows: download and unzip
+
+            // check if steamcmd is already downlaoded, if not downlaod
+            if (!fs.existsSync(path.join(steamDir, "steamcmd.exe"))) {
+                info("Downlaoding steamcmd...")
+
+                const blob = await (await fetch("https://steamcdn-a.akamaihd.net/client/installer/steamcmd.zip")).blob();
+                const file = await Deno.create(path.join(steamDir, "steamcmd.zip"));
+                await Deno.writeAll(file, new Uint8Array(await blob.arrayBuffer()));
+                Deno.close(file.rid);
+
+                const unzipCommandProcess = Deno.run({
+                    cmd: [
+                        "PowerShell",
+                        "Expand-Archive",
+                        "-Path",
+                        path.join(steamDir, "steamcmd.zip"),
+                        "-DestinationPath",
+                        steamDir,
+                    ],
+                    stdout: "piped",
+                    stderr: "piped",
+                });
+
+                await unzipCommandProcess.status()
+            }
+        } else {
+            // linux
+            try {
+                const p = Deno.run({
+                    cmd: ["steamcmd", "+quit"],
+                    stdout: "null",
+                    stderr: "null",
+                })
+                await p.status()
+            } catch (_) {
+                error("Steamcmd is not installed! Install it with 'sudo apt install steamcmd -y'")
+                Deno.exit(1)
+            }
         }
 
         // check if server is already updated
