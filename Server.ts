@@ -105,7 +105,7 @@ class Server {
         // copy fresh files from steam
         info("Copying files...")
         await fs.copy(
-            path.join(this.starter.dir, "starterData", "steamcmd", "steamapps", "common", "ASTRONEER Dedicated Server"),
+            path.join(this.starter.dir, "starterData", "serverfiles"),
             path.join(this.serverDir, "serverFiles"))
         
 

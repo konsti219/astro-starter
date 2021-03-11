@@ -146,7 +146,7 @@ class Starter {
         }
 
         // check if server is already updated
-        const versionPath = path.join(steamDir, "steamapps", "common", "ASTRONEER Dedicated Server", "build.version")
+        const versionPath = path.join(this.dir, "starterData", "serverfiles", "build.version")
         if (fs.existsSync(versionPath)) {
             const version = (await Deno.readTextFile(versionPath)).split(" ")[0]
             if (version === this.latestVersion) return
@@ -157,8 +157,10 @@ class Starter {
         // run steamcmd
         const p = Deno.run({
             cmd: [
-                path.join(steamDir, "steamcmd.exe"),
+                Deno.build.os === "windows" ? path.join(steamDir, "steamcmd.exe") : "steamcmd",
                 "+login anonymous",
+                "+@sSteamCmdForcePlatformType windows",
+                "+force_install_dir " + path.join(this.dir, "starterData", "serverfiles"),
                 "+app_update 728470 validate",
                 "+quit"
             ],
@@ -174,6 +176,9 @@ class Starter {
         // wait for steam to finish
         const { code } = await p.status()
         info("Steamcmd finished with code: " + code)
+
+        // cleanup steam stuff
+        await Deno.remove(path.join(this.dir, "starterData", "serverfiles", "steamapps"), { recursive: true });
     }
 }
 
