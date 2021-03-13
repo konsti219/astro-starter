@@ -71,7 +71,7 @@ class Server {
             // TODO: unregister servers
 
             // update
-            await this.update()
+            await this.updateFiles()
             
             // write config
             await this.writeConfig()
@@ -100,7 +100,7 @@ class Server {
         // TODO: load player data
     }
 
-    async update() {
+    async updateFiles() {
         // check if updated
         const versionPath = path.join(this.serverDir, "serverFiles", "build.version")
         if (fs.existsSync(versionPath)) {
@@ -199,6 +199,12 @@ WebhookUrl="http://localhost:5001/api/rodata"
         }
 
         await Deno.writeTextFile(path.join(configPath, "Engine.ini"), engineConfig)
+    }
+
+    update() {
+        // TODO: query rcon
+
+        // console.log(this.starter.playfab.get(this.serverAddr))
     }
 
     stop() {

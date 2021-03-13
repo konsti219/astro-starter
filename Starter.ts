@@ -115,6 +115,9 @@ class Starter {
 
             // TODO query rcon
             // TODO update state
+            for (const server of this.servers) {
+                server.update()
+            }
         }, 5000)
 
 
