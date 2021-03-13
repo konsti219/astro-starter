@@ -59,9 +59,13 @@ class Server {
             return
         }
 
-        // only do some thinhs if the server is locally hosted
+        // only do some things if the server is locally hosted
         if (this.serverType === "local") {
             fs.ensureDirSync(path.join(this.serverDir, "serverFiles"))
+
+            // TODO: check network, firewall
+
+            // TODO: unregister servers
 
             // update
             await this.update()
@@ -84,11 +88,13 @@ class Server {
             
         }
 
+        // TODO: wait for playfab
+        
         this.status = "running";
 
-        // start rcon
+        // TODO: start rcon
 
-        // load player data
+        // TODO: load player data
     }
 
     async update() {
@@ -166,6 +172,7 @@ ConsolePort=${this.consoleAddr.split(":")[1]}
 ConsolePassword=${this.consolePassword}
 HeartbeatInterval=55
         `
+        // TODO: add players
         for (const player of []) {
             astroConfig += `PlayerProperties=(PlayerFirstJoinName="",PlayerCategory=Pending,PlayerGuid="",PlayerRecentJoinName="")`
         }
@@ -197,6 +204,7 @@ WebhookUrl="http://localhost:5001/api/rodata"
             return
         }
 
+        // end server process
         // TODO: clean shutdown with rcon
         if (this.serverType === "local") {
             this.process?.kill(Deno.Signal.SIGINT)
@@ -204,9 +212,7 @@ WebhookUrl="http://localhost:5001/api/rodata"
 
         this.status = "stopped"
 
-        // end server process
-
-        // end rcon
+        // TODO end rcon
     }
 }
 

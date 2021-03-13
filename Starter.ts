@@ -11,6 +11,7 @@ class Starter {
     public owner = ""
     public latestVersion = ""
     public publicIP = ""
+    private loop = 0
 
     constructor(public dir: string) {
         info("astro-starter, work dir: " + dir + "\n")
@@ -99,6 +100,14 @@ class Starter {
         }
         info("Server processes started")
 
+        // main loop that regualarly checks data
+        this.loop = setInterval(async () => {
+            // TODO query playfab
+            // TODO query rcon
+            // TODO update state
+        }, 5000)
+
+
         // not implemented on windows
         // wait for SIGINT to shutdown
         /*for await (const _ of Deno.signal(Deno.Signal.SIGINT)) {
@@ -121,11 +130,13 @@ class Starter {
             if (!fs.existsSync(path.join(steamDir, "steamcmd.exe"))) {
                 info("Downlaoding steamcmd...")
 
+                // download steamcmd.zip
                 const blob = await (await fetch("https://steamcdn-a.akamaihd.net/client/installer/steamcmd.zip")).blob();
                 const file = await Deno.create(path.join(steamDir, "steamcmd.zip"));
                 await Deno.writeAll(file, new Uint8Array(await blob.arrayBuffer()));
                 Deno.close(file.rid);
 
+                // unzip file
                 const unzipCommandProcess = Deno.run({
                     cmd: [
                         "PowerShell",
@@ -138,11 +149,10 @@ class Starter {
                     stdout: "piped",
                     stderr: "piped",
                 });
-
                 await unzipCommandProcess.status()
             }
         } else {
-            // linux
+            // linux: just check if installed
             try {
                 const p = Deno.run({
                     cmd: ["steamcmd", "+quit"],
