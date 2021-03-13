@@ -50,6 +50,9 @@ class Server {
         // configure server dir
         this.serverDir = path.join(this.starter.dir, "starterData", "servers", this.id)
         fs.ensureDirSync(this.serverDir)
+
+        // add to playfab server queries
+        this.starter.playfab.add(this.serverAddr)
     }
 
     async start() {

@@ -1,16 +1,24 @@
 import { path, fs, io, Colors, serve } from "./deps.ts"
+
 import { Server } from "./Server.ts";
+import { PlayfabManager } from "./playfab.ts";
 import { parseConfig } from "./config.ts"
-import { info, warn, error } from "./logging.ts"
 import { defaultConfig } from "./defaultConfig.ts"
+
+import { info, warn, error } from "./logging.ts"
+
 
 
 class Starter {
     public servers: Server[] = []
+    public playfab:PlayfabManager = new PlayfabManager()
+
     public webserverPort = 5000
     public owner = ""
+
     public latestVersion = ""
     public publicIP = ""
+
     private loop = 0
 
     constructor(public dir: string) {
@@ -102,7 +110,9 @@ class Starter {
 
         // main loop that regualarly checks data
         this.loop = setInterval(async () => {
-            // TODO query playfab
+            // query playfab
+            await this.playfab.update()
+
             // TODO query rcon
             // TODO update state
         }, 5000)
