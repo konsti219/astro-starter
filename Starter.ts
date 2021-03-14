@@ -74,7 +74,7 @@ class Starter {
 
         // init servers (only called once)
         for (const server of this.servers) {
-            await server.init()
+            server.init()
         }
 
         // start webserver (run async)
@@ -111,9 +111,9 @@ class Starter {
 
         // start servers
         for (const server of this.servers) {
-            await server.start()
+            server.start()
         }
-        info("Server processes started")
+        info("Server processes starting")
 
         // main loop that regualarly checks data
         this.loop = setInterval(async () => {

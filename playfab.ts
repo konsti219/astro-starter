@@ -16,7 +16,7 @@ interface PlayfabServerTags {
     publicSigningKey: string
     requiresPassword: boolean
 }
-interface PlayfabServer {
+export interface PlayfabServer {
     Region: string
     LobbyID: string
     BuildVersion: string
@@ -31,6 +31,7 @@ interface PlayfabServer {
     ServerIPV4Address: string
     ServerPort: number
 }
+
 
 class PlayfabManager {
     private servers: string[] = []
@@ -56,6 +57,8 @@ class PlayfabManager {
 
         // fetch data from playfab
         const serverRes: {
+            code: number
+            status: string
             data: {
                 Games: {
                     Region: string
@@ -82,6 +85,8 @@ class PlayfabManager {
                     ServerIPV4Address: string
                     ServerPort: number
                 }[]
+                PlayerCount: number
+                GameCount: number
             }
         } = await (
             await fetch("https://5EA1.playfabapi.com/Client/GetCurrentGames?sdk=" + skdVersion, {
@@ -97,6 +102,9 @@ class PlayfabManager {
 
         // remove old servers
         this.serversData = []
+
+        // console.log(serverRes.data.GameCount)
+        // console.log(serverRes.data.Games.map(s => s.Tags.gameId))
 
         // read response data
         serverRes.data.Games.forEach(s => {

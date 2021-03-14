@@ -1,5 +1,8 @@
 import { path, fs } from "./deps.ts"
+
 import { Starter } from "./Starter.ts";
+import { PlayfabServer } from "./playfab.ts";
+
 import { info, warn, error } from "./logging.ts"
 
 interface ConfigAddr {
@@ -8,13 +11,32 @@ interface ConfigAddr {
     consolePort: string
 }
 
+enum Command {
+    Start = "start",
+    Stop = "stop",
+    Restart = "restart"
+}
+enum Status {
+    Stopped = "stopped",
+    Starting = "starting",
+    Running = "running",
+    Stopping = "stopping"
+}
+
 class Server {
     public serverAddr = "0.0.0.0:0"
     private consoleAddr = "0.0.0.0:0"
     private addrConfig: ConfigAddr = { configIP: "", port: 0, consolePort: "" }
     private serverDir = ""
-    public status = "stopped"
     private process?: Deno.Process
+
+    private status_ = Status.Stopped
+    private command = Command.Stop
+    private running = false
+    private updatingFiles = false
+    private filesUpdated = false
+    private playfabData: PlayfabServer | undefined
+    
 
     constructor(
         public id: string,
@@ -36,6 +58,7 @@ class Server {
         this.addrConfig = { configIP, port, consolePort }
     }
 
+    // Initializese server config
     init() {
         // parse addresses from config file
         const { configIP, port, consolePort } = this.addrConfig
@@ -55,7 +78,73 @@ class Server {
         this.starter.playfab.add(this.serverAddr)
     }
 
-    async start() {
+    // Public functions for other parts to interact with the server
+    start() {
+        this.command = Command.Start
+    }
+    stop() {
+        this.command = Command.Stop
+        this.filesUpdated = false
+    }
+    restart() {
+        this.command = Command.Restart
+        this.filesUpdated = false
+    }
+    get status() {
+        return this.status_
+    }
+
+    // function that is regularly called and manages state
+    update() {
+        /*
+        Server state system
+        - command: the state server is supposed to be in <stop|start|restart>
+        - status: the state the server is currently in <stopped|starting|running|stopping>
+
+        */
+        
+        // get playfab data
+        this.playfabData = this.starter.playfab.get(this.serverAddr)
+
+        // TODO: query rcon
+
+        //console.log(this.status_, this.command)
+
+        // state stuff
+        if (this.command === Command.Stop) {
+            if (this.status_ === Status.Running) {
+                this._stop()
+                this.status_ = Status.Stopping
+
+            } else if (this.status_ === Status.Stopping) {
+                if (!this.running) {
+                    this.status_ = Status.Stopping
+                }
+            }
+            
+        } else if (this.command === Command.Start) {
+            if (this.status_ === Status.Stopped) {
+                this._start()
+                this.status_ = Status.Starting
+
+            } else if (this.status_ === Status.Starting) {
+                if (this.running && this.playfabData) {
+                    // TODO do network check
+                    info(`Server ${this.name} has finished registering`)
+                    this.status_ = Status.Running
+                }
+            } else if (this.status_ === Status.Running) {
+                if (!this.running) {
+                    warn("Server process has quit unexpectedly, maybe the server crashed?")
+                }
+            }
+
+        } else {
+            error("command " + this.command)
+        }
+    }
+
+    private async _start() {
         info("Starting server " + this.name)
         if (this.status !== "stopped") {
             warn("Tried to start server that is not stopped, id: " + this.id)
@@ -71,10 +160,10 @@ class Server {
             // TODO: unregister servers
 
             // update
-            await this.updateFiles()
+            await this._updateFiles()
             
             // write config
-            await this.writeConfig()
+            await this._writeConfig()
 
             // start server process
             info("Starting Server process for " + this.name)
@@ -87,20 +176,42 @@ class Server {
             (async () => {
                 const { code } = await this.process?.status() ?? { code: 69 }
                 info(`Server process has quit, id: ${this.id}, code: ${code}`)
+
+                this.running = false
             })()
             
         }
-
-        // TODO: wait for playfab
         
-        this.status = "running";
+        this.running = true
 
         // TODO: start rcon
 
         // TODO: load player data
     }
 
-    async updateFiles() {
+    private _stop() {
+        if (this.status !== "running") {
+            warn("Tried to stop server that is not running, id: " + this.id)
+            return
+        }
+
+        // end server process
+        // TODO: clean shutdown with rcon
+        if (this.serverType === "local") {
+            this.process?.kill(Deno.Signal.SIGINT)
+        }
+
+        this.running = false
+
+        // TODO end rcon
+
+        // TODO unregister servers
+    }
+
+    private async _updateFiles() {
+        if (this.updatingFiles) return
+        this.updatingFiles = true
+
         // check if updated
         const versionPath = path.join(this.serverDir, "serverFiles", "build.version")
         if (fs.existsSync(versionPath)) {
@@ -143,9 +254,12 @@ class Server {
         }
         // remove temp folder
         await Deno.remove(path.join(this.serverDir, "temp"), { recursive: true });
+
+        this.updatingFiles = false
+        this.filesUpdated = true
     }
 
-    async writeConfig() {
+    private async _writeConfig() {
         const configPath = path.join(this.serverDir, "serverFiles", "Astro", "Saved", "Config", "WindowsServer")
         fs.ensureDirSync(configPath)
         
@@ -199,29 +313,6 @@ WebhookUrl="http://localhost:5001/api/rodata"
         }
 
         await Deno.writeTextFile(path.join(configPath, "Engine.ini"), engineConfig)
-    }
-
-    update() {
-        // TODO: query rcon
-
-        // console.log(this.starter.playfab.get(this.serverAddr))
-    }
-
-    stop() {
-        if (this.status !== "running") {
-            warn("Tried to stop server that is not running, id: " + this.id)
-            return
-        }
-
-        // end server process
-        // TODO: clean shutdown with rcon
-        if (this.serverType === "local") {
-            this.process?.kill(Deno.Signal.SIGINT)
-        }
-
-        this.status = "stopped"
-
-        // TODO end rcon
     }
 }
 
