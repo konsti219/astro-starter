@@ -87,7 +87,14 @@ class Starter {
 
                 let bodyContent = ""
                 if (req.url === "/") {
-                    bodyContent = "Astro Starter <a href='/stop'>Stop servers</a>"
+                    bodyContent = JSON.stringify({
+                        msg: "Astro Starter <a href='/stop'>Stop servers</a>",
+                        servers: this.servers.map(s => ({
+                            id: s.id,
+                            name: s.name,
+                            status: s.status
+                        }))
+                    })
                 } else if (req.url === "/stop") {
                     bodyContent = "Stopping servers"
 

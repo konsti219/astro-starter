@@ -148,12 +148,14 @@ class PlayfabManager {
 
     add(server:string) {
         this.servers.push(server)
-        console.log(server, this.servers)
     }
 
     get(server:string):PlayfabServer | undefined {
         return this.serversData.find(s => server === s.Tags.gameId)
     }
+
+    // TODO heartbeat
+    // TODO unregister
 }
 
 export { PlayfabManager }
