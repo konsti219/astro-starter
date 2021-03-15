@@ -113,7 +113,7 @@ class Starter {
         for (const server of this.servers) {
             server.start()
         }
-        info("Server processes starting")
+        info("Server processes starting...")
 
         // main loop that regualarly checks data
         this.loop = setInterval(async () => {

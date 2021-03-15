@@ -175,8 +175,8 @@ class Server {
 
             (async () => {
                 const { code } = await this.process?.status() ?? { code: 69 }
-                info(`Server process has quit, id: ${this.id}, code: ${code}`)
-
+                info(`Server process has quit for ${this.name}, code: ${code}`)
+                
                 this.running = false
             })()
             
