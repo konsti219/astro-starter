@@ -118,7 +118,7 @@ class Server {
 
             } else if (this.status_ === Status.Stopping) {
                 if (!this.running) {
-                    this.status_ = Status.Stopping
+                    this.status_ = Status.Stopped
                 }
             }
             
