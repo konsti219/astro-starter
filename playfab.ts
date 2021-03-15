@@ -181,8 +181,47 @@ class PlayfabManager {
         return this.serversData.find(s => server === s.Tags.gameId)
     }
 
-    // TODO heartbeat
-    // TODO unregister
+
+    async deregisterServer(lobbyId: string) {
+        await (
+            await fetch("https://5EA1.playfabapi.com/Client/ExecuteCloudScript?sdk=" + skdVersion, {
+                method: "POST",
+                body: JSON.stringify({
+                    FunctionName: "deregisterDedicatedServer",
+                    FunctionParameter: { lobbyId },
+                    GeneratePlayStreamEvent: true
+                }),
+                headers: this.headers,
+            })
+        ).json();
+    }
+
+
+    async heartbeatServer(serverData: PlayfabServer) {
+        await (
+            await fetch("https://5EA1.playfabapi.com/Client/ExecuteCloudScript?sdk=" + skdVersion, {
+                method: "POST",
+                body: JSON.stringify({
+                    FunctionName: "heartbeatDedicatedServer",
+                    FunctionParameter: {
+                        serverName: serverData.Tags.serverName,
+                        buildVersion: serverData.Tags.gameBuild,
+                        gameMode: serverData.Tags.category,
+                        ipAddress: serverData.ServerIPV4Address,
+                        port: serverData.ServerPort,
+                        matchmakerBuild: serverData.BuildVersion,
+                        maxPlayers: serverData.Tags.maxPlayers,
+                        numPlayers: serverData.PlayerUserIds.length.toString(),
+                        lobbyId: serverData.LobbyID,
+                        publicSigningKey: serverData.Tags.publicSigningKey,
+                        requiresPassword: serverData.Tags.requiresPassword
+                    },
+                    GeneratePlayStreamEvent: true
+                }),
+                headers: this.headers,
+            })
+        ).json();
+    }
 }
 
 export { PlayfabManager }

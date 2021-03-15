@@ -120,8 +120,6 @@ class Starter {
             // query playfab
             await this.playfab.update()
 
-            // TODO query rcon
-            // TODO update state
             for (const server of this.servers) {
                 server.update()
             }
