@@ -34,7 +34,6 @@ class Server {
     private command = Command.Stop
     private running = false
     private updatingFiles = false
-    private filesUpdated = false
     private playfabData: PlayfabServer | undefined
     
 
@@ -84,11 +83,9 @@ class Server {
     }
     stop() {
         this.command = Command.Stop
-        this.filesUpdated = false
     }
     restart() {
         this.command = Command.Restart
-        this.filesUpdated = false
     }
     get status() {
         return this.status_
@@ -157,7 +154,10 @@ class Server {
 
             // TODO: check network, firewall
 
-            // TODO: unregister servers
+            // deregister servers
+            if (this.playfabData) {
+                this.starter.playfab.deregisterServer(this.playfabData.LobbyID)
+            }
 
             // update
             await this._updateFiles()
@@ -199,13 +199,17 @@ class Server {
         // TODO: clean shutdown with rcon
         if (this.serverType === "local") {
             this.process?.kill(Deno.Signal.SIGINT)
+
+            // deregister servers
+            if (this.playfabData) {
+                this.starter.playfab.deregisterServer(this.playfabData.LobbyID)
+            }
         }
 
         this.running = false
 
         // TODO end rcon
 
-        // TODO unregister servers
     }
 
     private async _updateFiles() {
@@ -256,7 +260,6 @@ class Server {
         await Deno.remove(path.join(this.serverDir, "temp"), { recursive: true });
 
         this.updatingFiles = false
-        this.filesUpdated = true
     }
 
     private async _writeConfig() {
