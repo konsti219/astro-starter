@@ -2,6 +2,7 @@ import { path, fs } from "./deps.ts"
 
 import { Starter } from "./Starter.ts";
 import { PlayfabServer } from "./playfab.ts";
+import { RconManager } from "./rcon.ts";
 
 import { info, warn, error } from "./logging.ts"
 
@@ -35,6 +36,8 @@ class Server {
     private running = false
     private updatingFiles = false
     private playfabData: PlayfabServer | undefined
+
+    public rcon = new RconManager("", "")
     
 
     constructor(
@@ -59,11 +62,12 @@ class Server {
 
     // Initializese server config
     init() {
-        // parse addresses from config file
+        // parse addresses from config file (here because we need the public IP)
         const { configIP, port, consolePort } = this.addrConfig
         const IP = configIP === "_public" ? this.starter.publicIP : configIP
         this.serverAddr = IP + ":" + port
-        this.consoleAddr = IP + ":" + (consolePort === "_auto" ? port + 1 : consolePort)
+        this.consoleAddr = (this.serverType === "local" ? "127.0.0.1" : IP) + ":"
+            + (consolePort === "_auto" ? port + 1 : consolePort)
 
         this.consolePassword = this.consolePassword === "_random"
             ? Math.random().toString(36).substring(2)
@@ -75,6 +79,9 @@ class Server {
 
         // add to playfab server queries
         this.starter.playfab.add(this.serverAddr)
+
+        // configure rcon
+        this.rcon = new RconManager(this.consoleAddr, this.consolePassword)
     }
 
     // Public functions for other parts to interact with the server
@@ -126,11 +133,17 @@ class Server {
 
             } else if (this.status_ === Status.Starting) {
                 if (this.running && this.playfabData) {
+                    // server is now running
+                    this.rcon.connect()
+
                     // TODO do network check
                     info(`Server ${this.name} has finished registering`)
                     this.status_ = Status.Running
                 }
             } else if (this.status_ === Status.Running) {
+                // update rcon when it's running
+                this.rcon.update()
+
                 if (!this.running) {
                     warn("Server process has quit unexpectedly, maybe the server crashed?")
                 }
@@ -208,8 +221,8 @@ class Server {
 
         this.running = false
 
-        // TODO end rcon
-
+        // close rcon
+        this.rcon.close()
     }
 
     private async _updateFiles() {
