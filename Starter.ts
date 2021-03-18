@@ -92,7 +92,8 @@ class Starter {
                         servers: this.servers.map(s => ({
                             id: s.id,
                             name: s.name,
-                            status: s.status
+                            status: s.status,
+                            stats: s.rcon.stats
                         }))
                     })
                 } else if (req.url === "/stop") {

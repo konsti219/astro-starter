@@ -142,14 +142,15 @@ class RconManager {
     }
 
     async update() {
-        // DSServerStatistics
-        // "DSListPlayers"
-        // DSListGames
-        info("sending to " + this.consoleAddr)
+        this.run("DSServerStatistics")
+        this.run("DSListGames")
+        this.run("DSListPlayers")
         try {
-            await this.conn?.write(this.encoder.encode("DSServerStatistics\nDSListGames\nDSListPlayers\n"));
+            const rconCmd = this.queue.reduce((acc, cmd) => acc + cmd + "\n", "")
+            await this.conn?.write(this.encoder.encode(rconCmd));
+            this.queue = []
         } catch (_) {
-            error("failed to send")
+            error("failed to send RCON command to " + this.consoleAddr)
             this.conn?.close()
             this.isConnected = false
         }

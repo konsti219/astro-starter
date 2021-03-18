@@ -197,8 +197,6 @@ class Server {
         
         this.running = true
 
-        // TODO: start rcon
-
         // TODO: load player data
     }
 
