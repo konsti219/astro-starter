@@ -28,6 +28,7 @@ class Server {
     public serverAddr = "0.0.0.0:0"
     private consoleAddr = "0.0.0.0:0"
     private addrConfig: ConfigAddr = { configIP: "", port: 0, consolePort: "" }
+
     private serverDir = ""
     private process?: Deno.Process
 
@@ -35,7 +36,9 @@ class Server {
     private command = Command.Stop
     private running = false
     private updatingFiles = false
-    private playfabData: PlayfabServer | undefined
+
+    public playfabData: PlayfabServer | undefined
+    private lastHeartbeat = 0
 
     public rcon = new RconManager("", "")
     
@@ -53,6 +56,7 @@ class Server {
         public backupSaves: boolean,
         public backupInterval: number,
         public enableAstrochatIntegration: boolean,
+        public customHeartbeat: boolean,
         public owner: string,
         private starter: Starter
     )
@@ -82,6 +86,9 @@ class Server {
 
         // configure rcon
         this.rcon = new RconManager(this.consoleAddr, this.consolePassword)
+
+        // do not allow custom heartbeat for remote servers
+        if (this.serverType === "remote") this.customHeartbeat = false
     }
 
     // Public functions for other parts to interact with the server
@@ -143,6 +150,7 @@ class Server {
             } else if (this.status_ === Status.Running) {
                 // update rcon when it's running
                 await this.rcon.update()
+                if (this.customHeartbeat) await this._heartbeat()
 
                 if (!this.running) {
                     warn("Server process has quit unexpectedly, maybe the server crashed?")
@@ -301,7 +309,7 @@ ActiveSaveFileDescriptiveName=SAVE_1
 ServerAdvertisedName=${this.name}
 ConsolePort=${this.consoleAddr.split(":")[1]}
 ConsolePassword=${this.consolePassword}
-HeartbeatInterval=55
+HeartbeatInterval=${this.customHeartbeat ? "0" : "55"}
         `
         // TODO: add players
         for (const player of []) {
@@ -322,11 +330,26 @@ MaxInternetClientRate=1000000
         if (this.enableAstrochatIntegration) {
             engineConfig += `
 [/Game/ChatMod/ChatManager.ChatManager_C]
-WebhookUrl="http://localhost:5001/api/rodata"
+WebhookUrl="http://localhost:5001/api/astrochat/${this.id}"
             `
         }
 
         await Deno.writeTextFile(path.join(configPath, "Engine.ini"), engineConfig)
+    }
+
+    private async _heartbeat() {
+        // only heartbeat when we have registration
+        if (!this.playfabData) return
+
+        // only heartbeat every 55 seconds
+        if (this.lastHeartbeat + 55000 < Date.now()) {
+
+            // generate name with special data
+            this.playfabData.Tags.serverName = `{\"customdata\": {\"ServerName\": \"${this.name}\", \"ServerType\": \"astro-starter v0.1.0\", \"ServerPaks\": []}}`
+            await this.starter.playfab.heartbeatServer(this.playfabData)
+
+            this.lastHeartbeat = Date.now()
+        }
     }
 }
 

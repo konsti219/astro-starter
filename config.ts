@@ -14,6 +14,7 @@ interface ConfigFileServer {
     backupSaves?: boolean
     backupInterval?: number
     enableAstrochatIntegration?: boolean
+    customHeartbeat?: boolean
 }
 interface ConfigFile {
     webserverPort?: number
@@ -49,6 +50,7 @@ const parseConfig = (configPath: string, starter: Starter) => {
             s.backupSaves ?? true,
             s.backupInterval ?? 3600,
             s.enableAstrochatIntegration ?? false,
+            s.customHeartbeat ?? false,
             starter.owner,
             starter
         ))

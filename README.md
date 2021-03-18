@@ -23,7 +23,8 @@ starter.json
             "saveInterval": 900,
             "backupSaves": true,
             "backupInterval": 3600,
-            "enableAstrochatIntegration": false
+            "enableAstrochatIntegration": false,
+            "customHeartbeat": true
         },
         {
             "id": "server2",
@@ -57,5 +58,3 @@ deno compile -A --unstable --lite index.ts
 -   Keep track of players
 -   Manage backups
 -   Webinterface
--   better Playfab unregister
--   playfab heartbeat
