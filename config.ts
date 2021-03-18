@@ -1,6 +1,8 @@
 import { Starter } from "./Starter.ts"
 import { Server } from "./Server.ts"
 
+import { info, warn, error } from "./logging.ts"
+
 interface ConfigFileServer {
     id?: string
     type?: string
@@ -33,6 +35,11 @@ const parseConfig = (configPath: string, starter: Starter) => {
 
     starter.webserverPort = config.webserverPort ?? 5000
     starter.owner = config.owner ?? ""
+
+    if ((new Set(config.servers.map(s => s.id))).size !== config.servers.length) {
+        error("found duplicate id! ids have to be unique.")
+        Deno.exit(1)
+    }
 
     for (const i in (config.servers)) {
         const s = config.servers[i]

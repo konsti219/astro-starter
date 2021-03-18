@@ -58,3 +58,6 @@ deno compile -A --unstable --lite index.ts
 -   Keep track of players
 -   Manage backups
 -   Webinterface
+-   Network check
+-   automatic restarts
+-   better logging
