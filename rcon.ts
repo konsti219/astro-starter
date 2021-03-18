@@ -1,6 +1,6 @@
 /*
     This code communicates with the rcon port of a dedicated server
-    It's responsible for keeping track of the socket and handleing/parsing packets 
+    It's responsible for keeping track of the socket and handleing/parsing data 
     and reconnecting if the connection drops
 */
 
@@ -49,7 +49,7 @@ class RconManager {
     private savesPromiseRes = () => {}
     
     private conn?: Deno.Conn
-    private reconnectInterval = 0
+    private connectInterval = 0
     public isConnected = false
 
     public stats: RconStats | undefined
@@ -60,15 +60,15 @@ class RconManager {
     constructor(private consoleAddr: string, private consolePassword: string) { }
 
     connect() {
-        // When the socket is told to connect start an internal loop that will constantly try
-        // to connect to the server if it's not connected. This is to make sure the socket stays connected.
-        this.reconnectInterval = setInterval(() => this.connectSocket(), 500)
+        // When the socket is told to connect start an internal loop that will constantly try to
+        // connect to the server if it's not connected. This is to make sure the socket stays connected.
+        this.connectInterval = setInterval(() => this.connectSocket(), 500)
     }
     close() {
         // When told to disconnect it will close the socket and stop the loop
         this.conn?.close()
         this.isConnected = false
-        clearInterval(this.reconnectInterval)
+        clearInterval(this.connectInterval)
     }
 
     private async connectSocket() {
@@ -81,13 +81,15 @@ class RconManager {
                 // set this here to prevent multiple sockets being established
                 this.isConnected = true
 
-                // get host and port and connect
+                // get host and port
                 const [hostname, port] = this.consoleAddr.split(":")
+                // actually connect
                 this.conn = await Deno.connect({ hostname, port: parseInt(port) })
 
                 // write console password
                 this.conn.write(this.encoder.encode(this.consolePassword + "\n"))
 
+                // async iterator that handles all data coming in
                 for await (const buffer of Deno.iter(this.conn)) {
                     this.handleData(buffer)
                 }
@@ -102,10 +104,12 @@ class RconManager {
         }
     }
     private handleData(buffer: Uint8Array) {
-        // data comes in as a stream, split into the single responses
+        // data comes in as a stream
         this.tempCache += this.decoder.decode(buffer);
 
+        // check if the data coming is finsihed
         if (this.tempCache.endsWith("\n")) {
+            // split into the single responses
             const parts = this.tempCache.split("\n")
 
             for (const res of parts) {
@@ -126,13 +130,14 @@ class RconManager {
                     this.savesPromiseRes()
                 }  else {
                     if (res.length > 0) {
-                        warn("unknown res")
+                        warn("unknown rcon response")
                         console.log(res)
                         console.log(res.length)
                     }
                 }
             }
 
+            // clear parsed data from cache
             this.tempCache = ""
         }
     }
