@@ -55,7 +55,7 @@ deno compile -A --unstable --lite index.ts
 ## TODO
 
 -   Keep track of players
--   Do playfab
--   Do RCON
 -   Manage backups
 -   Webinterface
+-   better Playfab unregister
+-   playfab heartbeat
