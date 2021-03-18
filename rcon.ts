@@ -7,13 +7,6 @@
 import { info, warn, error } from "./logging.ts"
 
 
-interface RconPlayer {
-    playerGuid: string 
-    playerCategory: string
-    playerName: string
-    inGame: boolean
-    index: number
-}
 interface RconStats {
     build: string
     ownerName: string
@@ -31,6 +24,13 @@ interface RconStats {
     creativeMode: boolean
     isAchievementProgressionDisabled: boolean
 }
+interface RconPlayer {
+    playerGuid: string 
+    playerCategory: string
+    playerName: string
+    inGame: boolean
+    index: number
+}
 interface RconSave {
     name: string
     date: string
@@ -43,13 +43,17 @@ class RconManager {
     private tempCache = ""
 
     private queue: string[] = []
+
+    private statsPromiseRes = () => {}
+    private playersPromiseRes = () => {}
+    private savesPromiseRes = () => {}
     
     private conn?: Deno.Conn
     private reconnectInterval = 0
     public isConnected = false
 
-    public players: RconPlayer[] = []
     public stats: RconStats | undefined
+    public players: RconPlayer[] = []
     public saves: RconSave[] = []
 
 
@@ -108,27 +112,19 @@ class RconManager {
                 if (res.startsWith('{"build"')) {
                     // DSServerStatistics response
 
-                    const data:RconStats = JSON.parse(res)
-                    info("stats:")
-                    console.log(data.serverURL)
-                } else if (res.startsWith('{"activeSaveName"')) {
-                    // DSListGames response
-
-                    const data: {
-                        activeSaveName: string,
-                        gameList: RconSave[]
-                    } = JSON.parse(res)
-                    info("games:")
-                    //console.log(data)
+                    this.stats = JSON.parse(res)
+                    this.statsPromiseRes()
                 } else if (res.startsWith('{"playerInfo"')) {
                     // DSListPlayers response
 
-                    const data: {
-                        playerInfo: RconPlayer[]
-                    } = JSON.parse(res)
-                    info("players:")
-                    //console.log(data)
-                } else {
+                    this.players = JSON.parse(res).playerInfo
+                    this.playersPromiseRes()
+                } else if (res.startsWith('{"activeSaveName"')) {
+                    // DSListGames response
+
+                    this.saves = JSON.parse(res).gameList
+                    this.savesPromiseRes()
+                }  else {
                     if (res.length > 0) {
                         warn("unknown res")
                         console.log(res)
@@ -146,9 +142,9 @@ class RconManager {
     }
 
     async update() {
+        // DSServerStatistics
         // "DSListPlayers"
-            // DSServerStatistics
-            // DSListGames
+        // DSListGames
         info("sending to " + this.consoleAddr)
         try {
             await this.conn?.write(this.encoder.encode("DSServerStatistics\nDSListGames\nDSListPlayers\n"));
@@ -157,9 +153,12 @@ class RconManager {
             this.conn?.close()
             this.isConnected = false
         }
-        /*return new Promise<void>((res, _) => {
-            res()
-        })*/
+
+        return Promise.all([
+            new Promise<void>((res, _) => { this.statsPromiseRes = res }),
+            new Promise<void>((res, _) => { this.playersPromiseRes = res }),
+            new Promise<void>((res, _) => { this.savesPromiseRes = res })
+        ])
     }
 
 }

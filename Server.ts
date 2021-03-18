@@ -99,7 +99,7 @@ class Server {
     }
 
     // function that is regularly called and manages state
-    update() {
+    async update() {
         /*
         Server state system
         - command: the state server is supposed to be in <stop|start|restart>
@@ -142,7 +142,7 @@ class Server {
                 }
             } else if (this.status_ === Status.Running) {
                 // update rcon when it's running
-                this.rcon.update()
+                await this.rcon.update()
 
                 if (!this.running) {
                     warn("Server process has quit unexpectedly, maybe the server crashed?")
