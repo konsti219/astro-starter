@@ -169,7 +169,7 @@ class Server {
 
             // deregister servers
             if (this.playfabData) {
-                this.starter.playfab.deregisterServer(this.playfabData.LobbyID)
+                this.starter.playfab.deregisterServer(this.serverAddr)
             }
 
             // update
@@ -213,7 +213,7 @@ class Server {
 
             // deregister servers
             if (this.playfabData) {
-                this.starter.playfab.deregisterServer(this.playfabData.LobbyID)
+                this.starter.playfab.deregisterServer(this.serverAddr)
             }
         }
 

@@ -182,18 +182,20 @@ class PlayfabManager {
     }
 
 
-    async deregisterServer(lobbyId: string) {
-        await (
-            await fetch("https://5EA1.playfabapi.com/Client/ExecuteCloudScript?sdk=" + skdVersion, {
-                method: "POST",
-                body: JSON.stringify({
-                    FunctionName: "deregisterDedicatedServer",
-                    FunctionParameter: { lobbyId },
-                    GeneratePlayStreamEvent: true
-                }),
-                headers: this.headers,
-            })
-        ).json();
+    deregisterServer(IP: string) {
+        this.serversData.filter(s => IP === s.Tags.gameId).forEach(async server => {
+            await (
+                await fetch("https://5EA1.playfabapi.com/Client/ExecuteCloudScript?sdk=" + skdVersion, {
+                    method: "POST",
+                    body: JSON.stringify({
+                        FunctionName: "deregisterDedicatedServer",
+                        FunctionParameter: { lobbyId: server.LobbyID },
+                        GeneratePlayStreamEvent: true
+                    }),
+                    headers: this.headers,
+                })
+            ).json();
+        })
     }
 
 
