@@ -117,9 +117,6 @@ class Server {
         // get playfab data
         this.playfabData = this.starter.playfab.get(this.serverAddr)
 
-        // TODO: query rcon
-
-        //console.log(this.status_, this.command)
 
         // state stuff
         if (this.command === Command.Stop) {
@@ -160,6 +157,11 @@ class Server {
         } else {
             error("command " + this.command)
         }
+
+        // make sure to not connect rcon when server isn't running
+        if (this.status_ !== Status.Running) {
+            this.rcon.close()
+        }
     }
 
     private async _start() {
@@ -178,6 +180,7 @@ class Server {
             // deregister servers
             if (this.playfabData) {
                 this.starter.playfab.deregisterServer(this.serverAddr)
+                this.playfabData = undefined
             }
 
             // update
@@ -199,6 +202,8 @@ class Server {
                 info(`Server process has quit for ${this.name}, code: ${code}`)
                 
                 this.running = false
+                this.status_ = Status.Stopped
+                this.rcon.close()
             })()
             
         }
@@ -222,6 +227,7 @@ class Server {
             // deregister servers
             if (this.playfabData) {
                 this.starter.playfab.deregisterServer(this.serverAddr)
+                this.playfabData = undefined
             }
         }
 

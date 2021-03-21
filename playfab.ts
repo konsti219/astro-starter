@@ -48,6 +48,7 @@ class PlayfabManager {
     }
     private lastSuccesfullQuery = 0
     private lastAuth = 0
+    private deregisteredServers: Record<string, number> = {}
 
     constructor() {
         this.lastSuccesfullQuery = Date.now()
@@ -117,6 +118,13 @@ class PlayfabManager {
 
             // read response data
             serverRes.data.Games.forEach(s => {
+                if (this.deregisteredServers[s.Tags.gameId] > 0) {
+                    this.deregisteredServers[s.Tags.gameId] -= 1
+                    return
+                } else {
+                    delete this.deregisteredServers[s.Tags.gameId]
+                }
+
                 const tags: PlayfabServerTags = {
                     maxPlayers: parseInt(s.Tags.maxPlayers),
                     numPlayers: parseInt(s.Tags.maxPlayers),
@@ -196,6 +204,8 @@ class PlayfabManager {
                 })
             ).json();
         })
+        // don't include this server for 4 requests
+        this.deregisteredServers[IP] = 4
     }
 
 

@@ -56,6 +56,8 @@ deno compile -A --unstable --lite index.ts
 ## TODO
 
 -   Keep track of players
+    -   playercache
+    -   per server palyer storing
 -   Manage backups
 -   Webinterface
 -   Network check

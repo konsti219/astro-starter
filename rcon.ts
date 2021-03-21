@@ -66,9 +66,11 @@ class RconManager {
     }
     close() {
         // When told to disconnect it will close the socket and stop the loop
-        this.conn?.close()
         this.isConnected = false
         clearInterval(this.connectInterval)
+        try {
+            this.conn?.close()
+        } catch(_) {_}
     }
 
     private async connectSocket() {
@@ -97,9 +99,8 @@ class RconManager {
                 this.isConnected = false
                 try {
                     this.conn?.close()
-                } catch(_) {/**/}
+                } catch(_) {_}
                 warn("Socket error/disconnect, addr: " + this.consoleAddr)
-                // console.log(e)
             }
         }
     }
