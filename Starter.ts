@@ -57,15 +57,7 @@ class Starter {
             Deno.exit(0)
         }
 
-        info("Fetching data...")
-
-        // fetch latest server version
-        this.latestVersion = (await (await fetch("https://servercheck.spycibot.com/stats")).json())["LatestVersion"]
-        info("Latest server version: " + this.latestVersion)
-
-        // fetch Public IP
-        this.publicIP = (await (await fetch("https://ip4.seeip.org/")).text())
-        info("Public IP: " + this.publicIP)
+        await this.fetchPublicData()
 
         // only deal with local servers when there are any
         if (this.servers.filter(s => s.serverType === "local").length > 0) {
@@ -219,6 +211,18 @@ class Starter {
 
         // cleanup steam stuff
         await Deno.remove(path.join(this.dir, "starterData", "serverfiles", "steamapps"), { recursive: true });
+    }
+
+    async fetchPublicData() {
+        info("Fetching data...")
+
+        // fetch latest server version
+        this.latestVersion = (await (await fetch("https://servercheck.spycibot.com/stats")).json())["LatestVersion"]
+        info("Latest server version: " + this.latestVersion)
+
+        // fetch Public IP
+        this.publicIP = (await (await fetch("https://ip4.seeip.org/")).text())
+        info("Public IP: " + this.publicIP)
     }
 }
 
