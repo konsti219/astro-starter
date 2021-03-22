@@ -57,7 +57,6 @@ deno compile -A --unstable --lite index.ts
 
 -   Keep track of players
     -   playercache
-    -   per server palyer storing
 -   Manage backups
 -   Webinterface
 -   Network check

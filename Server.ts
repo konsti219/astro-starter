@@ -62,8 +62,7 @@ class Server {
         public customHeartbeat: boolean,
         public owner: string,
         private starter: Starter
-    )
-    {
+    ) {
         this.addrConfig = { configIP, port, consolePort }
     }
 
@@ -120,7 +119,7 @@ class Server {
         - status: the state the server is currently in <stopped|starting|running|stopping>
 
         */
-        
+
         // get playfab data
         this.playfabData = this.starter.playfab.get(this.serverAddr)
 
@@ -131,12 +130,15 @@ class Server {
                 this._stop()
                 this.status_ = Status.Stopping
 
+                // write player data 
+                this.players.update([])
+
             } else if (this.status_ === Status.Stopping) {
                 if (!this.running) {
                     this.status_ = Status.Stopped
                 }
             }
-            
+
         } else if (this.command === Command.Start) {
             if (this.status_ === Status.Stopped) {
                 this._start()
@@ -200,7 +202,7 @@ class Server {
 
             // update
             await this._updateFiles()
-            
+
             // write config
             await this._writeConfig()
 
@@ -215,12 +217,12 @@ class Server {
             (async () => {
                 const { code } = await this.process?.status() ?? { code: 69 }
                 info(`Server process has quit for ${this.name}, code: ${code}`)
-                
+
                 this.running = false
             })()
-            
+
         }
-        
+
         this.running = true
 
         // TODO: load player data
@@ -264,10 +266,10 @@ class Server {
         info("Updating server " + this.name)
 
         // backup SaveGames/Paks
-        const savedPath = path.join(this.serverDir, "serverFiles","Astro", "Saved")
+        const savedPath = path.join(this.serverDir, "serverFiles", "Astro", "Saved")
         const hasSaves = fs.existsSync(path.join(savedPath, "SaveGames"))
         const hasPaks = fs.existsSync(path.join(savedPath, "Paks"))
-        
+
         Deno.mkdirSync(path.join(this.serverDir, "temp"))
         if (hasSaves) {
             await fs.copy(path.join(savedPath, "SaveGames"), path.join(this.serverDir, "temp", "SaveGames"))
@@ -285,7 +287,7 @@ class Server {
         await fs.copy(
             path.join(this.starter.dir, "starterData", "serverfiles"),
             path.join(this.serverDir, "serverFiles"))
-        
+
 
         // restore SaveGames/Paks
         if (hasSaves) {
@@ -303,7 +305,7 @@ class Server {
     private async _writeConfig() {
         const configPath = path.join(this.serverDir, "serverFiles", "Astro", "Saved", "Config", "WindowsServer")
         fs.ensureDirSync(configPath)
-        
+
         // AstroServerSettings.ini
         let astroConfig = `
 [/Script/Astro.AstroServerSettings]
@@ -328,15 +330,15 @@ ActiveSaveFileDescriptiveName=SAVE_1
 ServerAdvertisedName=${this.name}
 ConsolePort=${this.consoleAddr.split(":")[1]}
 ConsolePassword=${this.consolePassword}
-HeartbeatInterval=${this.customHeartbeat ? "0" : "55"}
-        `
-        // TODO: add players
-        for (const player of []) {
-            astroConfig += `PlayerProperties=(PlayerFirstJoinName="",PlayerCategory=Pending,PlayerGuid="",PlayerRecentJoinName="")`
-        }
+HeartbeatInterval=${this.customHeartbeat ? "0" : "55"}`
+        
+        // add players
+        this.players.list().forEach(p => {
+            astroConfig += `PlayerProperties=(PlayerFirstJoinName="${p.firstJoinName}",PlayerCategory=${p.category},PlayerGuid="${p.guid}",PlayerRecentJoinName="${p.name}")`
+        })
 
         await Deno.writeTextFile(path.join(configPath, "AstroServerSettings.ini"), astroConfig)
-        
+
         // Engine.ini
         let engineConfig = `
 [URL]

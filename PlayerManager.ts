@@ -96,9 +96,21 @@ class PlayerManager {
         }
     }
 
-    // TODO
     writeFile() {
+        Deno.writeTextFileSync(this.playersFile, JSON.stringify({
+            players: this.players.map(p => ({
+                guid: p.guid,
+                playfabid: p.playfabid,
+                name: p.name,
+                firstJoinName: p.firstJoinName,
 
+                firstJoin: p.firstJoin,
+                lastSeen: p.lastSeen,
+                playtime: PlayerManager.playtime(p),
+
+                category: p.category
+            }))
+        }))
     }
 
     list() {
@@ -156,6 +168,9 @@ class PlayerManager {
                 if (p.inGame) p.lastSeen = Date.now()
             }
         })
+
+        // save changes to disk
+        this.writeFile()
     }
 
     // calculate playtime based on previously recorded time and for how long the player has been online
