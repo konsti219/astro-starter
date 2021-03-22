@@ -95,12 +95,12 @@ class RconManager {
                 for await (const buffer of Deno.iter(this.conn)) {
                     this.handleData(buffer)
                 }
-            } catch (e) {
+            } catch (_) {
+                if (this.isConnected) warn("Socket error/disconnect, addr: " + this.consoleAddr)
                 this.isConnected = false
                 try {
                     this.conn?.close()
                 } catch(_) {_}
-                warn("Socket error/disconnect, addr: " + this.consoleAddr)
             }
         }
     }
