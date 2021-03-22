@@ -66,7 +66,7 @@ class Starter {
 
         // init servers (only called once)
         for (const server of this.servers) {
-            server.init()
+            await server.init()
         }
 
         // start webserver (run async)
@@ -85,7 +85,8 @@ class Starter {
                             id: s.id,
                             name: s.name,
                             status: s.status,
-                            stats: s.rcon.stats
+                            stats: s.rcon.stats,
+                            players: s.players.list()
                         }))
                     })
                 } else if (req.url === "/stop") {

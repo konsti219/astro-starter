@@ -24,7 +24,7 @@ interface RconStats {
     creativeMode: boolean
     isAchievementProgressionDisabled: boolean
 }
-interface RconPlayer {
+export interface RconPlayer {
     playerGuid: string 
     playerCategory: string
     playerName: string

@@ -3,6 +3,7 @@ import { path, fs } from "./deps.ts"
 import { Starter } from "./Starter.ts";
 import { PlayfabServer } from "./playfab.ts";
 import { RconManager } from "./rcon.ts";
+import { PlayerManager } from "./PlayerManager.ts";
 
 import { info, warn, error } from "./logging.ts"
 
@@ -40,8 +41,10 @@ class Server {
     public playfabData: PlayfabServer | undefined
     private lastHeartbeat = 0
 
+    // placeholder managers (so that I don't to deal with them being undefined)
     public rcon = new RconManager("", "")
-    
+    public players = new PlayerManager(".", this, this.starter)
+
 
     constructor(
         public id: string,
@@ -65,7 +68,7 @@ class Server {
     }
 
     // Initializese server config
-    init() {
+    async init() {
         // parse addresses from config file (here because we need the public IP)
         const { configIP, port, consolePort } = this.addrConfig
         const IP = configIP === "_public" ? this.starter.publicIP : configIP
@@ -89,6 +92,10 @@ class Server {
 
         // do not allow custom heartbeat for remote servers
         if (this.serverType === "remote") this.customHeartbeat = false
+
+        // configure player manager
+        this.players = new PlayerManager(this.serverDir, this, this.starter)
+        await this.players.readFile()
     }
 
     // Public functions for other parts to interact with the server
@@ -147,10 +154,18 @@ class Server {
             } else if (this.status_ === Status.Running) {
                 // update rcon when it's running
                 await this.rcon.update()
+
+                // do player tracking
+                this.players.update(this.rcon.players)
+
+                // do custom heartbeat
                 if (this.customHeartbeat) await this._heartbeat()
 
+                // check if server has quit
                 if (!this.running) {
                     warn("Server process has quit unexpectedly, maybe the server crashed?")
+                    this.status_ = Status.Stopped
+                    this.rcon.close()
                 }
             }
 
@@ -202,8 +217,6 @@ class Server {
                 info(`Server process has quit for ${this.name}, code: ${code}`)
                 
                 this.running = false
-                this.status_ = Status.Stopped
-                this.rcon.close()
             })()
             
         }
@@ -219,6 +232,9 @@ class Server {
             return
         }
 
+        // close rcon
+        this.rcon.close()
+
         // end server process
         // TODO: clean shutdown with rcon
         if (this.serverType === "local") {
@@ -232,9 +248,6 @@ class Server {
         }
 
         this.running = false
-
-        // close rcon
-        this.rcon.close()
     }
 
     private async _updateFiles() {
