@@ -13,12 +13,37 @@
         </style>
     </head>
     <body>
-        <h3>Starter</h3>
+        <h1>Starter</h1>
 
-        <h4>Servers</h4>
+        <h2>Servers</h2>
         <div id="servers"></div>
 
-        <button id="btnShutdown">Shutdown</button>
+        <br /><button id="btnShutdown">Shutdown</button>
     </body>
-    <script src="script.js"></script>
+    <!--  src="script.js"-->
+    <script>
+        // js here because auto complete
+        document
+            .querySelector("#btnShutdown")
+            .addEventListener("click", async (_) => {
+                await fetch("/api/shutdown", {
+                    method: "POST",
+                    body: "",
+                });
+            });
+
+        const update = async () => {
+            const data = await (await fetch("/api/servers")).json();
+            console.log(data);
+
+            const serversDiv = document.querySelector("#servers");
+            serversDiv.innerHTML = "";
+
+            const versionSpan = document.createElement("span");
+            versionSpan.innerText = data.latestVersion;
+            serversDiv.appendChild(versionSpan);
+        };
+        setInterval(update, 2000);
+        update();
+    </script>
 </html>
