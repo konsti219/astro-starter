@@ -131,7 +131,7 @@ class Server {
                 this.status_ = Status.Stopping
 
                 // write player data 
-                this.players.update([])
+                this.players.update(this.rcon.players.map(p => { p.inGame = false; return p }))
 
             } else if (this.status_ === Status.Stopping) {
                 if (!this.running) {
@@ -314,7 +314,7 @@ MaxServerFramerate=60
 MaxServerIdleFramerate=3
 bWaitForPlayersBeforeShutdown=False
 PublicIP=${this.serverAddr.split(":")[0]}
-ServerName=${this.name}
+ServerName=${this.id}
 MaximumPlayerCount=8
 OwnerName=${this.starter.owner}
 OwnerGuid=
@@ -327,14 +327,16 @@ AutoSaveGameInterval=${this.saveInterval}
 BackupSaveGamesInterval=${this.backupInterval}
 ServerGuid=
 ActiveSaveFileDescriptiveName=SAVE_1
-ServerAdvertisedName=${this.name}
+ServerAdvertisedName=${this.id}
 ConsolePort=${this.consoleAddr.split(":")[1]}
 ConsolePassword=${this.consolePassword}
-HeartbeatInterval=${this.customHeartbeat ? "0" : "55"}`
-        
+HeartbeatInterval=${this.customHeartbeat ? "0" : "55"}
+`
+
         // add players
         this.players.list().forEach(p => {
-            astroConfig += `PlayerProperties=(PlayerFirstJoinName="${p.firstJoinName}",PlayerCategory=${p.category},PlayerGuid="${p.guid}",PlayerRecentJoinName="${p.name}")`
+            astroConfig += `PlayerProperties=(PlayerFirstJoinName="${p.firstJoinName}",PlayerCategory=${p.category !== "Owner" ? p.category : "Admin"
+                },PlayerGuid="${p.guid}",PlayerRecentJoinName="${p.name}")`
         })
 
         await Deno.writeTextFile(path.join(configPath, "AstroServerSettings.ini"), astroConfig)
@@ -346,13 +348,13 @@ Port=${this.serverAddr.split(":")[1]}
 [/Script/OnlineSubsystemUtils.IpNetDriver]
 MaxClientRate=1000000
 MaxInternetClientRate=1000000
-        `
+`
 
         if (this.enableAstrochatIntegration) {
             engineConfig += `
 [/Game/ChatMod/ChatManager.ChatManager_C]
 WebhookUrl="http://localhost:5001/api/astrochat/${this.id}"
-            `
+`
         }
 
         await Deno.writeTextFile(path.join(configPath, "Engine.ini"), engineConfig)

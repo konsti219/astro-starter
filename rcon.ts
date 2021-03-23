@@ -157,8 +157,7 @@ class RconManager {
             this.queue = []
         } catch (_) {
             error("failed to send RCON command to " + this.consoleAddr)
-            this.conn?.close()
-            this.isConnected = false
+            this.close()
         }
 
         return Promise.all([

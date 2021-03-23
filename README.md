@@ -60,5 +60,8 @@ deno compile -A --unstable --lite index.ts
 -   Manage backups
 -   Webinterface
 -   Network check
+    -   firewall
+    -   upnp
+    -   tests
 -   automatic restarts
 -   better logging
