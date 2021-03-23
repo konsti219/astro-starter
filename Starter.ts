@@ -73,39 +73,6 @@ class Starter {
 
         // start webserver (run async)
         this.webserver.listen()
-        /*
-        const webServer = serve({ hostname: "0.0.0.0", port: this.webserverPort })
-        info("Running web server on localhost:" + this.webserverPort);
-
-        (async () => {
-            for await (const req of webServer) {
-                console.log(req.method, req.url)
-
-                let bodyContent = ""
-                if (req.url === "/") {
-                    bodyContent = JSON.stringify({
-                        msg: "Astro Starter <a href='/stop'>Stop servers</a>",
-                        servers: this.servers.map(s => ({
-                            id: s.id,
-                            name: s.name,
-                            status: s.status,
-                            stats: s.rcon.stats,
-                            players: s.players.list()
-                        }))
-                    })
-                } else if (req.url === "/stop") {
-                    bodyContent = "Stopping servers"
-
-                    for (const server of this.servers) {
-                        server.stop()
-                    }
-                } else {
-                    bodyContent = "not found"
-                }
-
-                req.respond({ status: 200, body: bodyContent })
-            }
-        })()*/
 
         // start servers
         for (const server of this.servers) {
@@ -228,6 +195,14 @@ class Starter {
         // fetch Public IP
         this.publicIP = (await (await fetch("https://ip4.seeip.org/")).text())
         info("Public IP: " + this.publicIP)
+    }
+
+    shutdown() {
+        info("Shutting down servers and starter")
+        this.servers.forEach(s => s.stop())
+        setTimeout(() => {
+            Deno.exit(0)
+        }, 15000)
     }
 }
 

@@ -14,7 +14,8 @@ const defaultConfig = {
             "saveInterval": 900,
             "backupSaves": true,
             "backupInterval": 3600,
-            "enableAstrochatIntegration": false
+            "enableAstrochatIntegration": false,
+            "customHeartbeat": true
         }
     ]
 }
