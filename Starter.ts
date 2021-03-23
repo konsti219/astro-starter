@@ -1,9 +1,10 @@
-import { path, fs, io, Colors, serve } from "./deps.ts"
+import { path, fs, io, Colors } from "./deps.ts"
 
 import { Server } from "./Server.ts";
 import { PlayfabManager } from "./playfab.ts";
 import { parseConfig } from "./config.ts"
 import { defaultConfig } from "./defaultConfig.ts"
+import { WebServer } from "./web.ts";
 
 import { info, warn, error } from "./logging.ts"
 
@@ -14,8 +15,9 @@ class Starter {
     public playfab:PlayfabManager = new PlayfabManager()
 
     public webserverPort = 5000
-    public owner = ""
+    private webserver = new WebServer(this)
 
+    public owner = ""
     public latestVersion = ""
     public publicIP = ""
 
@@ -70,6 +72,8 @@ class Starter {
         }
 
         // start webserver (run async)
+        this.webserver.listen()
+        /*
         const webServer = serve({ hostname: "0.0.0.0", port: this.webserverPort })
         info("Running web server on localhost:" + this.webserverPort);
 
@@ -101,7 +105,7 @@ class Starter {
 
                 req.respond({ status: 200, body: bodyContent })
             }
-        })()
+        })()*/
 
         // start servers
         for (const server of this.servers) {

@@ -55,13 +55,11 @@ deno compile -A --unstable --lite index.ts
 
 ## TODO
 
--   Keep track of players
-    -   playercache
 -   Manage backups
 -   Webinterface
 -   Network check
-    -   firewall
-    -   upnp
+    -   (firewall)
+    -   (upnp)
     -   tests
 -   automatic restarts
 -   better logging
