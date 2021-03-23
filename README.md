@@ -49,6 +49,9 @@ deno run -A --unstable index.ts
 
 ## compile
 
+To build the .exe for a release you need to take the files in /static and upload them somewhere.
+Then you need to replace the paths in web.ts
+
 ```
 deno compile -A --unstable --lite index.ts
 ```

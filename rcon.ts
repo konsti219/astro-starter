@@ -52,7 +52,23 @@ class RconManager {
     private connectInterval = 0
     public isConnected = false
 
-    public stats: RconStats | undefined
+    public stats: RconStats = {
+        build: "",
+        ownerName: "",
+        maxInGamePlayers: 0,
+        playersInGame: 0,
+        playersKnownToGame: 0,
+        saveGameName: "",
+        playerActivityTimeout: 0,
+        secondsInGame: 0,
+        serverName: "",
+        serverURL: "",
+        averageFPS: 0,
+        hasServerPassword: false,
+        isEnforcingWhitelist: false,
+        creativeMode: false,
+        isAchievementProgressionDisabled: false
+    }
     public players: RconPlayer[] = []
     public saves: RconSave[] = []
 

@@ -1,6 +1,3 @@
-// this is to have the file included in the build
-
-export const indexContent = /*html*/`
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -18,16 +15,10 @@ export const indexContent = /*html*/`
     <body>
         <h3>Starter</h3>
 
+        <h4>Servers</h4>
+        <div id="servers"></div>
+
         <button id="btnShutdown">Shutdown</button>
     </body>
-    <script>
-        document
-            .querySelector("#btnShutdown")
-            .addEventListener("click", async (_) => {
-                await fetch("/api/shutdown", {
-                    method: "POST",
-                    body: "",
-                });
-            });
-    </script>
-</html>`
+    <script src="script.js"></script>
+</html>
