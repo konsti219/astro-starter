@@ -10,19 +10,49 @@
             body {
                 font-family: Arial, Helvetica, sans-serif;
             }
+            #container {
+                max-width: 800px;
+                margin: 0 auto;
+            }
+
+            fieldset {
+                margin-top: 25px;
+            }
+            h3 {
+                margin-top: 3px;
+            }
         </style>
     </head>
     <body>
-        <h1>Starter</h1>
+        <div id="container">
+            <h1>Astro Starter</h1>
 
-        <h2>Servers</h2>
-        <div id="servers"></div>
+            <div id="servers"></div>
 
-        <br /><button id="btnShutdown">Shutdown</button>
+            <br /><button id="btnShutdown">Shutdown</button>
+
+            <template id="server">
+                <fieldset>
+                    <legend class="id"></legend>
+                    <h3 class="serverName"></h3>
+
+                    <span>Status: </span><span class="serverStatus"></span
+                    ><br />
+                    <span>IP/Port: </span><span class="serverAddr"></span><br />
+                    <span>Server Host: </span><span class="serverHost"></span
+                    ><br />
+                    <span>Server Type: </span><span class="serverType"></span
+                    ><br />
+                    <span>Owner: </span><span class="serverOwner"></span><br />
+                </fieldset>
+            </template>
+        </div>
     </body>
     <!--  src="script.js"-->
     <script>
         // js here because auto complete
+
+        // shutdown button
         document
             .querySelector("#btnShutdown")
             .addEventListener("click", async (_) => {
@@ -34,14 +64,54 @@
 
         const update = async () => {
             const data = await (await fetch("/api/servers")).json();
-            console.log(data);
+            //console.log(data);
 
             const serversDiv = document.querySelector("#servers");
             serversDiv.innerHTML = "";
 
+            /*
             const versionSpan = document.createElement("span");
             versionSpan.innerText = data.latestVersion;
-            serversDiv.appendChild(versionSpan);
+            serversDiv.appendChild(versionSpan);*/
+
+            data.servers.forEach((s) => {
+                // server fieldset
+                const field = document
+                    .querySelector("#server")
+                    .content.cloneNode(true);
+
+                // server status
+                field.querySelector(".serverStatus").innerText = s.status;
+
+                // server id
+                field.querySelector(".id").innerText = s.id;
+
+                // server name
+                field.querySelector(".serverName").innerText = s.name;
+
+                // server address
+                field.querySelector(".serverAddr").innerText = s.serverAddr;
+
+                // host type (local/remote)
+                field.querySelector(".serverHost").innerText = s.serverType;
+
+                // server type (Individual/Preferred)
+                if (s.playfabData)
+                    field.querySelector(".serverType").innerText =
+                        s.playfabData.Tags.category;
+
+                // owner
+                field.querySelector(".serverOwner").innerText = s.owner;
+
+                //console.log(s);
+                /*
+                players: [{…}]
+                playfabData: {Region: "USEast", LobbyID: "512496370981876417", BuildVersion: "8", GameMode: "CoopStandard", PlayerUserIds: Array(0), …}
+                stats: {build: "1.18.68.0", ownerName: "Konsti219", maxInGamePlayers: 8, playersInGame: 0, playersKnownToGame: 0, …}
+                whitelist: false*/
+
+                serversDiv.appendChild(field);
+            });
         };
         setInterval(update, 2000);
         update();
