@@ -39,7 +39,6 @@ class WebServer {
                     serverAddr: s.serverAddr,
                     serverType: s.serverType,
                     owner: s.owner,
-                    whitelist: s.whitelist,
                     status: s.status,
                     stats: s.rcon.stats,
                     players: s.players.list(),

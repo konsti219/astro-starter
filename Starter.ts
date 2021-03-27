@@ -88,7 +88,7 @@ class Starter {
             for (const server of this.servers) {
                 server.update()
             }
-        }, 5000)
+        }, 4000)
 
 
         // not implemented on windows

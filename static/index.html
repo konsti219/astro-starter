@@ -17,9 +17,30 @@
 
             fieldset {
                 margin-top: 25px;
+                border-radius: 10px;
             }
             h3 {
-                margin-top: 3px;
+                margin-top: 0px;
+            }
+            p {
+                margin-block-start: 0.5em;
+                margin-block-end: 0.5em;
+            }
+
+            .green {
+                background-color: #2ac416;
+                border-radius: 4px;
+                padding: 3px;
+            }
+            .yellow {
+                background-color: #edd91a;
+                border-radius: 4px;
+                padding: 3px;
+            }
+            .red {
+                background-color: #c41616;
+                border-radius: 4px;
+                padding: 3px;
             }
         </style>
     </head>
@@ -36,9 +57,12 @@
                     <legend class="id"></legend>
                     <h3 class="serverName"></h3>
 
-                    <span>Status: </span><span class="serverStatus"></span
-                    ><br />
-                    <span>IP/Port: </span><span class="serverAddr"></span><br />
+                    <p>
+                        <span>Status: </span><span class="serverStatus"></span>
+                    </p>
+                    <p>
+                        <span>IP/Port: </span><span class="serverAddr"></span>
+                    </p>
                     <span>Server Host: </span><span class="serverHost"></span
                     ><br />
                     <span>Server Type: </span><span class="serverType"></span
@@ -81,7 +105,28 @@
                     .content.cloneNode(true);
 
                 // server status
-                field.querySelector(".serverStatus").innerText = s.status;
+                if (s.status === "stopped") {
+                    field.querySelector(".serverStatus").innerText = "Stopped";
+                    field.querySelector(".serverStatus").classList.add("red");
+                    //
+                } else if (s.status === "starting") {
+                    field.querySelector(".serverStatus").innerText =
+                        "Starting...";
+                    field
+                        .querySelector(".serverStatus")
+                        .classList.add("yellow");
+                    //
+                } else if (s.status === "running") {
+                    field.querySelector(".serverStatus").innerText = "Running";
+                    field.querySelector(".serverStatus").classList.add("green");
+                    //
+                } else if (s.status === "stopping") {
+                    field.querySelector(".serverStatus").innerText =
+                        "Stopping...";
+                    field
+                        .querySelector(".serverStatus")
+                        .classList.add("yellow");
+                }
 
                 // server id
                 field.querySelector(".id").innerText = s.id;
@@ -102,6 +147,17 @@
 
                 // owner
                 field.querySelector(".serverOwner").innerText = s.owner;
+
+                // TODO
+                // whitelist
+                // password
+
+                // players
+                // saves
+
+                // ability to change whitelist
+                // manage players
+                // manage saves
 
                 //console.log(s);
                 /*
