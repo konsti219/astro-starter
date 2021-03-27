@@ -48,15 +48,42 @@ class WebServer {
             context.response.type = "json"
         })
 
-        // TODO stop, start, restart, player management, save management
-        this.router.get<{ id: string }>("/book/:id", context => {
-            if (context.params) { //&& books.has(context.params.id)) {
-                context.response.body = "book " + context.params.id
+        // TODO auth
+        this.router.post<{ id: string, action: string }>("/api/servers/:id/:action", context => {
+            context.response.type = "json"
+
+            const err = () => {
+                context.response.body = { status: "NOT FOUND" }
+                context.response.status = oak.Status.NotFound
+            }
+
+            // Server actions
+            if (context.params?.id && context.params?.action) {
+                const server = this.starter.servers.find(s => s.id === context.params.id)
+                if (server) {
+                    const act = context.params.action
+                    if (act === "start") {
+                        server.start()
+                    } else if (act === "stop") {
+                        server.stop()
+                    } else if (act === "restart") {
+                        server.restart()
+                    } else {
+                        err()
+                    }
+
+                    context.response.body = { status: "OK" }
+                        
+                    // TODO player management, save management
+                } else {
+                    err()
+                }
             } else {
-                return notFound(context)
+                err()
             }
         });
 
+        // shutdown everything
         this.router.post("/api/shutdown", context => {
             this.starter.shutdown()
             context.response.body = { status: "OK" }
