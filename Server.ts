@@ -126,13 +126,14 @@ class Server {
 
         // state stuff
         if (this.command === Command.Stop || this.command === Command.Restart) {
-            if (this.status_ === Status.Running) {
+            if (this.status_ === Status.Running || this.status_ === Status.Starting) {
                 this._stop()
-                this.status_ = Status.Stopping
 
                 // write player data 
-                this.players.update(this.rcon.players.map(p => { p.inGame = false; return p }))
-
+                if (this.status_ === Status.Running)
+                    this.players.update(this.rcon.players.map(p => { p.inGame = false; return p }))
+                
+                this.status_ = Status.Stopping
             } else if (this.status_ === Status.Stopping) {
                 if (!this.running) {
                     this.status_ = Status.Stopped
