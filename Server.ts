@@ -125,7 +125,7 @@ class Server {
 
 
         // state stuff
-        if (this.command === Command.Stop) {
+        if (this.command === Command.Stop || this.command === Command.Restart) {
             if (this.status_ === Status.Running) {
                 this._stop()
                 this.status_ = Status.Stopping
@@ -136,6 +136,8 @@ class Server {
             } else if (this.status_ === Status.Stopping) {
                 if (!this.running) {
                     this.status_ = Status.Stopped
+
+                    if (this.command === Command.Restart) this.command = Command.Start
                 }
             }
 
