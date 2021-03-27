@@ -232,7 +232,7 @@ class Server {
     }
 
     private _stop() {
-        if (this.status !== "running") {
+        if (!this.running) {
             warn("Tried to stop server that is not running, id: " + this.id)
             return
         }
