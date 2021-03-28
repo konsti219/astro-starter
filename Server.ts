@@ -60,6 +60,7 @@ class Server {
         public backupInterval: number,
         public enableAstrochatIntegration: boolean,
         public customHeartbeat: boolean,
+        public webhook: string,
         public owner: string,
         private starter: Starter
     ) {
@@ -153,7 +154,7 @@ class Server {
                     this.rcon.connect()
 
                     // TODO do network check
-                    info(`Server ${this.name} has finished registering`)
+                    info(`finished registering`, this.name)
                     this.status_ = Status.Running
                 }
             } else if (this.status_ === Status.Running) {
@@ -185,7 +186,7 @@ class Server {
     }
 
     private async _start() {
-        infoWebhook("Starting server " + this.name, "")
+        infoWebhook("Starting server ", this.name, this.webhook)
         if (this.status !== "stopped") {
             warn("Tried to start server that is not stopped, id: " + this.id)
             return
@@ -210,7 +211,7 @@ class Server {
             await this._writeConfig()
 
             // start server process
-            info("Starting Server process for " + this.name)
+            info("Starting Server process", this.name)
             this.process = Deno.run({
                 cmd: [path.join(this.serverDir, "serverFiles", "Astro", "Binaries", "Win64", "AstroServer-Win64-Shipping.exe")],
                 stdout: "null",
@@ -219,7 +220,7 @@ class Server {
 
             (async () => {
                 const { code } = await this.process?.status() ?? { code: 69 }
-                info(`Server process has quit for ${this.name}, code: ${code}`)
+                info(`Server process has quit, code: ${code}`, this.name)
 
                 this.running = false
             })()
@@ -266,7 +267,7 @@ class Server {
             if (version === this.starter.latestVersion) return
         }
 
-        info("Updating server " + this.name)
+        info("Updating server", this.name)
 
         // backup SaveGames/Paks
         const savedPath = path.join(this.serverDir, "serverFiles", "Astro", "Saved")
@@ -286,7 +287,7 @@ class Server {
             await Deno.remove(path.join(this.serverDir, "serverFiles"), { recursive: true });
         }
         // copy fresh files from steam
-        info("Copying files...")
+        info("Copying files...", this.name)
         await fs.copy(
             path.join(this.starter.dir, "starterData", "serverfiles"),
             path.join(this.serverDir, "serverFiles"))

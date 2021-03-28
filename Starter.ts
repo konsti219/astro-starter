@@ -29,7 +29,7 @@ class Starter {
         // set log path
         setLogDir(path.join(this.dir, "starterData", "logs"))
         
-        info("astro-starter, work dir: " + dir + "\n")
+        info("\n" + "astro-starter, work dir: " + dir)
 
         this.readConfig()
     }

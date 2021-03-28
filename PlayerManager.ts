@@ -126,7 +126,7 @@ class PlayerManager {
         rconPlayers.forEach(p => {
             // check for untracked players
             if (!this.players.find(cp => cp.guid === p.playerGuid)) {
-                info(`${this.server.name}: '${p.playerName}' is new`)
+                info(`'${p.playerName}' is new`, this.server.name)
 
                 this.players.push({
                     guid: p.playerGuid,
@@ -156,14 +156,14 @@ class PlayerManager {
 
                 // joining
                 if (rconP.inGame && !p.inGame) {
-                    infoWebhook(`${this.server.name}: '${rconP.playerName}' joining`, "")
+                    infoWebhook(`'${rconP.playerName}' joining`, this.server.name, this.server.webhook)
                     p.inGame = true
                     p.onlineSince = Date.now()
                 }
 
                 // leaving
                 if (!rconP.inGame && p.inGame) {
-                    infoWebhook(`${this.server.name}: '${p.name}' leaving`, "")
+                    infoWebhook(`'${p.name}' leaving`, this.server.name, this.server.webhook)
                     p.inGame = false
                     p.prevPlaytime = PlayerManager.playtime(p)
                     p.onlineSince = 0

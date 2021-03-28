@@ -24,7 +24,8 @@ starter.json
             "backupSaves": true,
             "backupInterval": 3600,
             "enableAstrochatIntegration": false,
-            "customHeartbeat": true
+            "customHeartbeat": true,
+            "discordWebhook": "<webhook url>"
         },
         {
             "id": "server2",
@@ -65,4 +66,3 @@ deno compile -A --unstable --lite index.ts
     -   (upnp)
     -   tests
 -   automatic restarts
--   better logging
