@@ -3,7 +3,7 @@
     It's main point is to cache the server response and to request data for all servers in one request
 */
 
-import { info, warn, error } from "./logging.ts"
+import { warn, critical } from "./logging.ts"
 
 const skdVersion = "UE4MKPL-1.49.201027"
 
@@ -158,8 +158,8 @@ class PlayfabManager {
         } catch (_) {
             warn("Playfab server query failed")
             if (this.lastSuccesfullQuery + (300 * 1000) < Date.now()) {
-                error("Could not connect for playfab for 5 minutes, quitting")
-                warn("This might will might not stop the server processes, CHECK TASKMANAGER")
+                critical("Could not connect for playfab for 5 minutes, quitting")
+                warn("This will not stop the server processes, CHECK TASKMANAGER")
                 Deno.exit(1)
             }
         }

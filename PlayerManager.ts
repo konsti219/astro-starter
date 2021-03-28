@@ -4,7 +4,7 @@ import { Starter } from "./Starter.ts";
 import { Server } from "./Server.ts";
 import { RconPlayer } from "./rcon.ts";
 
-import { info, warn, error } from "./logging.ts"
+import { info, infoWebhook } from "./logging.ts"
 
 enum PlayerCategory {
     Unlisted = "Unlisted",
@@ -156,14 +156,14 @@ class PlayerManager {
 
                 // joining
                 if (rconP.inGame && !p.inGame) {
-                    info(`${this.server.name}: '${rconP.playerName}' joining`)
+                    infoWebhook(`${this.server.name}: '${rconP.playerName}' joining`, "")
                     p.inGame = true
                     p.onlineSince = Date.now()
                 }
 
                 // leaving
                 if (!rconP.inGame && p.inGame) {
-                    info(`${this.server.name}: '${p.name}' leaving`)
+                    infoWebhook(`${this.server.name}: '${p.name}' leaving`, "")
                     p.inGame = false
                     p.prevPlaytime = PlayerManager.playtime(p)
                     p.onlineSince = 0

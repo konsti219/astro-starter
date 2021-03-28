@@ -5,7 +5,7 @@ import { PlayfabServer } from "./playfab.ts";
 import { RconManager } from "./rcon.ts";
 import { PlayerManager } from "./PlayerManager.ts";
 
-import { info, warn, error } from "./logging.ts"
+import { info, infoWebhook, warn, error } from "./logging.ts"
 
 interface ConfigAddr {
     configIP: string
@@ -185,7 +185,7 @@ class Server {
     }
 
     private async _start() {
-        info("Starting server " + this.name)
+        infoWebhook("Starting server " + this.name, "")
         if (this.status !== "stopped") {
             warn("Tried to start server that is not stopped, id: " + this.id)
             return

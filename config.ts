@@ -1,7 +1,7 @@
 import { Starter } from "./Starter.ts"
 import { Server } from "./Server.ts"
 
-import { info, warn, error } from "./logging.ts"
+import { critical } from "./logging.ts"
 
 interface ConfigFileServer {
     id?: string
@@ -30,14 +30,15 @@ const parseConfig = (configPath: string, starter: Starter) => {
     try {
         config = JSON.parse(configJson)
     } catch (e) {
-        console.error("Parsing config file failed")
+        critical("Parsing config file failed")
+        Deno.exit(1)
     }
 
     starter.webserverPort = config.webserverPort ?? 5000
     starter.owner = config.owner ?? ""
 
     if ((new Set(config.servers.map(s => s.id))).size !== config.servers.length) {
-        error("found duplicate id! ids have to be unique.")
+        critical("found duplicate id! ids have to be unique.")
         Deno.exit(1)
     }
 

@@ -2,7 +2,7 @@ import { oak, path, fs } from "./deps.ts"
 
 import { Starter } from "./Starter.ts"
 
-import { info, warn, error } from "./logging.ts"
+import { info, error } from "./logging.ts"
 
 
 function notFound(context: oak.Context) {

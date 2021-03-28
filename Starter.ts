@@ -6,8 +6,7 @@ import { parseConfig } from "./config.ts"
 import { defaultConfig } from "./defaultConfig.ts"
 import { WebServer } from "./web.ts";
 
-import { info, warn, error } from "./logging.ts"
-
+import { setLogDir, info, warn, critical } from "./logging.ts"
 
 
 class Starter {
@@ -24,6 +23,12 @@ class Starter {
     private loop = 0
 
     constructor(public dir: string) {
+        // ensure data and servers dir exists
+        fs.ensureDirSync(path.join(this.dir, "starterData", "servers"))
+
+        // set log path
+        setLogDir(path.join(this.dir, "starterData", "logs"))
+        
         info("astro-starter, work dir: " + dir + "\n")
 
         this.readConfig()
@@ -144,7 +149,7 @@ class Starter {
                 })
                 await p.status()
             } catch (_) {
-                error("Steamcmd is not installed! Install it with 'sudo apt install steamcmd -y'")
+                critical("Steamcmd is not installed! Install it with 'sudo apt install steamcmd -y'")
                 Deno.exit(1)
             }
         }
