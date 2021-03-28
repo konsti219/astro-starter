@@ -6,6 +6,9 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Astro Starter</title>
 
+        <script src="https://cdn.jsdelivr.net/npm/luxon@1.25.0/build/global/luxon.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/humanize-duration@3.25.1/humanize-duration.min.js"></script>
+
         <style>
             :root {
                 --green: #2ea043;
@@ -94,6 +97,13 @@
                 padding: 4px;
             }
 
+            .green {
+                color: var(--green);
+            }
+            .italic {
+                font-style: italic;
+            }
+
             button {
                 font-weight: 550;
                 font-size: 1em;
@@ -157,8 +167,8 @@
                     <div class="table playerTable">
                         <div class="tableRow">
                             <div class="tableCell">Name</div>
-                            <div class="tableCell">Cached</div>
                             <div class="tableCell">Category</div>
+                            <div class="tableCell">Last Online</div>
                         </div>
                     </div>
 
@@ -180,8 +190,10 @@
         </div>
     </body>
     <!--  src="script.js"-->
-    <script>
+    <script defer>
         // js here because auto complete
+
+        const DateTime = luxon.DateTime;
 
         // shutdown button
         document
@@ -261,20 +273,35 @@
                 // password
 
                 // players
-                s.players.forEach((p) => {
-                    const row = document
-                        .querySelector("#playerRow")
-                        .content.cloneNode(true);
+                s.players
+                    .filter((s) => s.inGame)
+                    .concat(s.players.filter((s) => !s.inGame))
+                    .forEach((p) => {
+                        const row = document
+                            .querySelector("#playerRow")
+                            .content.cloneNode(true);
 
-                    const divs = row.querySelectorAll("div");
+                        const divs = row.querySelectorAll("div");
 
-                    divs[1].textContent = p.name;
-                    divs[2].textContent = p.cached;
-                    divs[3].textContent = p.category;
+                        // name
+                        divs[1].textContent = p.name;
+                        if (p.inGame) divs[1].classList.add("green");
+                        if (p.cached) divs[1].classList.add("italic");
 
-                    field.querySelector(".playerTable").appendChild(row);
+                        divs[2].textContent = p.category;
+                        if (Date.now() - p.lastSeen < 60000) {
+                            divs[3].textContent = "Just now";
+                        } else if (p.lastSeen == 0) {
+                            divs[3].textContent = "Never";
+                        } else {
+                            divs[3].textContent = timeAgo(
+                                DateTime.fromMillis(p.lastSeen)
+                            );
+                        }
 
-                    /*
+                        field.querySelector(".playerTable").appendChild(row);
+
+                        /*
                     cached: false;
                     category: "Owner";
                     firstJoin: 1616538244213;
@@ -286,7 +313,7 @@
                     onlineSince: 0;
                     playfabid: "";
                     prevPlaytime: 0;*/
-                });
+                    });
 
                 // saves
 
@@ -370,5 +397,25 @@
                     );
             });
         });
+
+        const units = [
+            "year",
+            "month",
+            "week",
+            "day",
+            "hour",
+            "minute",
+            "second",
+        ];
+        const timeAgo = (date) => {
+            let dateTime = DateTime.fromISO(date);
+            const diff = dateTime.diffNow().shiftTo(...units);
+            const unit = units.find((unit) => diff.get(unit) !== 0) || "second";
+
+            const relativeFormatter = new Intl.RelativeTimeFormat("en", {
+                numeric: "auto",
+            });
+            return relativeFormatter.format(Math.trunc(diff.as(unit)), unit);
+        };
     </script>
 </html>
