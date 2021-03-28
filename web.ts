@@ -41,6 +41,7 @@ class WebServer {
                     owner: s.owner,
                     status: s.status,
                     stats: s.rcon.stats,
+                    rconConnected: s.rcon.isConnected,
                     players: s.players.list(),
                     playfabData: s.playfabData
                 }))
