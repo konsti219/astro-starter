@@ -163,14 +163,20 @@ class PlayerManager {
 
                 // leaving
                 if (!rconP.inGame && p.inGame) {
-                    info(`${this.server.name}: '${rconP.playerName}' leaving`)
+                    info(`${this.server.name}: '${p.name}' leaving`)
                     p.inGame = false
                     p.prevPlaytime = PlayerManager.playtime(p)
                     p.onlineSince = 0
                 }
 
+                // check for incomplete first data
+                if (rconP.inGame) {
+                    if (p.firstJoinName === "") p.firstJoinName = rconP.playerName
+                    if (p.firstJoin == 0) p.firstJoin = Date.now()
+                }
+
                 // update other data
-                p.name = rconP.playerName
+                if (rconP.playerName !== "") p.name = rconP.playerName
                 p.inGame = rconP.inGame
                 p.category = PlayerManager.categoryToEnum(rconP.playerCategory)
 
