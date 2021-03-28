@@ -36,7 +36,7 @@ export function critical(msg: string): void {
 
 function addToLogFile(msg: string) {
     const now = new Date
-    const logFile = `log_${now.getFullYear()}-${now.getMonth()}-${now.getDay()}.txt`
+    const logFile = `log_${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}.txt`
 
     Deno.writeTextFileSync(path.join(logDir, logFile), msg + "\n", { append: true })
 }
