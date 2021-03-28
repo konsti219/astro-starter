@@ -27,6 +27,8 @@ interface Player {
     prevPlaytime: number
 
     category: PlayerCategory
+
+    cached: boolean
 }
 /*
 players.json
@@ -88,7 +90,9 @@ class PlayerManager {
                     lastSeen: p.lastSeen,
                     prevPlaytime: p.playtime,
 
-                    category: p.category
+                    category: p.category,
+
+                    cached: true
                 })
             });
         } else {
@@ -136,15 +140,20 @@ class PlayerManager {
                     lastSeen: 0,
                     prevPlaytime: 0,
 
-                    category: PlayerManager.categoryToEnum(p.playerCategory)
+                    category: PlayerManager.categoryToEnum(p.playerCategory),
+
+                    cached: true
                 })
             }
         })
 
+        // loop through all players and check for inGame change and update stats
         this.players.forEach(p => {
+
             const rconP = rconPlayers.find(rp => rp.playerGuid === p.guid)
             // rconP could be undefined because the server could forget players
             if (rconP) {
+
                 // joining
                 if (rconP.inGame && !p.inGame) {
                     info(`${this.server.name}: '${rconP.playerName}' joining`)
@@ -167,9 +176,12 @@ class PlayerManager {
 
                 if (p.inGame) p.lastSeen = Date.now()
             }
+
+            // set cached, true means that the server forgot the player
+            p.cached = !rconP
         })
 
-        // save changes to disk
+        // save new data to disk
         this.writeFile()
     }
 
