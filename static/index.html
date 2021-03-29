@@ -493,17 +493,28 @@
                                 id in expanded ? "block" : "none";
 
                             // buttons
-                            row.querySelector(
-                                ".btnKick"
-                            ).disabled = !s.rconConnected;
+                            row.querySelector(".btnKick").disabled =
+                                !s.rconConnected || !p.inGame;
+                            row.querySelector(".btnKick").addEventListener(
+                                "click",
+                                async (e) => {
+                                    console.log(p.guid);
+                                    await fetch(`/api/servers/${s.id}/kick`, {
+                                        method: "POST",
+                                        body: JSON.stringify({
+                                            guid: p.guid,
+                                        }),
+                                    });
+                                }
+                            );
                             row.querySelector(".btnBan").disabled =
                                 !s.rconConnected ||
-                                s.category === "Blacklisted";
+                                p.category === "Blacklisted";
                             row.querySelector(".btnWhitelist").disabled =
                                 !s.rconConnected ||
-                                s.category === "Whitelisted";
+                                p.category === "Whitelisted";
                             row.querySelector(".btnReset").disabled =
-                                !s.rconConnected || s.category === "Unlisted";
+                                !s.rconConnected || p.category === "Unlisted";
 
                             field
                                 .querySelector(".playerListing")
