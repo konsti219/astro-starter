@@ -163,6 +163,18 @@ class RconManager {
         this.queue.push(cmd)
     }
 
+    setPlayerCategory(guid: string, category: string) {
+        const player = this.players.find(p => p.playerGuid === guid)
+        if (player) {
+            this.run(`DSSetPlayerCategoryForPlayerName ${player.playerName} ${category}`)
+        } else {
+            throw "could not find player with guid " + guid;
+        }
+    }
+    kickPlayer(guid: string) {
+        this.run(`DSKickPlayerGuid ${guid}`)
+    }
+
     async update() {
         this.run("DSServerStatistics")
         this.run("DSListGames")
