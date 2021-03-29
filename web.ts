@@ -5,10 +5,10 @@ import { Starter } from "./Starter.ts"
 import { info, error } from "./logging.ts"
 
 
-function notFound(context: oak.Context) {
-  context.response.status = oak.Status.NotFound
-  context.response.body =
-    `<html><body><h1>404 - Not Found</h1><p>Path <code>${context.request.url}</code> not found.`
+function notFound(ctx: oak.Context) {
+  ctx.response.status = oak.Status.NotFound
+  ctx.response.body =
+    `<html><body><h1>404 - Not Found</h1><p>Path <code>${ctx.request.url}</code> not found.`
 }
 
 class WebServer {
@@ -22,16 +22,16 @@ class WebServer {
         // ROUTER
 
         // home
-        this.router.get("/", async context => {
-            context.response.body = await Deno.readFile(path.join(this.staticPath, "index.html"))
+        this.router.get("/", async ctx => {
+            ctx.response.body = await Deno.readFile(path.join(this.staticPath, "index.html"))
         })
-        this.router.get("/script.js", async context => {
-            context.response.body = await Deno.readFile(path.join(this.staticPath, "script.js"))
+        this.router.get("/script.js", async ctx => {
+            ctx.response.body = await Deno.readFile(path.join(this.staticPath, "script.js"))
         })
 
         // server data
-        this.router.get("/api/servers", context => {
-            context.response.body = {
+        this.router.get("/api/servers", ctx => {
+            ctx.response.body = {
                 latestVersion: this.starter.latestVersion,
                 servers: this.starter.servers.map(s => ({
                     id: s.id,
@@ -46,34 +46,46 @@ class WebServer {
                     playfabData: s.playfabData
                 }))
             }
-            context.response.type = "json"
+            ctx.response.type = "json"
         })
 
         // TODO auth
-        this.router.post<{ id: string, action: string }>("/api/servers/:id/:action", context => {
-            context.response.type = "json"
+        this.router.post<{ id: string, action: string }>("/api/servers/:id/:action", async ctx => {
+            ctx.response.type = "json"
 
             const err = () => {
-                context.response.body = { status: "NOT FOUND" }
-                context.response.status = oak.Status.NotFound
+                ctx.response.body = { status: "NOT FOUND" }
+                ctx.response.status = oak.Status.NotFound
             }
 
             // Server actions
-            if (context.params?.id && context.params?.action) {
-                const server = this.starter.servers.find(s => s.id === context.params.id)
+            if (ctx.params?.id && ctx.params?.action) {
+                const server = this.starter.servers.find(s => s.id === ctx.params.id)
                 if (server) {
-                    const act = context.params.action
+                    const act = ctx.params.action
                     if (act === "start") {
                         server.start()
                     } else if (act === "stop") {
                         server.stop()
                     } else if (act === "restart") {
                         server.restart()
+                    } else if (act === "rcon") {
+                        const body = (await ctx.request.body())
+                        const { command } = (await body.value)
+                        server.rcon.run(command)
+                    } else if (act === "setcategory") {
+                        const body = (await ctx.request.body())
+                        const { guid, category } = (await body.value)
+                        server.rcon.setPlayerCategory(guid, category)
+                    } else if (act === "kick") {
+                        const body = (await ctx.request.body())
+                        const { guid } = (await body.value)
+                        server.rcon.kickPlayer(guid)
                     } else {
                         err()
                     }
 
-                    context.response.body = { status: "OK" }
+                    ctx.response.body = { status: "OK" }
                         
                     // TODO player management, save management
                 } else {
@@ -85,10 +97,10 @@ class WebServer {
         });
 
         // shutdown everything
-        this.router.post("/api/shutdown", context => {
+        this.router.post("/api/shutdown", ctx => {
             this.starter.shutdown()
-            context.response.body = { status: "OK" }
-            context.response.type = "json"
+            ctx.response.body = { status: "OK" }
+            ctx.response.type = "json"
         })
 
 
@@ -96,38 +108,38 @@ class WebServer {
 
         /*
         // Logger
-        this.app.use(async (context, next) => {
+        this.app.use(async (ctx, next) => {
             await next()
-            const rt = context.response.headers.get("X-Response-Time")
+            const rt = ctx.response.headers.get("X-Response-Time")
             console.log(
-                `${Colors.green(context.request.method)} ${
-                    Colors.cyan(decodeURIComponent(context.request.url.pathname))
+                `${Colors.green(ctx.request.method)} ${
+                    Colors.cyan(decodeURIComponent(ctx.request.url.pathname))
                 } - ${Colors.bold(String(rt))}`,
             );
         });
 
         // Response Time
-        this.app.use(async (context, next) => {
+        this.app.use(async (ctx, next) => {
             const start = Date.now()
             await next()
             const ms = Date.now() - start
-            context.response.headers.set("X-Response-Time", `${ms}ms`)
+            ctx.response.headers.set("X-Response-Time", `${ms}ms`)
         });*/
 
         // Error handler
-        this.app.use(async (context, next) => {
+        this.app.use(async (ctx, next) => {
         try {
             await next()
         } catch (err) {
             if (oak.isHttpError(err)) {
-                context.response.status = err.status
+                ctx.response.status = err.status
                 const { message, status, stack } = err
-                if (context.request.accepts("json")) {
-                    context.response.body = { message, status, stack }
-                    context.response.type = "json"
+                if (ctx.request.accepts("json")) {
+                    ctx.response.body = { message, status, stack }
+                    ctx.response.type = "json"
                 } else {
-                    context.response.body = `${status} ${message}\n\n${stack ?? ""}`
-                    context.response.type = "text/plain"
+                    ctx.response.body = `${status} ${message}\n\n${stack ?? ""}`
+                    ctx.response.type = "text/plain"
                 }
             } else {
                 error(err)
