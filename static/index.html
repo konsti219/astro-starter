@@ -42,7 +42,7 @@
             fieldset {
                 margin-top: 25px;
                 border: 1px solid var(--border-grey);
-                border-radius: 10px;
+                border-radius: 8px;
             }
             h3 {
                 margin-top: 0px;
@@ -78,31 +78,31 @@
             }
             /* corners */
             .tableRow:first-child > .tableCell:first-child {
-                border-radius: 5px 0 0 0;
+                border-radius: 8px 0 0 0;
             }
             .tableRow:first-child > .tableCell:last-child {
-                border-radius: 0 5px 0 0;
+                border-radius: 0 8px 0 0;
             }
             .tableRow:last-child > .tableCell:first-child {
-                border-radius: 0 0 0 5px;
+                border-radius: 0 0 0 8px;
             }
             .tableRow:last-child > .tableCell:last-child {
-                border-radius: 0 0 5px 0;
+                border-radius: 0 0 8px 0;
             }
 
             .greenText {
                 border: 1px solid var(--green);
-                border-radius: 4px;
+                border-radius: 8px;
                 padding: 4px;
             }
             .yellowText {
                 border: 1px solid var(--yellow);
-                border-radius: 4px;
+                border-radius: 8px;
                 padding: 4px;
             }
             .redText {
                 border: 1px solid var(--red);
-                border-radius: 4px;
+                border-radius: 8px;
                 padding: 4px;
             }
 
@@ -118,7 +118,7 @@
                 font-size: 1em;
                 border: 1px solid var(--border-grey);
                 background-color: var(--dark-grey);
-                border-radius: 5px;
+                border-radius: 8px;
                 padding: 4px;
                 color: var(--white);
             }
@@ -147,6 +147,14 @@
     <body>
         <div id="container">
             <h1>Astro Starter</h1>
+
+            <p
+                id="isDisconnected"
+                class="redText"
+                style="display: none; text-align: center; font-weight: 600"
+            >
+                Disconnected
+            </p>
 
             <div id="servers"></div>
 
@@ -212,112 +220,117 @@
             });
 
         const update = async () => {
-            const data = await (await fetch("/api/servers")).json();
-            //console.log(data);
+            try {
+                const data = await (await fetch("/api/servers")).json();
+                //console.log(data);
 
-            const serversDiv = document.querySelector("#servers");
-            serversDiv.innerHTML = "";
+                const serversDiv = document.querySelector("#servers");
+                serversDiv.innerHTML = "";
 
-            /*
+                /*
             const versionSpan = document.createElement("span");
             versionSpan.innerText = data.latestVersion;
             serversDiv.appendChild(versionSpan);*/
 
-            data.servers.forEach((s) => {
-                // server fieldset
-                const field = document
-                    .querySelector("#server")
-                    .content.cloneNode(true);
+                data.servers.forEach((s) => {
+                    // server fieldset
+                    const field = document
+                        .querySelector("#server")
+                        .content.cloneNode(true);
 
-                // server status
-                if (s.status === "stopped") {
-                    field.querySelector(".serverStatus").innerText = "Stopped";
-                    field
-                        .querySelector(".serverStatus")
-                        .classList.add("redText");
-                    //
-                } else if (s.status === "starting") {
-                    field.querySelector(".serverStatus").innerText =
-                        "Starting...";
-                    field
-                        .querySelector(".serverStatus")
-                        .classList.add("yellowText");
-                    //
-                } else if (s.status === "running") {
-                    field.querySelector(".serverStatus").innerText = "Running";
-                    field
-                        .querySelector(".serverStatus")
-                        .classList.add("greenText");
-                    //
-                } else if (s.status === "stopping") {
-                    field.querySelector(".serverStatus").innerText =
-                        "Stopping...";
-                    field
-                        .querySelector(".serverStatus")
-                        .classList.add("yellowText");
-                }
+                    // server status
+                    if (s.status === "stopped") {
+                        field.querySelector(".serverStatus").innerText =
+                            "Stopped";
+                        field
+                            .querySelector(".serverStatus")
+                            .classList.add("redText");
+                        //
+                    } else if (s.status === "starting") {
+                        field.querySelector(".serverStatus").innerText =
+                            "Starting...";
+                        field
+                            .querySelector(".serverStatus")
+                            .classList.add("yellowText");
+                        //
+                    } else if (s.status === "running") {
+                        field.querySelector(".serverStatus").innerText =
+                            "Running";
+                        field
+                            .querySelector(".serverStatus")
+                            .classList.add("greenText");
+                        //
+                    } else if (s.status === "stopping") {
+                        field.querySelector(".serverStatus").innerText =
+                            "Stopping...";
+                        field
+                            .querySelector(".serverStatus")
+                            .classList.add("yellowText");
+                    }
 
-                // server id
-                field.querySelector(".id").innerText = s.id;
+                    // server id
+                    field.querySelector(".id").innerText = s.id;
 
-                // server name
-                field.querySelector(".serverName").innerText = s.name;
+                    // server name
+                    field.querySelector(".serverName").innerText = s.name;
 
-                // server address
-                field.querySelector(".serverAddr").innerText =
-                    s.serverAddr + " ";
-                const a = document.createElement("a");
-                a.addEventListener("click", () =>
-                    navigator.clipboard.writeText(s.serverAddr)
-                );
-                a.innerText = "Copy";
-                field.querySelector(".serverAddr").appendChild(a);
+                    // server address
+                    field.querySelector(".serverAddr").innerText =
+                        s.serverAddr + " ";
+                    const a = document.createElement("a");
+                    a.addEventListener("click", () =>
+                        navigator.clipboard.writeText(s.serverAddr)
+                    );
+                    a.innerText = "Copy";
+                    field.querySelector(".serverAddr").appendChild(a);
 
-                // host type (local/remote)
-                field.querySelector(".serverHost").innerText = s.serverType;
+                    // host type (local/remote)
+                    field.querySelector(".serverHost").innerText = s.serverType;
 
-                // server type (Individual/Preferred)
-                if (s.playfabData)
-                    field.querySelector(".serverType").innerText =
-                        s.playfabData.Tags.category;
+                    // server type (Individual/Preferred)
+                    if (s.playfabData)
+                        field.querySelector(".serverType").innerText =
+                            s.playfabData.Tags.category;
 
-                // owner
-                field.querySelector(".serverOwner").innerText = s.owner;
+                    // owner
+                    field.querySelector(".serverOwner").innerText = s.owner;
 
-                // TODO
-                // whitelist
-                // password
+                    // TODO
+                    // whitelist
+                    // password
 
-                // players
-                s.players
-                    .filter((s) => s.inGame)
-                    .concat(s.players.filter((s) => !s.inGame))
-                    .forEach((p) => {
-                        const row = document
-                            .querySelector("#playerRow")
-                            .content.cloneNode(true);
+                    // players
+                    s.players
+                        .filter((s) => s.inGame)
+                        .concat(s.players.filter((s) => !s.inGame))
+                        .forEach((p) => {
+                            const row = document
+                                .querySelector("#playerRow")
+                                .content.cloneNode(true);
 
-                        const divs = row.querySelectorAll("div");
+                            const divs = row.querySelectorAll("div");
 
-                        // name
-                        divs[1].textContent = p.name;
-                        if (p.inGame) divs[1].classList.add("green");
-                        if (p.cached) divs[1].classList.add("italic");
+                            // name
+                            divs[1].textContent = p.name;
+                            if (p.inGame) divs[1].classList.add("green");
+                            if (p.cached) divs[1].classList.add("italic");
 
-                        divs[2].textContent = p.category;
-                        if (Date.now() - p.lastSeen < 60000) {
-                            divs[3].textContent = "Just now";
-                        } else if (p.lastSeen == 0) {
-                            divs[3].textContent = "Never";
-                        } else {
-                            divs[3].textContent = timeAgo(
-                                DateTime.fromMillis(p.lastSeen)
-                            );
-                        }
+                            divs[2].textContent = p.category;
+                            if (Date.now() - p.lastSeen < 60000) {
+                                divs[3].textContent = "Just now";
+                            } else if (p.lastSeen == 0) {
+                                divs[3].textContent = "Never";
+                            } else {
+                                divs[3].textContent = timeAgo(
+                                    DateTime.fromMillis(p.lastSeen)
+                                );
+                            }
 
-                        field.querySelector(".playerTable").appendChild(row);
+                            field
+                                .querySelector(".playerTable")
+                                .appendChild(row);
 
-                        /*
+                            /*
                     cached: false;
                     category: "Owner";
                     firstJoin: 1616538244213;
@@ -329,63 +342,71 @@
                     onlineSince: 0;
                     playfabid: "";
                     prevPlaytime: 0;*/
-                    });
-
-                // saves
-
-                // ability to change whitelist
-                // manage players
-                // manage saves
-
-                // action buttons
-                field
-                    .querySelector(".btnStop")
-                    .addEventListener("click", async (_) => {
-                        await fetch(`/api/servers/${s.id}/stop`, {
-                            method: "POST",
                         });
-                    });
-                field
-                    .querySelector(".btnStart")
-                    .addEventListener("click", async (_) => {
-                        await fetch(`/api/servers/${s.id}/start`, {
-                            method: "POST",
-                        });
-                    });
-                field
-                    .querySelector(".btnRestart")
-                    .addEventListener("click", async (_) => {
-                        await fetch(`/api/servers/${s.id}/restart`, {
-                            method: "POST",
-                        });
-                    });
 
-                if (s.status === "stopped") {
-                    field.querySelector(".btnStop").style.display = "none";
-                    //
-                } else if (s.status === "starting") {
-                    field.querySelector(".btnStart").style.display = "none";
-                    field.querySelector(".btnStop").disabled = true;
-                    field.querySelector(".btnRestart").disabled = true;
-                    //
-                } else if (s.status === "running") {
-                    field.querySelector(".btnStart").style.display = "none";
-                    //
-                } else if (s.status === "stopping") {
-                    field.querySelector(".btnStop").style.display = "none";
-                    field.querySelector(".btnStart").disabled = true;
-                    field.querySelector(".btnRestart").disabled = true;
-                }
+                    // saves
 
-                //console.log(s);
-                /*
+                    // ability to change whitelist
+                    // manage players
+                    // manage saves
+
+                    // action buttons
+                    field
+                        .querySelector(".btnStop")
+                        .addEventListener("click", async (_) => {
+                            await fetch(`/api/servers/${s.id}/stop`, {
+                                method: "POST",
+                            });
+                        });
+                    field
+                        .querySelector(".btnStart")
+                        .addEventListener("click", async (_) => {
+                            await fetch(`/api/servers/${s.id}/start`, {
+                                method: "POST",
+                            });
+                        });
+                    field
+                        .querySelector(".btnRestart")
+                        .addEventListener("click", async (_) => {
+                            await fetch(`/api/servers/${s.id}/restart`, {
+                                method: "POST",
+                            });
+                        });
+
+                    if (s.status === "stopped") {
+                        field.querySelector(".btnStop").style.display = "none";
+                        //
+                    } else if (s.status === "starting") {
+                        field.querySelector(".btnStart").style.display = "none";
+                        field.querySelector(".btnStop").disabled = true;
+                        field.querySelector(".btnRestart").disabled = true;
+                        //
+                    } else if (s.status === "running") {
+                        field.querySelector(".btnStart").style.display = "none";
+                        //
+                    } else if (s.status === "stopping") {
+                        field.querySelector(".btnStop").style.display = "none";
+                        field.querySelector(".btnStart").disabled = true;
+                        field.querySelector(".btnRestart").disabled = true;
+                    }
+
+                    //console.log(s);
+                    /*
                 players: [{…}]
                 playfabData: {Region: "USEast", LobbyID: "512496370981876417", BuildVersion: "8", GameMode: "CoopStandard", PlayerUserIds: Array(0), …}
                 stats: {build: "1.18.68.0", ownerName: "Konsti219", maxInGamePlayers: 8, playersInGame: 0, playersKnownToGame: 0, …}
                 */
 
-                serversDiv.appendChild(field);
-            });
+                    serversDiv.appendChild(field);
+                });
+
+                document.querySelector("#isDisconnected").style.display =
+                    "none";
+            } catch (e) {
+                console.error(e);
+                document.querySelector("#isDisconnected").style.display =
+                    "block";
+            }
         };
         setInterval(update, 2000);
         update();
