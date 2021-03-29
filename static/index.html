@@ -130,7 +130,7 @@
                 border: 1px solid var(--border-grey);
                 background-color: var(--dark-grey);
                 border-radius: var(--border-radius);
-                padding: 4px;
+                padding: 4px 6px;
                 color: var(--white);
             }
             button:disabled {
@@ -261,7 +261,14 @@
                             <span>guid: </span><span class="playerGuid"></span>
                         </p>
 
-                        <p>buttons</p>
+                        <p>
+                            <button class="btnKick btnYellow">Kick</button>
+                            <button class="btnBan btnRed">Ban</button>
+                            <button class="btnWhitelist btnGreen">
+                                Whitelist
+                            </button>
+                            <button class="btnReset">Reset permissions</button>
+                        </p>
                     </div>
                 </div>
             </template>
@@ -484,6 +491,19 @@
                             // check if already expanded
                             row.children[0].children[1].style.display =
                                 id in expanded ? "block" : "none";
+
+                            // buttons
+                            row.querySelector(
+                                ".btnKick"
+                            ).disabled = !s.rconConnected;
+                            row.querySelector(".btnBan").disabled =
+                                !s.rconConnected ||
+                                s.category === "Blacklisted";
+                            row.querySelector(".btnWhitelist").disabled =
+                                !s.rconConnected ||
+                                s.category === "Whitelisted";
+                            row.querySelector(".btnReset").disabled =
+                                !s.rconConnected || s.category === "Unlisted";
 
                             field
                                 .querySelector(".playerListing")
