@@ -27,6 +27,8 @@
                 --white: #c9d1d9;
                 --border-grey: #30363d;
                 --dark-grey: #21262d;
+
+                --border-radius: 8px;
             }
 
             body {
@@ -42,7 +44,7 @@
             fieldset {
                 margin-top: 25px;
                 border: 1px solid var(--border-grey);
-                border-radius: 8px;
+                border-radius: var(--border-radius);
             }
             h3 {
                 margin-top: 0px;
@@ -56,53 +58,62 @@
                 cursor: pointer;
             }
 
-            /* general table stuff */
-            .tableRow {
+            /* general listing (advanded table) stuff */
+            /* outer borders and horizontal borders donw by rows */
+            .listingRow {
+                border: 1px solid var(--border-grey);
+                border-bottom: 0;
+            }
+            .listingRow:last-child {
+                border-bottom: 1px solid var(--border-grey);
+            }
+            /* bold listing head */
+            .listingRow:first-child > .listingColumns {
+                font-weight: 600;
+            }
+
+            /* inner colums with grid */
+            .listingColumns {
                 display: grid;
                 grid-template-columns: repeat(3, 1fr);
             }
-            .tableRow:first-child {
-                font-weight: 600;
-            }
-            /* borders */
-            .tableCell {
+            /* borders inbetween the coulums */
+            .listingCell {
                 padding: 4px;
-                border-left: 1px solid var(--border-grey);
-                border-top: 1px solid var(--border-grey);
-            }
-            .tableCell:last-child {
                 border-right: 1px solid var(--border-grey);
             }
-            .tableRow:last-child > .tableCell {
-                border-bottom: 1px solid var(--border-grey);
+            .listingCell:last-child {
+                border-right: 0;
             }
+            /* listing body */
+            .listingBody {
+                padding: 4px;
+                border-top: 1px solid var(--border-grey);
+                display: none;
+            }
+
             /* corners */
-            .tableRow:first-child > .tableCell:first-child {
-                border-radius: 8px 0 0 0;
+            .listingRow:first-child {
+                border-radius: var(--border-radius) var(--border-radius) 0 0;
             }
-            .tableRow:first-child > .tableCell:last-child {
-                border-radius: 0 8px 0 0;
-            }
-            .tableRow:last-child > .tableCell:first-child {
-                border-radius: 0 0 0 8px;
-            }
-            .tableRow:last-child > .tableCell:last-child {
-                border-radius: 0 0 8px 0;
+
+            .listingRow:last-child {
+                border-radius: 0 0 var(--border-radius) var(--border-radius);
             }
 
             .greenText {
                 border: 1px solid var(--green);
-                border-radius: 8px;
+                border-radius: var(--border-radius);
                 padding: 4px;
             }
             .yellowText {
                 border: 1px solid var(--yellow);
-                border-radius: 8px;
+                border-radius: var(--border-radius);
                 padding: 4px;
             }
             .redText {
                 border: 1px solid var(--red);
-                border-radius: 8px;
+                border-radius: var(--border-radius);
                 padding: 4px;
             }
 
@@ -118,7 +129,7 @@
                 font-size: 1em;
                 border: 1px solid var(--border-grey);
                 background-color: var(--dark-grey);
-                border-radius: 8px;
+                border-radius: var(--border-radius);
                 padding: 4px;
                 color: var(--white);
             }
@@ -181,11 +192,14 @@
                     </p>
                     <p><span>Owner: </span><span class="serverOwner"></span></p>
 
-                    <div class="table playerTable">
-                        <div class="tableRow">
-                            <div class="tableCell">Name</div>
-                            <div class="tableCell">Category</div>
-                            <div class="tableCell">Last Online</div>
+                    <div class="listing playerListing">
+                        <div class="listingRow">
+                            <div class="listingColumns">
+                                <div class="listingCell">Name</div>
+                                <div class="listingCell">Category</div>
+                                <div class="listingCell">Last Online</div>
+                            </div>
+                            <div class="listingBody"></div>
                         </div>
                     </div>
 
@@ -198,10 +212,13 @@
             </template>
 
             <template id="playerRow">
-                <div class="tableRow">
-                    <div class="tableCell"></div>
-                    <div class="tableCell"></div>
-                    <div class="tableCell"></div>
+                <div class="listingRow">
+                    <div class="listingColumns">
+                        <div class="listingCell listingData"></div>
+                        <div class="listingCell listingData"></div>
+                        <div class="listingCell listingData"></div>
+                    </div>
+                    <div class="listingBody">test</div>
                 </div>
             </template>
         </div>
@@ -218,6 +235,8 @@
             .addEventListener("click", async (_) => {
                 await fetch("/api/shutdown", { method: "POST" });
             });
+
+        let expanded = {};
 
         const update = async () => {
             try {
@@ -308,40 +327,71 @@
                                 .querySelector("#playerRow")
                                 .content.cloneNode(true);
 
-                            const divs = row.querySelectorAll("div");
+                            const tableDivs = row.querySelectorAll(
+                                ".listingData"
+                            );
 
                             // name
-                            divs[1].textContent = p.name;
-                            if (p.inGame) divs[1].classList.add("green");
-                            if (p.cached) divs[1].classList.add("italic");
+                            tableDivs[0].textContent =
+                                p.name == "" ? "UNKNOWN" : p.name;
+                            if (p.inGame) tableDivs[0].classList.add("green");
+                            if (p.cached || p.name == "")
+                                tableDivs[0].classList.add("italic");
 
-                            divs[2].textContent = p.category;
+                            // category
+                            tableDivs[1].textContent = p.category;
+
+                            // last online
                             if (Date.now() - p.lastSeen < 60000) {
-                                divs[3].textContent = "Just now";
+                                tableDivs[2].textContent = "Just now";
                             } else if (p.lastSeen == 0) {
-                                divs[3].textContent = "Never";
+                                tableDivs[2].textContent = "Never";
                             } else {
-                                divs[3].textContent = timeAgo(
+                                tableDivs[2].textContent = timeAgo(
                                     DateTime.fromMillis(p.lastSeen)
                                 );
                             }
 
+                            // expand stuff
+                            const columns = row.children[0].children[0];
+                            // set tracking id
+                            const id = s.id + (p.guid != "" ? p.guid : p.name);
+                            columns.setAttribute("data-expandgroup", id);
+
+                            // add listener
+                            columns.addEventListener("click", (e) => {
+                                const id = e.target.parentElement.getAttribute(
+                                    "data-expandgroup"
+                                );
+                                const isExpanded = id in expanded;
+
+                                e.target.parentElement.parentElement.children[1].style.display = isExpanded
+                                    ? "none"
+                                    : "block";
+
+                                if (isExpanded) delete expanded[id];
+                                else expanded[id] = true;
+                            });
+                            // check if already expanded
+                            row.children[0].children[1].style.display =
+                                id in expanded ? "block" : "none";
+
                             field
-                                .querySelector(".playerTable")
+                                .querySelector(".playerListing")
                                 .appendChild(row);
 
                             /*
-                    cached: false;
-                    category: "Owner";
-                    firstJoin: 1616538244213;
-                    firstJoinName: "konsti219";
-                    guid: "2479115687826661595";
-                    inGame: false;
-                    lastSeen: 0;
-                    name: "konsti219";
-                    onlineSince: 0;
-                    playfabid: "";
-                    prevPlaytime: 0;*/
+                            cached: false;
+                            category: "Owner";
+                            firstJoin: 1616538244213;
+                            firstJoinName: "konsti219";
+                            guid: "2479115687826661595";
+                            inGame: false;
+                            lastSeen: 0;
+                            name: "konsti219";
+                            onlineSince: 0;
+                            playfabid: "";
+                            prevPlaytime: 0;*/
                         });
 
                     // saves
@@ -392,7 +442,6 @@
 
                     //console.log(s);
                     /*
-                players: [{…}]
                 playfabData: {Region: "USEast", LobbyID: "512496370981876417", BuildVersion: "8", GameMode: "CoopStandard", PlayerUserIds: Array(0), …}
                 stats: {build: "1.18.68.0", ownerName: "Konsti219", maxInGamePlayers: 8, playersInGame: 0, playersKnownToGame: 0, …}
                 */
@@ -411,30 +460,7 @@
         setInterval(update, 2000);
         update();
 
-        // expand stuff
-        document
-            .querySelectorAll(".expand-item")
-            .forEach((el) => el.style.setProperty("visibility", "collapse"));
-        document.querySelectorAll(".expand-parent").forEach((el) => {
-            el.setAttribute("expanded", false);
-            el.addEventListener("click", (e) => {
-                const expanded = el.getAttribute("data-expanded") != "true";
-                el.setAttribute("data-expanded", expanded);
-                document
-                    .querySelectorAll(
-                        `.expand-item[data-expandgroup=${el.getAttribute(
-                            "data-expandgroup"
-                        )}]`
-                    )
-                    .forEach((item) =>
-                        item.style.setProperty(
-                            "visibility",
-                            expanded ? "" : "collapse"
-                        )
-                    );
-            });
-        });
-
+        // "x minutes ago" calculator
         const units = [
             "year",
             "month",
