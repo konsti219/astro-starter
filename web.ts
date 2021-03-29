@@ -74,11 +74,11 @@ class WebServer {
                         const { command } = (await body.value)
                         server.rcon.run(command)
                     } else if (act === "setcategory") {
-                        const body = (await ctx.request.body())
+                        const body = (await ctx.request.body({ type: "json" }))
                         const { guid, category } = (await body.value)
                         server.rcon.setPlayerCategory(guid, category)
                     } else if (act === "kick") {
-                        const body = (await ctx.request.body())
+                        const body = (await ctx.request.body({ type: "json" }))
                         const { guid } = (await body.value)
                         server.rcon.kickPlayer(guid)
                     } else {
