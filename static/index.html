@@ -218,7 +218,51 @@
                         <div class="listingCell listingData"></div>
                         <div class="listingCell listingData"></div>
                     </div>
-                    <div class="listingBody">test</div>
+                    <div class="listingBody">
+                        <p>
+                            <span>name: </span><span class="playerName"></span>
+                        </p>
+                        <p>
+                            <span>category: </span
+                            ><span class="playerCategory"></span>
+                        </p>
+                        <br />
+                        <p>
+                            <span>first joined: </span
+                            ><span class="playerFirstJoin"></span>
+                        </p>
+                        <p>
+                            <span>first joined as: </span
+                            ><span class="playerFirstJoinName"></span>
+                        </p>
+                        <br />
+                        <p>
+                            <span>online: </span
+                            ><span class="playerInGame"></span>
+                        </p>
+                        <p>
+                            <span>onlineSince: </span
+                            ><span class="playerOnlineSince"></span>
+                        </p>
+                        <p>
+                            <span>last online: </span
+                            ><span class="playerLastSeen"></span>
+                        </p>
+                        <p>
+                            <span>total playtime: </span
+                            ><span class="playerPlaytime"></span>
+                        </p>
+                        <br />
+                        <p>
+                            <span>name cached: </span
+                            ><span class="playerCached"></span>
+                        </p>
+                        <p>
+                            <span>guid: </span><span class="playerGuid"></span>
+                        </p>
+
+                        <p>buttons</p>
+                    </div>
                 </div>
             </template>
         </div>
@@ -331,6 +375,7 @@
                                 ".listingData"
                             );
 
+                            // columns head
                             // name
                             tableDivs[0].textContent =
                                 p.name == "" ? "UNKNOWN" : p.name;
@@ -351,6 +396,70 @@
                                     DateTime.fromMillis(p.lastSeen)
                                 );
                             }
+
+                            // listing body
+                            // name, category
+                            row.querySelector(".playerName").innerText =
+                                p.name == "" ? "UNKNOWN" : p.name;
+                            row.querySelector(".playerCategory").innerText =
+                                p.category;
+
+                            // first join
+                            row.querySelector(".playerFirstJoin").innerText =
+                                p.firstJoin === 0
+                                    ? "Never"
+                                    : DateTime.fromMillis(p.firstJoin).toFormat(
+                                          "yyyy-LL-dd HH:mm"
+                                      );
+                            row.querySelector(
+                                ".playerFirstJoinName"
+                            ).innerText =
+                                p.firstJoinName == ""
+                                    ? "UNKNOWN"
+                                    : p.firstJoinName;
+
+                            // online, online since
+                            row.querySelector(".playerInGame").innerText =
+                                p.inGame;
+                            row.querySelector(".playerOnlineSince").innerText =
+                                p.onlineSince === 0
+                                    ? "not online"
+                                    : timeAgo(
+                                          DateTime.fromMillis(p.onlineSince)
+                                      );
+                            // last seen
+                            row.querySelector(".playerLastSeen").innerText = p;
+                            if (Date.now() - p.lastSeen < 60000) {
+                                row.querySelector(".playerLastSeen").innerText =
+                                    "Just now";
+                            } else if (p.lastSeen == 0) {
+                                row.querySelector(".playerLastSeen").innerText =
+                                    "Never";
+                            } else {
+                                row.querySelector(
+                                    ".playerLastSeen"
+                                ).innerText = timeAgo(
+                                    DateTime.fromMillis(p.lastSeen)
+                                );
+                            }
+                            // playtime
+                            const curPlaytime =
+                                p.onlineSince > 0
+                                    ? Date.now() - p.onlineSince
+                                    : 0;
+                            const playtime = p.prevPlaytime + curPlaytime;
+                            row.querySelector(
+                                ".playerPlaytime"
+                            ).innerText = humanizeDuration(playtime, {
+                                largest: 2,
+                                round: true,
+                            });
+
+                            // cached
+                            row.querySelector(".playerCached").innerText =
+                                p.cached;
+                            // guid
+                            row.querySelector(".playerGuid").innerText = p.guid;
 
                             // expand stuff
                             const columns = row.children[0].children[0];
@@ -386,7 +495,6 @@
                             firstJoin: 1616538244213;
                             firstJoinName: "konsti219";
                             guid: "2479115687826661595";
-                            inGame: false;
                             lastSeen: 0;
                             name: "konsti219";
                             onlineSince: 0;
