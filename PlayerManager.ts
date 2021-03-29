@@ -135,7 +135,7 @@ class PlayerManager {
                     firstJoinName: p.playerName,
 
                     inGame: false,
-                    firstJoin: Date.now(),
+                    firstJoin: 0,
                     onlineSince: 0,
                     lastSeen: 0,
                     prevPlaytime: 0,
@@ -172,7 +172,7 @@ class PlayerManager {
                 // check for incomplete first data
                 if (rconP.inGame) {
                     if (p.firstJoinName === "") p.firstJoinName = rconP.playerName
-                    if (p.firstJoin == 0) p.firstJoin = Date.now()
+                    if (p.firstJoin === 0) p.firstJoin = Date.now()
                 }
 
                 // update other data
