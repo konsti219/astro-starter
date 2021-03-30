@@ -21,18 +21,20 @@ export function infoWebhook(msg: string, server: string, webhook: string): void 
     addToLogFile(`[INFO - ${server}] ` + msg)
 
     if (webhook !== "") {
-        fetch(webhook, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                content: msg,
-                username: `${server} [Astro Starter]`,
-                avatar_url: "https://cdn.glitch.com/21049ce3-c04d-43f4-9653-0d83cc66504c%2Fastroleague_bot.jpg?v=1616962135777",
-                allowed_mentions: { parse: [] }
+        try {
+            fetch(webhook, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    content: msg,
+                    username: `${server} [Astro Starter]`,
+                    avatar_url: "https://cdn.glitch.com/21049ce3-c04d-43f4-9653-0d83cc66504c%2Fastroleague_bot.jpg?v=1616962135777",
+                    allowed_mentions: { parse: [] }
+                })
             })
-        })
+        } catch(_) {/**/}
     }
 }
 
