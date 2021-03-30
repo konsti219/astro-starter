@@ -1,654 +1,679 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <link
-            rel="icon"
-            type="image/png"
-            href="https://cdn.glitch.com/21049ce3-c04d-43f4-9653-0d83cc66504c%2Fastroleague_bot.jpg?v=1616962135777"
-        />
-        <title>Astro Starter</title>
 
-        <script src="https://cdn.jsdelivr.net/npm/luxon@1.25.0/build/global/luxon.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/humanize-duration@3.25.1/humanize-duration.min.js"></script>
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png"
+        href="https://cdn.glitch.com/21049ce3-c04d-43f4-9653-0d83cc66504c%2Fastroleague_bot.jpg?v=1616962135777" />
+    <title>Astro Starter</title>
 
-        <style>
-            :root {
-                --green: #2ea043;
-                --yellow: #b5be2f;
-                --red: #a02e2e;
+    <script src="https://cdn.jsdelivr.net/npm/luxon@1.25.0/build/global/luxon.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/humanize-duration@3.25.1/humanize-duration.min.js"></script>
 
-                --dark-green: #238636;
-                --dark-yellow: #99922e;
-                --dark-red: #862323;
+    <style>
+        :root {
+            --green: #2ea043;
+            --yellow: #b5be2f;
+            --red: #a02e2e;
 
-                --white: #c9d1d9;
-                --border-grey: #30363d;
-                --dark-grey: #21262d;
+            --dark-green: #238636;
+            --dark-yellow: #99922e;
+            --dark-red: #862323;
 
-                --border-radius: 8px;
-            }
+            --white: #c9d1d9;
+            --border-grey: #30363d;
+            --dark-grey: #21262d;
 
-            body {
-                font-family: Arial, Helvetica, sans-serif;
-                background-color: #0d1117;
-                color: var(--white);
-            }
-            #container {
-                max-width: 800px;
-                margin: 0 auto;
-            }
+            --border-radius: 8px;
+        }
 
-            fieldset {
-                margin-top: 25px;
-                border: 1px solid var(--border-grey);
-                border-radius: var(--border-radius);
-            }
-            h3 {
-                margin-top: 0px;
-            }
-            p {
-                margin-block-start: 0.5em;
-                margin-block-end: 0.5em;
-            }
-            a {
-                text-decoration: underline;
-                cursor: pointer;
-            }
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: #0d1117;
+            color: var(--white);
+        }
 
-            /* general listing (advanded table) stuff */
-            /* outer borders and horizontal borders donw by rows */
-            .listingRow {
-                border: 1px solid var(--border-grey);
-                border-bottom: 0;
-            }
-            .listingRow:last-child {
-                border-bottom: 1px solid var(--border-grey);
-            }
-            /* bold listing head */
-            .listingRow:first-child > .listingColumns {
-                font-weight: 600;
-            }
+        #container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
 
-            /* inner colums with grid */
-            .listingColumns {
-                display: grid;
-                grid-template-columns: repeat(3, 1fr);
-            }
-            /* borders inbetween the coulums */
-            .listingCell {
-                padding: 4px;
-                border-right: 1px solid var(--border-grey);
-            }
-            .listingCell:last-child {
-                border-right: 0;
-            }
-            /* listing body */
-            .listingBody {
-                padding: 4px;
-                border-top: 1px solid var(--border-grey);
-                display: none;
-            }
+        fieldset {
+            margin-top: 25px;
+            border: 1px solid var(--border-grey);
+            border-radius: var(--border-radius);
+        }
 
-            /* corners */
-            .listingRow:first-child {
-                border-radius: var(--border-radius) var(--border-radius) 0 0;
-            }
+        h3 {
+            margin-top: 0px;
+        }
 
-            .listingRow:last-child {
-                border-radius: 0 0 var(--border-radius) var(--border-radius);
-            }
+        p {
+            margin-block-start: 0.5em;
+            margin-block-end: 0.5em;
+        }
 
-            .greenText {
-                border: 1px solid var(--green);
-                border-radius: var(--border-radius);
-                padding: 4px;
-            }
-            .yellowText {
-                border: 1px solid var(--yellow);
-                border-radius: var(--border-radius);
-                padding: 4px;
-            }
-            .redText {
-                border: 1px solid var(--red);
-                border-radius: var(--border-radius);
-                padding: 4px;
-            }
+        a {
+            text-decoration: underline;
+            cursor: pointer;
+        }
 
-            .green {
-                color: var(--green);
-            }
-            .italic {
-                font-style: italic;
-            }
+        /* general listing (advanded table) stuff */
+        /* outer borders and horizontal borders donw by rows */
+        .listingRow {
+            border: 1px solid var(--border-grey);
+            border-bottom: 0;
+        }
 
-            button {
-                font-weight: 550;
-                font-size: 1em;
-                border: 1px solid var(--border-grey);
-                background-color: var(--dark-grey);
-                border-radius: var(--border-radius);
-                padding: 4px 6px;
-                color: var(--white);
-            }
-            button:disabled {
-                filter: brightness(50%);
-            }
+        .listingRow:last-child {
+            border-bottom: 1px solid var(--border-grey);
+        }
 
-            .btnGreen {
-                border: 1px solid var(--green);
-                background-color: var(--dark-green);
-            }
-            .btnYellow {
-                border: 1px solid var(--yellow);
-                background-color: var(--dark-yellow);
-            }
-            .btnRed {
-                border: 1px solid var(--red);
-                background-color: var(--dark-red);
-            }
+        /* bold listing head */
+        .listingRow:first-child>.listingColumns {
+            font-weight: 600;
+        }
 
-            button:hover {
-                border: 1px solid var(--white);
-            }
-        </style>
-    </head>
-    <body>
-        <div id="container">
-            <h1>Astro Starter</h1>
+        /* inner colums with grid */
+        .listingColumns {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+        }
 
-            <p
-                id="isDisconnected"
-                class="redText"
-                style="display: none; text-align: center; font-weight: 600"
-            >
-                Disconnected
-            </p>
+        /* borders inbetween the coulums */
+        .listingCell {
+            padding: 4px;
+            border-right: 1px solid var(--border-grey);
+        }
 
-            <div id="servers"></div>
+        .listingCell:last-child {
+            border-right: 0;
+        }
 
-            <br /><button id="btnShutdown">Shutdown</button>
+        /* listing body */
+        .listingBody {
+            padding: 4px;
+            border-top: 1px solid var(--border-grey);
+            display: none;
+        }
 
-            <template id="server">
-                <fieldset>
-                    <legend class="id"></legend>
-                    <h3 class="serverName"></h3>
+        /* corners */
+        .listingRow:first-child {
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+        }
 
-                    <p>
-                        <span>Status: </span><span class="serverStatus"></span>
-                    </p>
-                    <p>
-                        <span>IP/Port: </span><span class="serverAddr"></span>
-                    </p>
-                    <p>
-                        <span>Server Host: </span
-                        ><span class="serverHost"></span>
-                    </p>
-                    <p>
-                        <span>Server Type: </span
-                        ><span class="serverType"></span>
-                    </p>
-                    <p><span>Owner: </span><span class="serverOwner"></span></p>
+        .listingRow:last-child {
+            border-radius: 0 0 var(--border-radius) var(--border-radius);
+        }
 
-                    <div class="listing playerListing">
-                        <div class="listingRow">
-                            <div class="listingColumns">
-                                <div class="listingCell">Name</div>
-                                <div class="listingCell">Category</div>
-                                <div class="listingCell">Last Online</div>
-                            </div>
-                            <div class="listingBody"></div>
+        .serverPlayerCount {
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .greenText {
+            border: 1px solid var(--green);
+            border-radius: var(--border-radius);
+            padding: 4px;
+        }
+
+        .yellowText {
+            border: 1px solid var(--yellow);
+            border-radius: var(--border-radius);
+            padding: 4px;
+        }
+
+        .redText {
+            border: 1px solid var(--red);
+            border-radius: var(--border-radius);
+            padding: 4px;
+        }
+
+        .green {
+            color: var(--green);
+        }
+
+        .italic {
+            font-style: italic;
+        }
+
+        button {
+            font-weight: 550;
+            font-size: 1em;
+            border: 1px solid var(--border-grey);
+            background-color: var(--dark-grey);
+            border-radius: var(--border-radius);
+            padding: 4px 6px;
+            color: var(--white);
+        }
+
+        button:disabled {
+            filter: brightness(50%);
+        }
+
+        .btnGreen {
+            border: 1px solid var(--green);
+            background-color: var(--dark-green);
+        }
+
+        .btnYellow {
+            border: 1px solid var(--yellow);
+            background-color: var(--dark-yellow);
+        }
+
+        .btnRed {
+            border: 1px solid var(--red);
+            background-color: var(--dark-red);
+        }
+
+        button:hover {
+            border: 1px solid var(--white);
+        }
+    </style>
+</head>
+
+<body>
+    <div id="container">
+        <h1>Astro Starter</h1>
+
+        <p id="isDisconnected" class="redText" style="display: none; text-align: center; font-weight: 600">
+            Disconnected
+        </p>
+
+        <div id="servers"></div>
+
+        <br /><button id="btnShutdown">Shutdown</button>
+
+        <template id="server">
+            <fieldset>
+                <legend class="id"></legend>
+                <h3 class="serverName"></h3>
+
+                <p>
+                    <span>Status: </span><span class="serverStatus"></span>
+                </p>
+                <p>
+                    <span>IP/Port: </span><span class="serverAddr"></span>
+                </p>
+                <p>
+                    <span>Server Host: </span><span class="serverHost"></span>
+                </p>
+                <p>
+                    <span>Server Type: </span><span class="serverType"></span>
+                </p>
+                <p><span>Owner: </span><span class="serverOwner"></span></p>
+                <p>
+                    <span>Whitelist: </span><span class="serverHasWhitelist"></span>
+                </p>
+                <p>
+                    <span>Password: </span><span class="serverHasPassword"></span>
+                </p>
+                <p>
+                    <span>Game build: </span><span class="serverBuild"></span>
+                </p>
+
+                <h4 class="serverPlayerCount">Players</h4>
+                <div class="listing playerListing">
+                    <div class="listingRow">
+                        <div class="listingColumns">
+                            <div class="listingCell">Name</div>
+                            <div class="listingCell">Category</div>
+                            <div class="listingCell">Last Online</div>
                         </div>
-                    </div>
-
-                    <p>
-                        <button class="btnStart btnGreen">Start</button>
-                        <button class="btnStop btnRed">Stop</button>
-                        <button class="btnRestart btnYellow">Restart</button>
-                    </p>
-                </fieldset>
-            </template>
-
-            <template id="playerRow">
-                <div class="listingRow">
-                    <div class="listingColumns">
-                        <div class="listingCell listingData"></div>
-                        <div class="listingCell listingData"></div>
-                        <div class="listingCell listingData"></div>
-                    </div>
-                    <div class="listingBody">
-                        <p>
-                            <span>name: </span><span class="playerName"></span>
-                        </p>
-                        <p>
-                            <span>category: </span
-                            ><span class="playerCategory"></span>
-                        </p>
-                        <br />
-                        <p>
-                            <span>first joined: </span
-                            ><span class="playerFirstJoin"></span>
-                        </p>
-                        <p>
-                            <span>first joined as: </span
-                            ><span class="playerFirstJoinName"></span>
-                        </p>
-                        <br />
-                        <p>
-                            <span>online: </span
-                            ><span class="playerInGame"></span>
-                        </p>
-                        <p>
-                            <span>online since: </span
-                            ><span class="playerOnlineSince"></span>
-                        </p>
-                        <p>
-                            <span>last online: </span
-                            ><span class="playerLastSeen"></span>
-                        </p>
-                        <p>
-                            <span>total playtime: </span
-                            ><span class="playerPlaytime"></span>
-                        </p>
-                        <br />
-                        <p>
-                            <span>name cached: </span
-                            ><span class="playerCached"></span>
-                        </p>
-                        <p>
-                            <span>guid: </span><span class="playerGuid"></span>
-                        </p>
-
-                        <p>
-                            <button class="btnKick btnYellow">Kick</button>
-                            <button class="btnBan btnRed">Ban</button>
-                            <button class="btnWhitelist btnGreen">
-                                Whitelist
-                            </button>
-                            <button class="btnReset">Reset permissions</button>
-                        </p>
+                        <div class="listingBody"></div>
                     </div>
                 </div>
-            </template>
-        </div>
-    </body>
-    <!--  src="script.js"-->
-    <script defer>
-        // js here because auto complete
 
-        const DateTime = luxon.DateTime;
+                <p>
+                    <button class="btnStart btnGreen">Start</button>
+                    <button class="btnStop btnRed">Stop</button>
+                    <button class="btnRestart btnYellow">Restart</button>
+                </p>
+            </fieldset>
+        </template>
 
-        // shutdown button
-        document
-            .querySelector("#btnShutdown")
-            .addEventListener("click", async (_) => {
-                await fetch("/api/shutdown", { method: "POST" });
-            });
+        <template id="playerRow">
+            <div class="listingRow">
+                <div class="listingColumns">
+                    <div class="listingCell listingData"></div>
+                    <div class="listingCell listingData"></div>
+                    <div class="listingCell listingData"></div>
+                </div>
+                <div class="listingBody">
+                    <p>
+                        <span>Name: </span><span class="playerName"></span>
+                    </p>
+                    <p>
+                        <span>Category: </span><span class="playerCategory"></span>
+                    </p>
+                    <br />
+                    <p>
+                        <span>First joined: </span><span class="playerFirstJoin"></span>
+                    </p>
+                    <p>
+                        <span>First joined as: </span><span class="playerFirstJoinName"></span>
+                    </p>
+                    <br />
+                    <p>
+                        <span>Online: </span><span class="playerInGame"></span>
+                    </p>
+                    <p>
+                        <span>Online since: </span><span class="playerOnlineSince"></span>
+                    </p>
+                    <p>
+                        <span>Last online: </span><span class="playerLastSeen"></span>
+                    </p>
+                    <p>
+                        <span>Total playtime: </span><span class="playerPlaytime"></span>
+                    </p>
+                    <br />
+                    <p>
+                        <span>Name cached: </span><span class="playerCached"></span>
+                    </p>
+                    <p>
+                        <span>Guid: </span><span class="playerGuid"></span>
+                    </p>
 
-        let expanded = {};
+                    <p>
+                        <button class="btnKick btnYellow">Kick</button>
+                        <button class="btnBan btnRed">Ban</button>
+                        <button class="btnWhitelist btnGreen">
+                            Whitelist
+                        </button>
+                        <button class="btnReset">Reset permissions</button>
+                    </p>
+                </div>
+            </div>
+        </template>
+    </div>
+</body>
+<!--  src="script.js"-->
+<script defer>
+    // js here because auto complete
 
-        const update = async () => {
-            try {
-                const data = await (await fetch("/api/servers")).json();
-                //console.log(data);
+    const DateTime = luxon.DateTime;
 
-                const serversDiv = document.querySelector("#servers");
-                serversDiv.innerHTML = "";
+    // shutdown button
+    document
+        .querySelector("#btnShutdown")
+        .addEventListener("click", async (_) => {
+            await fetch("/api/shutdown", { method: "POST" });
+        });
 
+    let expanded = {};
+
+    const update = async () => {
+        try {
+            const data = await (await fetch("/api/servers")).json();
+            //console.log(data);
+
+            const serversDiv = document.querySelector("#servers");
+            serversDiv.innerHTML = "";
+
+            /*
+        const versionSpan = document.createElement("span");
+        versionSpan.innerText = data.latestVersion;
+        serversDiv.appendChild(versionSpan);*/
+
+            data.servers.forEach((s) => {
+                // server fieldset
+                const field = document
+                    .querySelector("#server")
+                    .content.cloneNode(true);
+
+                // server status
+                if (s.status === "stopped") {
+                    field.querySelector(".serverStatus").innerText =
+                        "Stopped";
+                    field
+                        .querySelector(".serverStatus")
+                        .classList.add("redText");
+                    //
+                } else if (s.status === "starting") {
+                    field.querySelector(".serverStatus").innerText =
+                        "Starting...";
+                    field
+                        .querySelector(".serverStatus")
+                        .classList.add("yellowText");
+                    //
+                } else if (s.status === "running") {
+                    field.querySelector(".serverStatus").innerText =
+                        "Running";
+                    field
+                        .querySelector(".serverStatus")
+                        .classList.add("greenText");
+                    //
+                } else if (s.status === "stopping") {
+                    field.querySelector(".serverStatus").innerText =
+                        "Stopping...";
+                    field
+                        .querySelector(".serverStatus")
+                        .classList.add("yellowText");
+                }
+
+                // server id
+                field.querySelector(".id").innerText = s.id;
+
+                // server name
+                field.querySelector(".serverName").innerText = s.name;
+
+                // server address
+                field.querySelector(".serverAddr").innerText =
+                    s.serverAddr + " ";
+                const a = document.createElement("a");
+                a.addEventListener("click", () =>
+                    navigator.clipboard.writeText(s.serverAddr)
+                );
+                a.innerText = "Copy";
+                field.querySelector(".serverAddr").appendChild(a);
+
+                // host type (local/remote)
+                field.querySelector(".serverHost").innerText = s.serverType;
+
+                // server type (Individual/Preferred)
+                if (s.playfabData)
+                    field.querySelector(".serverType").innerText =
+                        s.playfabData.Tags.category;
+
+                // owner
+                field.querySelector(".serverOwner").innerText = s.owner;
+
+                // whitelist
+                field.querySelector(".serverHasWhitelist").innerText =
+                    s.stats.isEnforcingWhitelist;
+
+                // password
+                field.querySelector(".serverHasPassword").innerText =
+                    s.stats.hasServerPassword;
+
+                // game build
+                field.querySelector(".serverBuild").innerText =
+                    s.stats.build;
+
+                // player counts
+                field.querySelector(
+                    ".serverPlayerCount"
+                ).innerText = `Players (${s.stats.playersInGame}/${s.stats.maxInGamePlayers})`;
+
+                // players
+                s.players
+                    .filter((s) => s.inGame)
+                    .concat(s.players.filter((s) => !s.inGame))
+                    .forEach((p) => {
+                        const row = document
+                            .querySelector("#playerRow")
+                            .content.cloneNode(true);
+
+                        const tableDivs = row.querySelectorAll(
+                            ".listingData"
+                        );
+
+                        // columns head
+                        // name
+                        tableDivs[0].textContent =
+                            p.name == "" ? "UNKNOWN" : p.name;
+                        if (p.inGame) tableDivs[0].classList.add("green");
+                        if (p.cached || p.name == "")
+                            tableDivs[0].classList.add("italic");
+
+                        // category
+                        tableDivs[1].textContent = p.category;
+
+                        // last online
+                        if (Date.now() - p.lastSeen < 60000) {
+                            tableDivs[2].textContent = "Just now";
+                        } else if (p.lastSeen == 0) {
+                            tableDivs[2].textContent = "Never";
+                        } else {
+                            tableDivs[2].textContent = timeAgo(
+                                DateTime.fromMillis(p.lastSeen)
+                            );
+                        }
+
+                        // listing body
+                        // name, category
+                        row.querySelector(".playerName").innerText =
+                            p.name == "" ? "UNKNOWN" : p.name;
+                        row.querySelector(".playerCategory").innerText =
+                            p.category;
+
+                        // first join
+                        row.querySelector(".playerFirstJoin").innerText =
+                            p.firstJoin === 0
+                                ? "Never"
+                                : DateTime.fromMillis(p.firstJoin).toFormat(
+                                    "yyyy-LL-dd HH:mm"
+                                );
+                        row.querySelector(
+                            ".playerFirstJoinName"
+                        ).innerText =
+                            p.firstJoinName == ""
+                                ? "UNKNOWN"
+                                : p.firstJoinName;
+
+                        // online, online since
+                        row.querySelector(".playerInGame").innerText =
+                            p.inGame;
+                        row.querySelector(".playerOnlineSince").innerText =
+                            p.onlineSince === 0
+                                ? "not online"
+                                : timeAgo(
+                                    DateTime.fromMillis(p.onlineSince)
+                                );
+                        // last seen
+                        row.querySelector(".playerLastSeen").innerText = p;
+                        if (Date.now() - p.lastSeen < 60000) {
+                            row.querySelector(".playerLastSeen").innerText =
+                                "Just now";
+                        } else if (p.lastSeen == 0) {
+                            row.querySelector(".playerLastSeen").innerText =
+                                "Never";
+                        } else {
+                            row.querySelector(
+                                ".playerLastSeen"
+                            ).innerText = timeAgo(
+                                DateTime.fromMillis(p.lastSeen)
+                            );
+                        }
+                        // playtime
+                        const curPlaytime =
+                            p.onlineSince > 0
+                                ? Date.now() - p.onlineSince
+                                : 0;
+                        const playtime = p.prevPlaytime + curPlaytime;
+                        row.querySelector(
+                            ".playerPlaytime"
+                        ).innerText = humanizeDuration(playtime, {
+                            largest: 2,
+                            round: true,
+                        });
+
+                        // cached
+                        row.querySelector(".playerCached").innerText =
+                            p.cached;
+                        // guid
+                        row.querySelector(".playerGuid").innerText = p.guid;
+
+                        // expand stuff
+                        const columns = row.children[0].children[0];
+                        // set tracking id
+                        const id = s.id + (p.guid != "" ? p.guid : p.name);
+                        columns.setAttribute("data-expandgroup", id);
+
+                        // add listener
+                        columns.addEventListener("click", (e) => {
+                            const id = e.target.parentElement.getAttribute(
+                                "data-expandgroup"
+                            );
+                            const isExpanded = id in expanded;
+
+                            e.target.parentElement.parentElement.children[1].style.display = isExpanded
+                                ? "none"
+                                : "block";
+
+                            if (isExpanded) delete expanded[id];
+                            else expanded[id] = true;
+                        });
+                        // check if already expanded
+                        row.children[0].children[1].style.display =
+                            id in expanded ? "block" : "none";
+
+                        // buttons
+                        row.querySelector(".btnKick").disabled =
+                            !s.rconConnected || !p.inGame;
+                        row.querySelector(".btnKick").addEventListener(
+                            "click",
+                            (e) =>
+                                fetch(`/api/servers/${s.id}/kick`, {
+                                    method: "POST",
+                                    body: JSON.stringify({
+                                        guid: p.guid,
+                                    }),
+                                })
+                        );
+                        row.querySelector(".btnBan").disabled =
+                            !s.rconConnected ||
+                            p.category === "Blacklisted";
+                        row.querySelector(".btnBan").addEventListener(
+                            "click",
+                            (e) =>
+                                fetch(`/api/servers/${s.id}/setcategory`, {
+                                    method: "POST",
+                                    body: JSON.stringify({
+                                        guid: p.guid,
+                                        category: "Blacklisted",
+                                    }),
+                                })
+                        );
+                        row.querySelector(".btnWhitelist").disabled =
+                            !s.rconConnected ||
+                            p.category === "Whitelisted";
+                        row.querySelector(".btnWhitelist").addEventListener(
+                            "click",
+                            (e) =>
+                                fetch(`/api/servers/${s.id}/setcategory`, {
+                                    method: "POST",
+                                    body: JSON.stringify({
+                                        guid: p.guid,
+                                        category: "Whitelisted",
+                                    }),
+                                })
+                        );
+                        row.querySelector(".btnReset").disabled =
+                            !s.rconConnected || p.category === "Unlisted";
+                        row.querySelector(".btnReset").addEventListener(
+                            "click",
+                            (e) =>
+                                fetch(`/api/servers/${s.id}/setcategory`, {
+                                    method: "POST",
+                                    body: JSON.stringify({
+                                        guid: p.guid,
+                                        category: "Unlisted",
+                                    }),
+                                })
+                        );
+
+                        field
+                            .querySelector(".playerListing")
+                            .appendChild(row);
+
+                        /*
+                        cached: false;
+                        category: "Owner";
+                        firstJoin: 1616538244213;
+                        firstJoinName: "konsti219";
+                        guid: "2479115687826661595";
+                        lastSeen: 0;
+                        name: "konsti219";
+                        onlineSince: 0;
+                        playfabid: "";
+                        prevPlaytime: 0;*/
+                    });
+
+                // saves
+
+                // action buttons
+                field
+                    .querySelector(".btnStop")
+                    .addEventListener("click", async (_) => {
+                        await fetch(`/api/servers/${s.id}/stop`, {
+                            method: "POST",
+                        });
+                    });
+                field
+                    .querySelector(".btnStart")
+                    .addEventListener("click", async (_) => {
+                        await fetch(`/api/servers/${s.id}/start`, {
+                            method: "POST",
+                        });
+                    });
+                field
+                    .querySelector(".btnRestart")
+                    .addEventListener("click", async (_) => {
+                        await fetch(`/api/servers/${s.id}/restart`, {
+                            method: "POST",
+                        });
+                    });
+
+                if (s.status === "stopped") {
+                    field.querySelector(".btnStop").style.display = "none";
+                    //
+                } else if (s.status === "starting") {
+                    field.querySelector(".btnStart").style.display = "none";
+                    field.querySelector(".btnStop").disabled = true;
+                    field.querySelector(".btnRestart").disabled = true;
+                    //
+                } else if (s.status === "running") {
+                    field.querySelector(".btnStart").style.display = "none";
+                    //
+                } else if (s.status === "stopping") {
+                    field.querySelector(".btnStop").style.display = "none";
+                    field.querySelector(".btnStart").disabled = true;
+                    field.querySelector(".btnRestart").disabled = true;
+                }
+
+                //console.log(s);
                 /*
-            const versionSpan = document.createElement("span");
-            versionSpan.innerText = data.latestVersion;
-            serversDiv.appendChild(versionSpan);*/
+            playfabData: {Region: "USEast", LobbyID: "512496370981876417", BuildVersion: "8", GameMode: "CoopStandard", PlayerUserIds: Array(0), …}
+            stats: {build: "1.18.68.0", ownerName: "Konsti219", maxInGamePlayers: 8, playersInGame: 0, playersKnownToGame: 0, …}
+            */
 
-                data.servers.forEach((s) => {
-                    // server fieldset
-                    const field = document
-                        .querySelector("#server")
-                        .content.cloneNode(true);
-
-                    // server status
-                    if (s.status === "stopped") {
-                        field.querySelector(".serverStatus").innerText =
-                            "Stopped";
-                        field
-                            .querySelector(".serverStatus")
-                            .classList.add("redText");
-                        //
-                    } else if (s.status === "starting") {
-                        field.querySelector(".serverStatus").innerText =
-                            "Starting...";
-                        field
-                            .querySelector(".serverStatus")
-                            .classList.add("yellowText");
-                        //
-                    } else if (s.status === "running") {
-                        field.querySelector(".serverStatus").innerText =
-                            "Running";
-                        field
-                            .querySelector(".serverStatus")
-                            .classList.add("greenText");
-                        //
-                    } else if (s.status === "stopping") {
-                        field.querySelector(".serverStatus").innerText =
-                            "Stopping...";
-                        field
-                            .querySelector(".serverStatus")
-                            .classList.add("yellowText");
-                    }
-
-                    // server id
-                    field.querySelector(".id").innerText = s.id;
-
-                    // server name
-                    field.querySelector(".serverName").innerText = s.name;
-
-                    // server address
-                    field.querySelector(".serverAddr").innerText =
-                        s.serverAddr + " ";
-                    const a = document.createElement("a");
-                    a.addEventListener("click", () =>
-                        navigator.clipboard.writeText(s.serverAddr)
-                    );
-                    a.innerText = "Copy";
-                    field.querySelector(".serverAddr").appendChild(a);
-
-                    // host type (local/remote)
-                    field.querySelector(".serverHost").innerText = s.serverType;
-
-                    // server type (Individual/Preferred)
-                    if (s.playfabData)
-                        field.querySelector(".serverType").innerText =
-                            s.playfabData.Tags.category;
-
-                    // owner
-                    field.querySelector(".serverOwner").innerText = s.owner;
-
-                    // TODO
-                    // whitelist
-                    // password
-
-                    // players
-                    s.players
-                        .filter((s) => s.inGame)
-                        .concat(s.players.filter((s) => !s.inGame))
-                        .forEach((p) => {
-                            const row = document
-                                .querySelector("#playerRow")
-                                .content.cloneNode(true);
-
-                            const tableDivs = row.querySelectorAll(
-                                ".listingData"
-                            );
-
-                            // columns head
-                            // name
-                            tableDivs[0].textContent =
-                                p.name == "" ? "UNKNOWN" : p.name;
-                            if (p.inGame) tableDivs[0].classList.add("green");
-                            if (p.cached || p.name == "")
-                                tableDivs[0].classList.add("italic");
-
-                            // category
-                            tableDivs[1].textContent = p.category;
-
-                            // last online
-                            if (Date.now() - p.lastSeen < 60000) {
-                                tableDivs[2].textContent = "Just now";
-                            } else if (p.lastSeen == 0) {
-                                tableDivs[2].textContent = "Never";
-                            } else {
-                                tableDivs[2].textContent = timeAgo(
-                                    DateTime.fromMillis(p.lastSeen)
-                                );
-                            }
-
-                            // listing body
-                            // name, category
-                            row.querySelector(".playerName").innerText =
-                                p.name == "" ? "UNKNOWN" : p.name;
-                            row.querySelector(".playerCategory").innerText =
-                                p.category;
-
-                            // first join
-                            row.querySelector(".playerFirstJoin").innerText =
-                                p.firstJoin === 0
-                                    ? "Never"
-                                    : DateTime.fromMillis(p.firstJoin).toFormat(
-                                          "yyyy-LL-dd HH:mm"
-                                      );
-                            row.querySelector(
-                                ".playerFirstJoinName"
-                            ).innerText =
-                                p.firstJoinName == ""
-                                    ? "UNKNOWN"
-                                    : p.firstJoinName;
-
-                            // online, online since
-                            row.querySelector(".playerInGame").innerText =
-                                p.inGame;
-                            row.querySelector(".playerOnlineSince").innerText =
-                                p.onlineSince === 0
-                                    ? "not online"
-                                    : timeAgo(
-                                          DateTime.fromMillis(p.onlineSince)
-                                      );
-                            // last seen
-                            row.querySelector(".playerLastSeen").innerText = p;
-                            if (Date.now() - p.lastSeen < 60000) {
-                                row.querySelector(".playerLastSeen").innerText =
-                                    "Just now";
-                            } else if (p.lastSeen == 0) {
-                                row.querySelector(".playerLastSeen").innerText =
-                                    "Never";
-                            } else {
-                                row.querySelector(
-                                    ".playerLastSeen"
-                                ).innerText = timeAgo(
-                                    DateTime.fromMillis(p.lastSeen)
-                                );
-                            }
-                            // playtime
-                            const curPlaytime =
-                                p.onlineSince > 0
-                                    ? Date.now() - p.onlineSince
-                                    : 0;
-                            const playtime = p.prevPlaytime + curPlaytime;
-                            row.querySelector(
-                                ".playerPlaytime"
-                            ).innerText = humanizeDuration(playtime, {
-                                largest: 2,
-                                round: true,
-                            });
-
-                            // cached
-                            row.querySelector(".playerCached").innerText =
-                                p.cached;
-                            // guid
-                            row.querySelector(".playerGuid").innerText = p.guid;
-
-                            // expand stuff
-                            const columns = row.children[0].children[0];
-                            // set tracking id
-                            const id = s.id + (p.guid != "" ? p.guid : p.name);
-                            columns.setAttribute("data-expandgroup", id);
-
-                            // add listener
-                            columns.addEventListener("click", (e) => {
-                                const id = e.target.parentElement.getAttribute(
-                                    "data-expandgroup"
-                                );
-                                const isExpanded = id in expanded;
-
-                                e.target.parentElement.parentElement.children[1].style.display = isExpanded
-                                    ? "none"
-                                    : "block";
-
-                                if (isExpanded) delete expanded[id];
-                                else expanded[id] = true;
-                            });
-                            // check if already expanded
-                            row.children[0].children[1].style.display =
-                                id in expanded ? "block" : "none";
-
-                            // buttons
-                            row.querySelector(".btnKick").disabled =
-                                !s.rconConnected || !p.inGame;
-                            row.querySelector(".btnKick").addEventListener(
-                                "click",
-                                (e) =>
-                                    fetch(`/api/servers/${s.id}/kick`, {
-                                        method: "POST",
-                                        body: JSON.stringify({
-                                            guid: p.guid,
-                                        }),
-                                    })
-                            );
-                            row.querySelector(".btnBan").disabled =
-                                !s.rconConnected ||
-                                p.category === "Blacklisted";
-                            row.querySelector(".btnBan").addEventListener(
-                                "click",
-                                (e) =>
-                                    fetch(`/api/servers/${s.id}/setcategory`, {
-                                        method: "POST",
-                                        body: JSON.stringify({
-                                            guid: p.guid,
-                                            category: "Blacklisted",
-                                        }),
-                                    })
-                            );
-                            row.querySelector(".btnWhitelist").disabled =
-                                !s.rconConnected ||
-                                p.category === "Whitelisted";
-                            row.querySelector(".btnWhitelist").addEventListener(
-                                "click",
-                                (e) =>
-                                    fetch(`/api/servers/${s.id}/setcategory`, {
-                                        method: "POST",
-                                        body: JSON.stringify({
-                                            guid: p.guid,
-                                            category: "Whitelisted",
-                                        }),
-                                    })
-                            );
-                            row.querySelector(".btnReset").disabled =
-                                !s.rconConnected || p.category === "Unlisted";
-                            row.querySelector(".btnReset").addEventListener(
-                                "click",
-                                (e) =>
-                                    fetch(`/api/servers/${s.id}/setcategory`, {
-                                        method: "POST",
-                                        body: JSON.stringify({
-                                            guid: p.guid,
-                                            category: "Unlisted",
-                                        }),
-                                    })
-                            );
-
-                            field
-                                .querySelector(".playerListing")
-                                .appendChild(row);
-
-                            /*
-                            cached: false;
-                            category: "Owner";
-                            firstJoin: 1616538244213;
-                            firstJoinName: "konsti219";
-                            guid: "2479115687826661595";
-                            lastSeen: 0;
-                            name: "konsti219";
-                            onlineSince: 0;
-                            playfabid: "";
-                            prevPlaytime: 0;*/
-                        });
-
-                    // saves
-
-                    // ability to change whitelist
-                    // manage players
-                    // manage saves
-
-                    // action buttons
-                    field
-                        .querySelector(".btnStop")
-                        .addEventListener("click", async (_) => {
-                            await fetch(`/api/servers/${s.id}/stop`, {
-                                method: "POST",
-                            });
-                        });
-                    field
-                        .querySelector(".btnStart")
-                        .addEventListener("click", async (_) => {
-                            await fetch(`/api/servers/${s.id}/start`, {
-                                method: "POST",
-                            });
-                        });
-                    field
-                        .querySelector(".btnRestart")
-                        .addEventListener("click", async (_) => {
-                            await fetch(`/api/servers/${s.id}/restart`, {
-                                method: "POST",
-                            });
-                        });
-
-                    if (s.status === "stopped") {
-                        field.querySelector(".btnStop").style.display = "none";
-                        //
-                    } else if (s.status === "starting") {
-                        field.querySelector(".btnStart").style.display = "none";
-                        field.querySelector(".btnStop").disabled = true;
-                        field.querySelector(".btnRestart").disabled = true;
-                        //
-                    } else if (s.status === "running") {
-                        field.querySelector(".btnStart").style.display = "none";
-                        //
-                    } else if (s.status === "stopping") {
-                        field.querySelector(".btnStop").style.display = "none";
-                        field.querySelector(".btnStart").disabled = true;
-                        field.querySelector(".btnRestart").disabled = true;
-                    }
-
-                    //console.log(s);
-                    /*
-                playfabData: {Region: "USEast", LobbyID: "512496370981876417", BuildVersion: "8", GameMode: "CoopStandard", PlayerUserIds: Array(0), …}
-                stats: {build: "1.18.68.0", ownerName: "Konsti219", maxInGamePlayers: 8, playersInGame: 0, playersKnownToGame: 0, …}
-                */
-
-                    serversDiv.appendChild(field);
-                });
-
-                document.querySelector("#isDisconnected").style.display =
-                    "none";
-            } catch (e) {
-                console.error(e);
-                document.querySelector("#isDisconnected").style.display =
-                    "block";
-            }
-        };
-        setInterval(update, 2000);
-        update();
-
-        // "x minutes ago" calculator
-        const units = [
-            "year",
-            "month",
-            "week",
-            "day",
-            "hour",
-            "minute",
-            "second",
-        ];
-        const timeAgo = (date) => {
-            let dateTime = DateTime.fromISO(date);
-            const diff = dateTime.diffNow().shiftTo(...units);
-            const unit = units.find((unit) => diff.get(unit) !== 0) || "second";
-
-            const relativeFormatter = new Intl.RelativeTimeFormat("en", {
-                numeric: "auto",
+                serversDiv.appendChild(field);
             });
-            return relativeFormatter.format(Math.trunc(diff.as(unit)), unit);
-        };
-    </script>
+
+            document.querySelector("#isDisconnected").style.display =
+                "none";
+        } catch (e) {
+            console.error(e);
+            document.querySelector("#isDisconnected").style.display =
+                "block";
+        }
+    };
+    setInterval(update, 2000);
+    update();
+
+    // "x minutes ago" calculator
+    const units = [
+        "year",
+        "month",
+        "week",
+        "day",
+        "hour",
+        "minute",
+        "second",
+    ];
+    const timeAgo = (date) => {
+        let dateTime = DateTime.fromISO(date);
+        const diff = dateTime.diffNow().shiftTo(...units);
+        const unit = units.find((unit) => diff.get(unit) !== 0) || "second";
+
+        const relativeFormatter = new Intl.RelativeTimeFormat("en", {
+            numeric: "auto",
+        });
+        return relativeFormatter.format(Math.trunc(diff.as(unit)), unit);
+    };
+</script>
+
 </html>
