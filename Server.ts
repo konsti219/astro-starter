@@ -42,7 +42,7 @@ class Server {
     private lastHeartbeat = 0
 
     // placeholder managers (so that I don't to deal with them being undefined)
-    public rcon = new RconManager("", "")
+    public rcon = new RconManager("", "", this)
     public players = new PlayerManager(".", this, this.starter)
 
 
@@ -88,7 +88,7 @@ class Server {
         this.starter.playfab.add(this.serverAddr)
 
         // configure rcon
-        this.rcon = new RconManager(this.consoleAddr, this.consolePassword)
+        this.rcon = new RconManager(this.consoleAddr, this.consolePassword, this)
 
         // do not allow custom heartbeat for remote servers
         if (this.serverType === "remote") this.customHeartbeat = false
@@ -171,7 +171,7 @@ class Server {
                 if (!this.running) {
                     warn("Server process has quit unexpectedly, maybe the server crashed?")
                     this.status_ = Status.Stopped
-                    this.rcon.close()
+                    this.rcon.disconnect()
                 }
             }
 
@@ -181,7 +181,7 @@ class Server {
 
         // make sure to not connect rcon when server isn't running
         if (this.status_ !== Status.Running) {
-            this.rcon.close()
+            this.rcon.disconnect()
         }
     }
 
@@ -240,7 +240,7 @@ class Server {
         }
 
         // close rcon
-        this.rcon.close()
+        this.rcon.disconnect()
 
         // end server process
         // TODO: clean shutdown with rcon

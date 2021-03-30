@@ -4,6 +4,7 @@
     and reconnecting if the connection drops
 */
 
+import { Server } from "./Server.ts";
 import { info, warn, error } from "./logging.ts"
 
 
@@ -46,10 +47,11 @@ class RconManager {
 
     private statsPromiseRes = () => {}
     private playersPromiseRes = () => {}
-    private savesPromiseRes = () => {}
+    private savesPromiseRes = () => { }
+    private lastSuccesful = Date.now()
     
     private conn?: Deno.Conn
-    private connectInterval = 0
+    private connectInterval: number | undefined = undefined
     public isConnected = false
 
     public stats: RconStats = {
@@ -73,17 +75,29 @@ class RconManager {
     public saves: RconSave[] = []
 
 
-    constructor(private consoleAddr: string, private consolePassword: string) { }
+    constructor(private consoleAddr: string, private consolePassword: string, private server: Server) { }
 
+    // if this.connectInterval is set, it means the socket should be connecting
+    // if this.isConnected is set to true it means there is an active tcp connection
     connect() {
+        info("Connecting to RCON port at " + this.consoleAddr)
+
         // When the socket is told to connect start an internal loop that will constantly try to
         // connect to the server if it's not connected. This is to make sure the socket stays connected.
         this.connectInterval = setInterval(() => this.connectSocket(), 500)
-    }
-    close() {
-        // When told to disconnect it will close the socket and stop the loop
         this.isConnected = false
+
+        // reset this here just in case
+        this.lastSuccesful = Date.now()
+    }
+    disconnect() {
+        // When told to disconnect it will close the socket and stop the loop
         clearInterval(this.connectInterval)
+        this.connectInterval = undefined
+        this.close()
+    }
+    private close() {
+        this.isConnected = false
         try {
             this.conn?.close()
         } catch(_) {_}
@@ -94,7 +108,6 @@ class RconManager {
         if (!this.isConnected) {
             try {
                 // start connection
-                info("Connecting to RCON port at " + this.consoleAddr)
 
                 // set this here to prevent multiple sockets being established
                 this.isConnected = true
@@ -112,11 +125,10 @@ class RconManager {
                     this.handleData(buffer)
                 }
             } catch (_) {
+                // if an error occurs check if socket should have been connected, if yes warn
                 if (this.isConnected) warn("Socket error/disconnect, addr: " + this.consoleAddr)
-                this.isConnected = false
-                try {
-                    this.conn?.close()
-                } catch(_) {_}
+                // then close the socket and wait for the loop to establish a new one
+                this.close()
             }
         }
     }
@@ -168,7 +180,7 @@ class RconManager {
         if (player) {
             this.run(`DSSetPlayerCategoryForPlayerName ${player.playerName} ${category}`)
         } else {
-            throw "could not find player with guid " + guid;
+            warn("could not find player with guid " + guid)
         }
     }
     kickPlayer(guid: string) {
@@ -176,6 +188,11 @@ class RconManager {
     }
 
     async update() {
+        if (!this.connectInterval) {
+            warn("Tried to update RCON that is not connected")
+            return
+        }
+
         this.run("DSServerStatistics")
         this.run("DSListGames")
         this.run("DSListPlayers")
@@ -186,13 +203,29 @@ class RconManager {
         } catch (_) {
             error("failed to send RCON command to " + this.consoleAddr)
             this.close()
+
+            // stop returning players as online after 30 seconds
+            if (Date.now() - this.lastSuccesful > 30000) this.players.forEach(p => (p.inGame = false))
+
+            // check if it is time to abondon the socket
+            if (Date.now() - this.lastSuccesful > 600 * 1000) {
+                error("Could connect to connect to RCON in 10 minutes. Stopping attempts")
+                this.disconnect()
+                this.server.stop()
+            }
+
+            // return and continue execution of update loop
+            return
         }
 
-        return Promise.all([
+        await Promise.all([
             new Promise<void>((res, _) => { this.statsPromiseRes = res }),
             new Promise<void>((res, _) => { this.playersPromiseRes = res }),
             new Promise<void>((res, _) => { this.savesPromiseRes = res })
         ])
+
+        this.lastSuccesful = Date.now()
+
     }
 
 }
