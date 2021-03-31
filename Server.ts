@@ -192,6 +192,9 @@ class Server {
             return
         }
 
+        // refetch public data
+        this.starter.fetchPublicData()
+
         // only do some things if the server is locally hosted
         if (this.serverType === "local") {
             fs.ensureDirSync(path.join(this.serverDir, "serverFiles"))

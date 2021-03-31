@@ -21,6 +21,7 @@ class Starter {
     public publicIP = ""
 
     private loop = 0
+    private lastPublucDataFetch = 0
 
     constructor(public dir: string) {
         // ensure data and servers dir exists
@@ -29,7 +30,8 @@ class Starter {
         // set log path
         setLogDir(path.join(this.dir, "starterData", "logs"))
         
-        info("\n" + "astro-starter, work dir: " + dir)
+        console.log("")
+        info("astro-starter, work dir: " + dir)
 
         this.readConfig()
     }
@@ -191,7 +193,10 @@ class Starter {
     }
 
     async fetchPublicData() {
-        info("Fetching data...")
+        // check if last fetch happend in last minute
+        if (Date.now() - this.lastPublucDataFetch < 60000) return
+
+        info("Fetching public data...")
 
         // fetch latest server version
         this.latestVersion = (await (await fetch("https://servercheck.spycibot.com/stats")).json())["LatestVersion"]
@@ -200,6 +205,8 @@ class Starter {
         // fetch Public IP
         this.publicIP = (await (await fetch("https://ip4.seeip.org/")).text())
         info("Public IP: " + this.publicIP)
+
+        this.lastPublucDataFetch = Date.now()
     }
 
     shutdown() {
