@@ -195,6 +195,7 @@ class Starter {
     async fetchPublicData() {
         // check if last fetch happend in last minute
         if (Date.now() - this.lastPublucDataFetch < 60000) return
+        this.lastPublucDataFetch = Date.now()
 
         info("Fetching public data...")
 
@@ -205,8 +206,6 @@ class Starter {
         // fetch Public IP
         this.publicIP = (await (await fetch("https://ip4.seeip.org/")).text())
         info("Public IP: " + this.publicIP)
-
-        this.lastPublucDataFetch = Date.now()
     }
 
     shutdown() {
