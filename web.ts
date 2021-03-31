@@ -87,7 +87,7 @@ class WebServer {
 
                     ctx.response.body = { status: "OK" }
                         
-                    // TODO player management, save management
+                    // TODO save management
                 } else {
                     err()
                 }

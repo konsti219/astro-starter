@@ -202,7 +202,7 @@ class Server {
         if (this.serverType === "local") {
             fs.ensureDirSync(path.join(this.serverDir, "serverFiles"))
 
-            // TODO: check network, firewall
+            // TODO: firewall
 
             // deregister servers
             if (this.playfabData) {
@@ -224,6 +224,7 @@ class Server {
                 stderr: "null",
             });
 
+            // async wait for process to quit
             (async () => {
                 const { code } = await this.process?.status() ?? { code: 69 }
                 info(`Server process has quit, code: ${code}`, this.name)
@@ -246,8 +247,6 @@ class Server {
         }
 
         this.running = true
-
-        // TODO: load player data
     }
 
     private _stop() {
