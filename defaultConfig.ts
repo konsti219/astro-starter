@@ -15,7 +15,8 @@ const defaultConfig = {
             "backupSaves": true,
             "backupInterval": 3600,
             "enableAstrochatIntegration": false,
-            "customHeartbeat": true
+            "customHeartbeat": true,
+            "restartAt": "03:00"
         }
     ]
 }

@@ -37,6 +37,7 @@ class Server {
     private command = Command.Stop
     private running = false
     private updatingFiles = false
+    private restartTimeout = 0
 
     public playfabData: PlayfabServer | undefined
     private lastHeartbeat = 0
@@ -61,6 +62,7 @@ class Server {
         public enableAstrochatIntegration: boolean,
         public customHeartbeat: boolean,
         public webhook: string,
+        public restartAt: string,
         public owner: string,
         private starter: Starter
     ) {
@@ -150,12 +152,13 @@ class Server {
 
             } else if (this.status_ === Status.Starting) {
                 if (this.running && this.playfabData) {
-                    // server is now running
-                    this.rcon.connect()
-
-                    // TODO do network check
+                    // server is now running                   
                     info(`finished registering`, this.name)
                     this.status_ = Status.Running
+
+                    // TODO do network check
+
+                    this.rcon.connect()
                 }
             } else if (this.status_ === Status.Running) {
                 // update rcon when it's running
@@ -193,7 +196,7 @@ class Server {
         }
 
         // refetch public data
-        this.starter.fetchPublicData()
+        await this.starter.fetchPublicData()
 
         // only do some things if the server is locally hosted
         if (this.serverType === "local") {
@@ -228,6 +231,18 @@ class Server {
                 this.running = false
             })()
 
+            // set restart timeout
+            if (this.restartAt !== "") {
+                const times = this.restartAt.split(":")
+                const hour = parseInt(times[0]) ?? 0
+                const minute = parseInt(times[1]) ?? 0
+                const ms = (new Date(2030, 0, 0, hour, minute).getTime() - Date.now()) % (3600 * 1000)
+                
+                this.restartTimeout = setTimeout(() => {
+                    this.restart()
+                }, ms)
+            }
+
         }
 
         this.running = true
@@ -258,6 +273,9 @@ class Server {
         }
 
         this.running = false
+
+        // clear restart timeout
+        clearTimeout(this.restartTimeout)
     }
 
     private async _updateFiles() {
@@ -272,6 +290,8 @@ class Server {
         }
 
         info("Updating server", this.name)
+
+        await this.starter.updateSteam()
 
         // backup SaveGames/Paks
         const savedPath = path.join(this.serverDir, "serverFiles", "Astro", "Saved")

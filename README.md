@@ -7,12 +7,14 @@ Astro Launcher alternative written in Typescript/Deno
 Easily setup and host astroneer servers. Mange your servers in a webinterface at `localhost:5000`
 
 This tool offers many advantages over AstroLauncher, these include:
+
 -   Server files are automatically downloaded
 -   All setup can be done in a single config file
 -   Easily host multiple servers
 -   You can also use it to manage remote servers that have their RCON port opened (like gportal)
 
 ## Setup
+
 1.  Download `astro-starter.exe` from the releases
 2.  Put it in an empty folder
 3.  Run it once, this will generate the default config file `starter.json` and `start.bat`
@@ -45,7 +47,8 @@ starter.json
             "backupInterval": 3600,
             "enableAstrochatIntegration": false,
             "customHeartbeat": true,
-            "discordWebhook": "<webhook url>"
+            "discordWebhook": "<webhook url>",
+            "restartAt": "03:00"
         },
         {
             "id": "server2",
@@ -86,4 +89,3 @@ deno compile -A --unstable --lite index.ts
     -   (firewall)
     -   (upnp)
     -   tests
--   automatic restarts

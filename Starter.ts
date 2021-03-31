@@ -213,6 +213,7 @@ class Starter {
         info("Shutting down servers and starter")
         this.servers.forEach(s => s.stop())
         setTimeout(() => {
+            clearInterval(this.loop)
             Deno.exit(0)
         }, 15000)
     }

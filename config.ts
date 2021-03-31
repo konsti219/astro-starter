@@ -18,6 +18,7 @@ interface ConfigFileServer {
     enableAstrochatIntegration?: boolean
     customHeartbeat?: boolean
     discordWebhook?: string
+    restartAt?: string
 }
 interface ConfigFile {
     webserverPort?: number
@@ -61,6 +62,7 @@ const parseConfig = (configPath: string, starter: Starter) => {
             s.enableAstrochatIntegration ?? false,
             s.customHeartbeat ?? false,
             s.discordWebhook ?? "",
+            s.restartAt ?? "",
             starter.owner,
             starter
         ))
