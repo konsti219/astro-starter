@@ -4,6 +4,11 @@ let logDir = Deno.cwd()
 export function setLogDir(dir: string): void {
     logDir = dir
     fs.ensureDirSync(logDir)
+
+    // add an empty line at each start for seperation
+    const now = new Date
+    const logFile = `log_${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}.txt`
+    Deno.writeTextFileSync(path.join(logDir, logFile), "\n", { append: true })
 }
 
 export function debug(msg: string): void {
