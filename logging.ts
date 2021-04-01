@@ -56,5 +56,7 @@ function addToLogFile(msg: string) {
     const now = new Date
     const logFile = `log_${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}.txt`
 
-    Deno.writeTextFileSync(path.join(logDir, logFile), msg + "\n", { append: true })
+    Deno.writeTextFileSync(path.join(logDir, logFile),
+        `[${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}_${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}]${msg}\n`
+        , { append: true })
 }
