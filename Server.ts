@@ -4,6 +4,7 @@ import { Starter } from "./Starter.ts";
 import { PlayfabServer } from "./playfab.ts";
 import { RconManager } from "./rcon.ts";
 import { PlayerManager } from "./PlayerManager.ts";
+import { checkNetwork } from "./network.ts";
 
 import { info, infoWebhook, warn, error } from "./logging.ts"
 
@@ -135,7 +136,7 @@ class Server {
                 // write player data 
                 if (this.status_ === Status.Running)
                     this.players.update(this.rcon.players.map(p => { p.inGame = false; return p }))
-                
+
                 this.status_ = Status.Stopping
             } else if (this.status_ === Status.Stopping) {
                 if (!this.running) {
@@ -156,7 +157,17 @@ class Server {
                     info(`finished registering`, this.name)
                     this.status_ = Status.Running
 
-                    // TODO do network check
+                    // network check
+                    /*
+                    try {
+                        if (await checkNetwork(this.serverAddr)) {
+                            info("Network OK", this.name)
+                        } else {
+                            warn(`Could not validate your Network setup for ${this.serverAddr} UDP.\nMake sure to check your Firewall/port forwarding!`)
+                        }
+                    } catch (e) {
+                        console.log(e)
+                    }*/
 
                     this.rcon.connect()
                 }
@@ -238,7 +249,7 @@ class Server {
                 const hour = parseInt(times[0]) ?? 0
                 const minute = parseInt(times[1]) ?? 0
                 const ms = (new Date(2030, 0, 0, hour, minute).getTime() - Date.now()) % (3600 * 1000)
-                
+
                 this.restartTimeout = setTimeout(() => {
                     this.restart()
                 }, ms)
