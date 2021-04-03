@@ -217,7 +217,7 @@ class Starter {
         setTimeout(() => {
             clearInterval(this.loop)
             Deno.exit(0)
-        }, 15000)
+        }, 20000)
     }
 }
 

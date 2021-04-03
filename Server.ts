@@ -241,6 +241,11 @@ class Server {
                 info(`Server process has quit, code: ${code}`, this.name)
 
                 this.running = false
+                // deregister servers
+                if (this.playfabData) {
+                    this.starter.playfab.deregisterServer(this.serverAddr)
+                    this.playfabData = undefined
+                }
             })()
 
             // set restart timeout
@@ -267,22 +272,30 @@ class Server {
             return
         }
 
-        // close rcon
-        this.rcon.disconnect()
+        // save game
+        this.rcon.saveGame()
+        console.log("saving")
 
-        // end server process
-        // TODO: clean shutdown with rcon
-        if (this.serverType === "local") {
-            this.process?.kill(Deno.Signal.SIGINT)
+        // gave 8 seconds to save
+        setTimeout(() => { 
+            // clean server shutdown with RCON
+            this.rcon.shutdown()
+            console.log("shut down")
 
-            // deregister servers
-            if (this.playfabData) {
-                this.starter.playfab.deregisterServer(this.serverAddr)
-                this.playfabData = undefined
+            // close rcon after 4s (it's probably fail before that /shrug)
+            setTimeout(() => this.rcon.disconnect(), 4000)
+
+            // end server process
+            if (this.serverType === "local") {
+                // for local server wait for RCON to end process, if it doesn't kill it manually
+                setTimeout(() => {
+                    if (this.running) this.process?.kill(Deno.Signal.SIGINT)
+                }, 4000)
+            } else {
+                // for remote server just assume that RCON did the job
+                this.running = false
             }
-        }
-
-        this.running = false
+        }, 8000)
 
         // clear restart timeout
         clearTimeout(this.restartTimeout)
