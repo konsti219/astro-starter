@@ -31,7 +31,7 @@ interface Player {
     cached: boolean
 }
 /*
-players.json
+data.json
 {    
     players: [
         {
@@ -57,7 +57,7 @@ class PlayerManager {
     private playersFile = ""
 
     constructor(serverDir: string, private server:Server, private starter: Starter) {
-        this.playersFile = path.join(serverDir, "players.json")
+        this.playersFile = path.join(serverDir, "data.json")
     }
 
     async readFile() {
