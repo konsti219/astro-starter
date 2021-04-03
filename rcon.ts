@@ -204,6 +204,14 @@ class RconManager {
         this.run(`DSNewGame ${saveName}`)
     }
 
+    setWhitelist(enable: boolean) {
+        this.run(`DSSetDenyUnlisted ${enable}`)
+    }
+
+    shutdown() {
+        this.run(`DSServerShutdown`)
+    }
+
     async update() {
         if (!this.connectInterval) {
             warn("Tried to update RCON that is not connected")
