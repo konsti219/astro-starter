@@ -178,13 +178,30 @@ class RconManager {
     setPlayerCategory(guid: string, category: string) {
         const player = this.players.find(p => p.playerGuid === guid)
         if (player) {
-            this.run(`DSSetPlayerCategoryForPlayerName ${player.playerName} ${category}`)
+            this.setPlayerCategryName(player.playerName, category)
         } else {
             warn("could not find player with guid " + guid)
         }
     }
+    setPlayerCategryName(name: string, category: string) {
+        this.run(`DSSetPlayerCategoryForPlayerName ${name} ${category}`)
+    }
     kickPlayer(guid: string) {
         this.run(`DSKickPlayerGuid ${guid}`)
+    }
+
+    saveGame(saveName?: string) {
+        if (saveName) {
+            this.run(`DSSaveGame ${saveName}`)
+        } else {
+            this.run(`DSSaveGame`)
+        }
+    }
+    loadGame(saveName: string) {
+        this.run(`DSLoadGame ${saveName}`)
+    }
+    newGame(saveName: string) {
+        this.run(`DSNewGame ${saveName}`)
     }
 
     async update() {
