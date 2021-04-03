@@ -34,6 +34,8 @@ class Starter {
         info("astro-starter, work dir: " + dir)
 
         this.readConfig()
+
+        this.webserver = new WebServer(this)
     }
 
     readConfig() {
@@ -44,7 +46,8 @@ class Starter {
             info("No config file found, creating new one")
 
             // create start.bat
-            Deno.writeTextFileSync(path.join(this.dir, "start.bat"), '"./astro-starter.exe"\npause')
+            if (Deno.build.os === "windows")
+                Deno.writeTextFileSync(path.join(this.dir, "start.bat"), '"./astro-starter.exe"\npause')
 
             // create config file
             Deno.writeTextFileSync(configPath, JSON.stringify(defaultConfig, null, "    "))

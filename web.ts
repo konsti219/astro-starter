@@ -17,6 +17,8 @@ class WebServer {
     private staticPath = ""
     
     constructor(private starter: Starter) {
+        if (!this.starter.dir) return
+
         this.staticPath = path.join(this.starter.dir, "starterData", "static")
 
         // ROUTER

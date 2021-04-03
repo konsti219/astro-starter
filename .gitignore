@@ -1,4 +1,9 @@
-*.exe
 starterData
 starter.json
 start.bat
+
+# linux compiled
+astro-starter
+
+# windows compiled
+*.exe
