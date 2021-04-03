@@ -7,8 +7,7 @@ export function setLogDir(dir: string): void {
 
     // add an empty line at each start for seperation
     const now = new Date
-    const logFile = `log_${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}.txt`
-    Deno.writeTextFileSync(path.join(logDir, logFile), "\n", { append: true })
+    Deno.writeTextFileSync(path.join(logDir, logFileName(now)), "\n", { append: true })
 }
 
 export function debug(msg: string): void {
@@ -59,9 +58,39 @@ export function critical(msg: string): void {
 
 function addToLogFile(msg: string) {
     const now = new Date
-    const logFile = `log_${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}.txt`
 
-    Deno.writeTextFileSync(path.join(logDir, logFile),
-        `[${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}_${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}]${msg}\n`
+    Deno.writeTextFileSync(path.join(logDir, logFileName(now)),
+        `[${year(now)}-${month(now)}-${date(now)} ${hour(now)}:${minute(now)}:${second(now)}]${msg}\n`
         , { append: true })
+}
+
+function year(now: Date) {
+    return now.getFullYear()
+}
+function month(now: Date) {
+    return zeroPad(now.getMonth() + 1)
+}
+function date(now: Date) {
+    return zeroPad(now.getDate())
+}
+function hour(now: Date) {
+    return zeroPad(now.getHours())
+}
+function minute(now: Date) {
+    return zeroPad(now.getMinutes())
+}
+function second(now: Date) {
+    return zeroPad(now.getSeconds())
+}
+
+function zeroPad(num: number) {
+    if (num.toString().length === 1) {
+        return "0" + num
+    } else {
+        return num.toString()
+    }
+}
+
+function logFileName(now: Date) {
+    return `log_${year(now)}-${month(now)}-${date(now)}.txt`
 }
