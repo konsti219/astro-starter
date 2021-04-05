@@ -45,7 +45,8 @@ class WebServer {
                     stats: s.rcon.stats,
                     rconConnected: s.rcon.isConnected,
                     players: s.players.list(),
-                    playfabData: s.playfabData
+                    playfabData: s.playfabData,
+                    saves: s.rcon.saves
                 }))
             }
             ctx.response.type = "json"

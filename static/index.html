@@ -50,6 +50,11 @@
             margin-top: 0px;
         }
 
+        h4 {
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
         p {
             margin-block-start: 0.5em;
             margin-block-end: 0.5em;
@@ -106,11 +111,6 @@
 
         .listingRow:last-child {
             border-radius: 0 0 var(--border-radius) var(--border-radius);
-        }
-
-        .serverPlayerCount {
-            margin-bottom: 10px;
-            font-size: 1.1em;
         }
 
         .greenText {
@@ -225,6 +225,17 @@
                         <div class="listingBody"></div>
                     </div>
                 </div>
+                <h4>Saves</h4>
+                <div class="listing saveListing">
+                    <div class="listingRow">
+                        <div class="listingColumns">
+                            <div class="listingCell">Name</div>
+                            <div class="listingCell">Date</div>
+                            <div class="listingCell">Creative</div>
+                        </div>
+                        <div class="listingBody"></div>
+                    </div>
+                </div>
 
                 <p>
                     <button class="btnStart btnGreen">Start</button>
@@ -283,6 +294,33 @@
                             Whitelist
                         </button>
                         <button class="btnReset">Reset permissions</button>
+                    </p>
+                </div>
+            </div>
+        </template>
+
+        <template id="saveRow">
+            <div class="listingRow">
+                <div class="listingColumns">
+                    <div class="listingCell listingData"></div>
+                    <div class="listingCell listingData"></div>
+                    <div class="listingCell listingData"></div>
+                </div>
+                <div class="listingBody">
+                    <p>
+                        <span>Name: </span><span class="saveName"></span>
+                    </p>
+                    <p>
+                        <span>Date: </span><span class="saveDate"></span>
+                    </p>
+                    <p>
+                        <span>Creative: </span><span class="saveCreative"></span>
+                    </p>
+
+                    <p>
+                        <button class="btnLoad btnGreen">
+                            Load
+                        </button>
                     </p>
                 </div>
             </div>
@@ -578,21 +616,75 @@
                         field
                             .querySelector(".playerListing")
                             .appendChild(row);
-
-                        /*
-                        cached: false;
-                        category: "Owner";
-                        firstJoin: 1616538244213;
-                        firstJoinName: "konsti219";
-                        guid: "2479115687826661595";
-                        lastSeen: 0;
-                        name: "konsti219";
-                        onlineSince: 0;
-                        playfabid: "";
-                        prevPlaytime: 0;*/
                     });
 
                 // saves
+                s.saves
+                    .forEach((save) => {
+                        const row = document
+                            .querySelector("#saveRow")
+                            .content.cloneNode(true);
+
+                        const tableDivs = row.querySelectorAll(
+                            ".listingData"
+                        );
+
+                        // columns head
+                        // name
+                        tableDivs[0].textContent = save.name
+                        if (save.name == s.stats.saveGameName) tableDivs[0].classList.add("green");
+                        // date
+                        tableDivs[1].textContent = save.date;
+                        // creative
+                        tableDivs[2].textContent = save.bHasBeenFlaggedAsCreativeModeSave;
+
+
+                        // listing body
+                        row.querySelector(".saveName").innerText = save.name
+                        row.querySelector(".saveDate").innerText = save.date;
+                        row.querySelector(".saveCreative").innerText = save.bHasBeenFlaggedAsCreativeModeSave;
+
+                        // expand stuff
+                        const columns = row.children[0].children[0];
+                        // set tracking id
+                        const id = s.id + save.name;
+                        columns.setAttribute("data-expandgroup", id);
+
+                        // add listener
+                        columns.addEventListener("click", (e) => {
+                            const id = e.target.parentElement.getAttribute(
+                                "data-expandgroup"
+                            );
+                            const isExpanded = id in expanded;
+
+                            e.target.parentElement.parentElement.children[1].style.display = isExpanded
+                                ? "none"
+                                : "block";
+
+                            if (isExpanded) delete expanded[id];
+                            else expanded[id] = true;
+                        });
+                        // check if already expanded
+                        row.children[0].children[1].style.display =
+                            id in expanded ? "block" : "none";
+
+                        // buttons
+                        row.querySelector(".btnLoad").addEventListener(
+                            "click",
+                            (e) => alert("Not yet implemented")
+                            /*fetch(`/api/servers/${s.id}/kick`, {
+                                method: "POST",
+                                body: JSON.stringify({
+                                    guid: p.guid,
+                                }),
+                            })*/
+                        );
+
+
+                        field
+                            .querySelector(".saveListing")
+                            .appendChild(row);
+                    });
 
                 // action buttons
                 field
