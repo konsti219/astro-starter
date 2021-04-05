@@ -157,8 +157,8 @@ class PlayfabManager {
             this.lastSuccesfullQuery = Date.now()
         } catch (_) {
             warn("Playfab server query failed")
-            if (this.lastSuccesfullQuery + (300 * 1000) < Date.now()) {
-                critical("Could not connect for playfab for 5 minutes, quitting")
+            if (this.lastSuccesfullQuery + (3600 * 1000) < Date.now()) {
+                critical("Could not connect for playfab for 1 hour, quitting")
                 warn("This will not stop the server processes, CHECK TASKMANAGER")
                 Deno.exit(1)
             }
