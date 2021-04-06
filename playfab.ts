@@ -55,7 +55,11 @@ export class PlayfabManager {
     }
 
     async update() {
+        let timeout
         try {
+            // timeout
+            timeout = setTimeout(() => { throw "timeout" }, 1000)
+            
             // generateXAUTH
             await this.getAuth()
 
@@ -163,6 +167,8 @@ export class PlayfabManager {
                 Deno.exit(1)
             }
         }
+
+        clearTimeout(timeout)
     }
 
     async getAuth() {
