@@ -274,13 +274,11 @@ class Server {
 
         // save game
         this.rcon.saveGame()
-        console.log("saving")
 
         // gave 8 seconds to save
         setTimeout(() => { 
             // clean server shutdown with RCON
             this.rcon.shutdown()
-            console.log("shut down")
 
             // close rcon after 4s (it's probably fail before that /shrug)
             setTimeout(() => this.rcon.disconnect(), 4000)

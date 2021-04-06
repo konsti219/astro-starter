@@ -84,8 +84,9 @@ class RconManager {
 
         // When the socket is told to connect start an internal loop that will constantly try to
         // connect to the server if it's not connected. This is to make sure the socket stays connected.
-        this.connectInterval = setInterval(() => this.connectSocket(), 500)
-        this.isConnected = false
+        if (!this.connectInterval) {
+            this.connectInterval = setInterval(() => this.connectSocket(), 500)
+        }
 
         // reset this here just in case
         this.lastSuccesful = Date.now()
@@ -234,9 +235,14 @@ class RconManager {
 
             // check if it is time to abondon the socket
             if (Date.now() - this.lastSuccesful > 600 * 1000) {
-                error("Could connect to connect to RCON in 10 minutes. Stopping attempts")
+                error("Could connect to connect to RCON in 10 minutes. Retrying in 5 minutes")
                 this.disconnect()
-                this.server.stop()
+                
+                this.players = []
+                this.saves = []
+                this.disconnect()
+
+                setTimeout(() => this.connect(), 300 * 1000)
             }
 
             // return and continue execution of update loop
