@@ -84,6 +84,16 @@ class WebServer {
                         const body = (await ctx.request.body({ type: "json" }))
                         const { guid } = (await body.value)
                         server.rcon.kickPlayer(guid)
+                    } else if (act === "gamesave") {
+                        server.rcon.saveGame()
+                    } else if (act === "gameload") {
+                        const body = (await ctx.request.body({ type: "json" }))
+                        const { name } = (await body.value)
+                        server.rcon.loadGame(name)
+                    } else if (act === "gamenew") {
+                        const body = (await ctx.request.body({ type: "json" }))
+                        const { name } = (await body.value)
+                        server.rcon.newGame(name)
                     } else {
                         err()
                     }

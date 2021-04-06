@@ -671,13 +671,13 @@
                         // buttons
                         row.querySelector(".btnLoad").addEventListener(
                             "click",
-                            (e) => alert("Not yet implemented")
-                            /*fetch(`/api/servers/${s.id}/kick`, {
-                                method: "POST",
-                                body: JSON.stringify({
-                                    guid: p.guid,
-                                }),
-                            })*/
+                            (e) =>
+                                fetch(`/api/servers/${s.id}/gameload`, {
+                                    method: "POST",
+                                    body: JSON.stringify({
+                                        name: save.name
+                                    }),
+                                })
                         );
 
 
