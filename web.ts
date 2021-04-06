@@ -178,7 +178,8 @@ export class WebServer {
 
         // get static files
         const staticFiles = [
-            { path: path.join(Deno.cwd(), "static", "index.html"), name: "index.html" },
+            //{ path: path.join(Deno.cwd(), "static", "index.html"), name: "index.html" },
+            { path: "https://astro-starter.glitch.me/index_.html", name: "index.html" },
             //{ path: path.join(Deno.cwd(), "static", "script.js"), name: "script.js" },
         ]
         staticFiles.forEach(async f => {
