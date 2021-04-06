@@ -83,8 +83,6 @@ deno compile -A --unstable --lite index.ts
 ## TODO
 
 -   Manage backups
--   Webinterface
-    -   saves
 -   Network check
     -   (firewall)
     -   (upnp)
