@@ -26,7 +26,7 @@ enum Status {
     Stopping = "stopping"
 }
 
-class Server {
+export class Server {
     public serverAddr = "0.0.0.0:0"
     private consoleAddr = "0.0.0.0:0"
     private addrConfig: ConfigAddr = { configIP: "", port: 0, consolePort: "" }
@@ -424,5 +424,3 @@ WebhookUrl="http://localhost:5001/api/astrochat/${this.id}"
         }
     }
 }
-
-export { Server }

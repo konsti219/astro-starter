@@ -38,7 +38,7 @@ interface RconSave {
     bHasBeenFlaggedAsCreativeModeSave: boolean
 }
 
-class RconManager {
+export class RconManager {
     private encoder = new TextEncoder()
     private decoder = new TextDecoder()
     private tempCache = ""
@@ -260,5 +260,3 @@ class RconManager {
     }
 
 }
-export { RconManager }
-

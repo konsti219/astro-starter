@@ -35,7 +35,7 @@ export interface PlayfabServer {
 }
 
 
-class PlayfabManager {
+export class PlayfabManager {
     private servers: string[] = []
     private serversData: PlayfabServer[] = []
     private headers:Record<string, string> = {
@@ -235,5 +235,3 @@ class PlayfabManager {
         ).json();
     }
 }
-
-export { PlayfabManager }

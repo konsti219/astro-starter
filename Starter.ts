@@ -9,7 +9,7 @@ import { WebServer } from "./web.ts";
 import { setLogDir, info, warn, critical } from "./logging.ts"
 
 
-class Starter {
+export class Starter {
     public servers: Server[] = []
     public playfab:PlayfabManager = new PlayfabManager()
 
@@ -220,5 +220,3 @@ class Starter {
         }, 20000)
     }
 }
-
-export { Starter }

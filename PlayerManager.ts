@@ -52,7 +52,7 @@ data.json
 */
 
 
-class PlayerManager {
+export class PlayerManager {
     private players: Player[] = []
     private playersFile = ""
 
@@ -215,5 +215,3 @@ class PlayerManager {
         }
     }
 }
-
-export { PlayerManager }

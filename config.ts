@@ -26,7 +26,7 @@ interface ConfigFile {
     servers: ConfigFileServer[]
 }
 
-const parseConfig = (configPath: string, starter: Starter) => {
+export const parseConfig = (configPath: string, starter: Starter) => {
     const configJson = Deno.readTextFileSync(configPath)
     let config: ConfigFile = { servers: [] }
     try {
@@ -68,5 +68,3 @@ const parseConfig = (configPath: string, starter: Starter) => {
         ))
     }
 }
-
-export { parseConfig }

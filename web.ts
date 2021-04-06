@@ -11,7 +11,7 @@ function notFound(ctx: oak.Context) {
     `<html><body><h1>404 - Not Found</h1><p>Path <code>${ctx.request.url}</code> not found.`
 }
 
-class WebServer {
+export class WebServer {
     private router = new oak.Router()
     private app = new oak.Application()
     private staticPath = ""
@@ -195,6 +195,3 @@ class WebServer {
         await this.app.listen({ hostname: "127.0.0.1", port: this.starter.webserverPort })
     }
 }
-
-
-export { WebServer }

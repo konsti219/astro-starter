@@ -1,4 +1,4 @@
-const defaultConfig = {
+export const defaultConfig = {
     "webserverPort": 5000,
     "owner": "your name",
     "servers": [
@@ -20,5 +20,3 @@ const defaultConfig = {
         }
     ]
 }
-
-export { defaultConfig }
