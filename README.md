@@ -65,6 +65,11 @@ starter.json
 }
 ```
 
+## Linux
+
+Currently the Astroneer dedicated server software is not available for linux and wine is not able to run it either.
+Astro-starter does provide native linux builds that can be used for remote server management. Also if wine should at support astro-starter should is able to support it.
+
 ## run (development)
 
 ```
