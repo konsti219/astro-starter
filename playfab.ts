@@ -55,120 +55,117 @@ export class PlayfabManager {
     }
 
     async update() {
-        let timeout
-        try {
-            // timeout
-            timeout = setTimeout(() => { throw "timeout" }, 1000)
+        const fetchData = async () => {
+            try {
+                // generateXAUTH
+                await this.getAuth()
+
+                // fetch data from playfab
+                const serverRes: {
+                    code: number
+                    status: string
+                    data: {
+                        Games: {
+                            Region: string
+                            LobbyID: string
+                            BuildVersion: string
+                            GameMode: string
+                            PlayerUserIds: string[]
+                            RunTime: number
+                            GameServerState: number
+                            GameServerStateEnum: string
+                            Tags: {
+                                maxPlayers: string
+                                numPlayers: string
+                                isFull: string
+                                gameId: string
+                                gameBuild: string
+                                serverName: string
+                                category: string
+                                publicSigningKey: string
+                                requiresPassword: string
+                            },
+                            LastHeartbeat: string
+                            ServerHostname: string
+                            ServerIPV4Address: string
+                            ServerPort: number
+                        }[]
+                        PlayerCount: number
+                        GameCount: number
+                    }
+                } = await (
+                    await fetch("https://5EA1.playfabapi.com/Client/GetCurrentGames?sdk=" + skdVersion, {
+                        method: "POST",
+                        body: JSON.stringify({
+                            TagFilter: {
+                                Includes: this.servers.map(s => ({ Data: { gameId: s } }))
+                            },
+                        }),
+                        headers: this.headers,
+                    })
+                ).json();
             
-            // generateXAUTH
-            await this.getAuth()
-
-            // fetch data from playfab
-            const serverRes: {
-                code: number
-                status: string
-                data: {
-                    Games: {
-                        Region: string
-                        LobbyID: string
-                        BuildVersion: string
-                        GameMode: string
-                        PlayerUserIds: string[]
-                        RunTime: number
-                        GameServerState: number
-                        GameServerStateEnum: string
-                        Tags: {
-                            maxPlayers: string
-                            numPlayers: string
-                            isFull: string
-                            gameId: string
-                            gameBuild: string
-                            serverName: string
-                            category: string
-                            publicSigningKey: string
-                            requiresPassword: string
-                        },
-                        LastHeartbeat: string
-                        ServerHostname: string
-                        ServerIPV4Address: string
-                        ServerPort: number
-                    }[]
-                    PlayerCount: number
-                    GameCount: number
-                }
-            } = await (
-                await fetch("https://5EA1.playfabapi.com/Client/GetCurrentGames?sdk=" + skdVersion, {
-                    method: "POST",
-                    body: JSON.stringify({
-                        TagFilter: {
-                            Includes: this.servers.map(s => ({ Data: { gameId: s } }))
-                        },
-                    }),
-                    headers: this.headers,
-                })
-            ).json();
-            
-            // check if data is present (if anything is wrong this will throw)
-            if (!serverRes.data.Games) {
-                console.log(serverRes)
-                throw "sth is undefined";
-            }
-
-            // remove old servers
-            this.serversData = []
-
-            // console.log(serverRes.data.GameCount)
-            // console.log(serverRes.data.Games.map(s => s.Tags.gameId))
-
-            // read response data
-            serverRes.data.Games.forEach(s => {
-                if (this.deregisteredServers[s.Tags.gameId] > 0) {
-                    this.deregisteredServers[s.Tags.gameId] -= 1
-                    return
-                } else {
-                    delete this.deregisteredServers[s.Tags.gameId]
+                // check if data is present (if anything is wrong this will throw)
+                if (!serverRes.data.Games) {
+                    console.log(serverRes)
+                    throw "sth is undefined";
                 }
 
-                const tags: PlayfabServerTags = {
-                    maxPlayers: parseInt(s.Tags.maxPlayers),
-                    numPlayers: parseInt(s.Tags.maxPlayers),
-                    isFull: s.Tags.isFull === "true",
-                    gameId: s.Tags.gameId,
-                    gameBuild: s.Tags.gameBuild,
-                    serverName: s.Tags.serverName,
-                    category: s.Tags.category,
-                    publicSigningKey: s.Tags.publicSigningKey,
-                    requiresPassword: s.Tags.requiresPassword === "true"
-                }
-                const server: PlayfabServer = {
-                    Region: s.Region,
-                    LobbyID: s.LobbyID,
-                    BuildVersion: s.BuildVersion,
-                    GameMode: s.GameMode,
-                    PlayerUserIds: s.PlayerUserIds,
-                    RunTime: s.RunTime,
-                    GameServerState: s.GameServerState,
-                    GameServerStateEnum: s.GameServerStateEnum,
-                    Tags: tags,
-                    LastHeartbeat: s.LastHeartbeat,
-                    ServerHostname: s.ServerHostname,
-                    ServerIPV4Address: s.ServerIPV4Address,
-                    ServerPort: s.ServerPort
-                }
-                this.serversData.push(server)
-            });
+                // remove old servers
+                this.serversData = []
 
-            this.lastSuccesfullQuery = Date.now()
-        } catch (_) {
-            warn("Playfab server query failed")
-            if (this.lastSuccesfullQuery + (3600 * 1000) < Date.now()) {
-                critical("Could not connect for playfab for 1 hour, quitting")
-                warn("This will not stop the server processes, CHECK TASKMANAGER")
-                Deno.exit(1)
+                // console.log(serverRes.data.GameCount)
+                // console.log(serverRes.data.Games.map(s => s.Tags.gameId))
+
+                // read response data
+                serverRes.data.Games.forEach(s => {
+                    if (this.deregisteredServers[s.Tags.gameId] > 0) {
+                        this.deregisteredServers[s.Tags.gameId] -= 1
+                        return
+                    } else {
+                        delete this.deregisteredServers[s.Tags.gameId]
+                    }
+
+                    const tags: PlayfabServerTags = {
+                        maxPlayers: parseInt(s.Tags.maxPlayers),
+                        numPlayers: parseInt(s.Tags.maxPlayers),
+                        isFull: s.Tags.isFull === "true",
+                        gameId: s.Tags.gameId,
+                        gameBuild: s.Tags.gameBuild,
+                        serverName: s.Tags.serverName,
+                        category: s.Tags.category,
+                        publicSigningKey: s.Tags.publicSigningKey,
+                        requiresPassword: s.Tags.requiresPassword === "true"
+                    }
+                    const server: PlayfabServer = {
+                        Region: s.Region,
+                        LobbyID: s.LobbyID,
+                        BuildVersion: s.BuildVersion,
+                        GameMode: s.GameMode,
+                        PlayerUserIds: s.PlayerUserIds,
+                        RunTime: s.RunTime,
+                        GameServerState: s.GameServerState,
+                        GameServerStateEnum: s.GameServerStateEnum,
+                        Tags: tags,
+                        LastHeartbeat: s.LastHeartbeat,
+                        ServerHostname: s.ServerHostname,
+                        ServerIPV4Address: s.ServerIPV4Address,
+                        ServerPort: s.ServerPort
+                    }
+                    this.serversData.push(server)
+                });
+
+                this.lastSuccesfullQuery = Date.now()
+            } catch (_) {
+                warn("Playfab server query failed")
+                if (this.lastSuccesfullQuery + (3600 * 1000) < Date.now()) {
+                    critical("Could not connect for playfab for 1 hour, quitting")
+                    warn("This will not stop the server processes, CHECK TASKMANAGER")
+                    Deno.exit(1)
+                }
             }
         }
-
-        clearTimeout(timeout)
+        await timeout(1000, fetchData())
     }
 
     async getAuth() {
@@ -240,4 +237,22 @@ export class PlayfabManager {
             })
         ).json();
     }
+}
+
+function timeout(ms: number, promise:Promise<unknown>) {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => {
+      reject(new Error('TIMEOUT'))
+    }, ms)
+
+    promise
+      .then(value => {
+        clearTimeout(timer)
+        resolve(value)
+      })
+      .catch(reason => {
+        clearTimeout(timer)
+        reject(reason)
+      })
+  })
 }
