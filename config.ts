@@ -19,6 +19,7 @@ interface ConfigFileServer {
     customHeartbeat?: boolean
     discordWebhook?: string
     restartAt?: string
+    noShutdown: boolean
 }
 interface ConfigFile {
     webserverPort?: number
@@ -63,6 +64,7 @@ export const parseConfig = (configPath: string, starter: Starter) => {
             s.customHeartbeat ?? false,
             s.discordWebhook ?? "",
             s.restartAt ?? "",
+            s.noShutdown ?? false,
             starter.owner,
             starter
         ))

@@ -59,7 +59,8 @@ starter.json
             "consolePort": 42070,
             "consolePassword": "theremotepassword",
             "whitelist": true,
-            "enableAstrochatIntegration": true
+            "enableAstrochatIntegration": true,
+            "noShutdown": true
         }
     ]
 }

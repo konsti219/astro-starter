@@ -44,7 +44,7 @@ export class Server {
     private lastHeartbeat = 0
 
     // placeholder managers (so that I don't to deal with them being undefined)
-    public rcon = new RconManager("", "")
+    public rcon = new RconManager("", "", false)
     public players = new PlayerManager(".", this, this.starter)
 
 
@@ -64,6 +64,7 @@ export class Server {
         public customHeartbeat: boolean,
         public webhook: string,
         public restartAt: string,
+        public noShutdown: boolean,
         public owner: string,
         private starter: Starter
     ) {
@@ -91,7 +92,7 @@ export class Server {
         this.starter.playfab.add(this.serverAddr)
 
         // configure rcon
-        this.rcon = new RconManager(this.consoleAddr, this.consolePassword)
+        this.rcon = new RconManager(this.consoleAddr, this.consolePassword, this.noShutdown)
 
         // do not allow custom heartbeat for remote servers
         if (this.serverType === "remote") this.customHeartbeat = false
@@ -278,7 +279,7 @@ export class Server {
         // gave 8 seconds to save
         setTimeout(() => { 
             // clean server shutdown with RCON
-            this.rcon.shutdown()
+            if (!this.noShutdown) this.rcon.shutdown()
 
             // close rcon after 4s (it's probably fail before that /shrug)
             setTimeout(() => this.rcon.disconnect(), 4000)

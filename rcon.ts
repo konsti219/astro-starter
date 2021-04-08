@@ -75,7 +75,7 @@ export class RconManager {
     public saves: RconSave[] = []
 
 
-    constructor(private consoleAddr: string, private consolePassword: string) { }
+    constructor(private consoleAddr: string, private consolePassword: string, private noShutdown: boolean) { }
 
     // if this.connectInterval is set, it means the socket should be connecting
     // if this.isConnected is set to true it means there is an active tcp connection
@@ -210,7 +210,7 @@ export class RconManager {
     }
 
     shutdown() {
-        this.run(`DSServerShutdown`)
+        if (!this.noShutdown) this.run(`DSServerShutdown`)
     }
 
     async update() {
