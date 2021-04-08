@@ -44,7 +44,7 @@ export class Server {
     private lastHeartbeat = 0
 
     // placeholder managers (so that I don't to deal with them being undefined)
-    public rcon = new RconManager("", "", this)
+    public rcon = new RconManager("", "")
     public players = new PlayerManager(".", this, this.starter)
 
 
@@ -91,7 +91,7 @@ export class Server {
         this.starter.playfab.add(this.serverAddr)
 
         // configure rcon
-        this.rcon = new RconManager(this.consoleAddr, this.consolePassword, this)
+        this.rcon = new RconManager(this.consoleAddr, this.consolePassword)
 
         // do not allow custom heartbeat for remote servers
         if (this.serverType === "remote") this.customHeartbeat = false

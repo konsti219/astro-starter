@@ -4,6 +4,7 @@
 */
 
 import { warn, critical } from "./logging.ts"
+import { timeout } from "./util.ts";
 
 const skdVersion = "UE4MKPL-1.49.201027"
 
@@ -240,22 +241,4 @@ export class PlayfabManager {
             })
         ).json();
     }
-}
-
-function timeout(ms: number, promise:Promise<unknown>) {
-    return new Promise((resolve, reject) => {
-        const timer = setTimeout(() => {
-            reject(new Error('TIMEOUT'))
-        }, ms)
-
-        promise
-            .then(value => {
-                clearTimeout(timer)
-                resolve(value)
-            })
-            .catch(reason => {
-                clearTimeout(timer)
-                reject(reason)
-            })
-    })
 }

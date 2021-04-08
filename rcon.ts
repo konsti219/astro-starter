@@ -4,7 +4,7 @@
     and reconnecting if the connection drops
 */
 
-import { Server } from "./Server.ts";
+import { timeout } from "./util.ts";
 import { info, warn, error } from "./logging.ts"
 
 
@@ -75,7 +75,7 @@ export class RconManager {
     public saves: RconSave[] = []
 
 
-    constructor(private consoleAddr: string, private consolePassword: string, private server: Server) { }
+    constructor(private consoleAddr: string, private consolePassword: string) { }
 
     // if this.connectInterval is set, it means the socket should be connecting
     // if this.isConnected is set to true it means there is an active tcp connection
@@ -236,7 +236,6 @@ export class RconManager {
             // check if it is time to abondon the socket
             if (Date.now() - this.lastSuccesful > 600 * 1000) {
                 error("Could connect to connect to RCON in 10 minutes. Retrying in 5 minutes")
-                this.disconnect()
                 
                 this.players = []
                 this.saves = []
@@ -249,13 +248,17 @@ export class RconManager {
             return
         }
 
-        await Promise.all([
-            new Promise<void>((res, _) => { this.statsPromiseRes = res }),
-            new Promise<void>((res, _) => { this.playersPromiseRes = res }),
-            new Promise<void>((res, _) => { this.savesPromiseRes = res })
-        ])
+        try {
+            await timeout(1000, Promise.all([
+                new Promise<void>((res, _) => { this.statsPromiseRes = res }),
+                new Promise<void>((res, _) => { this.playersPromiseRes = res }),
+                new Promise<void>((res, _) => { this.savesPromiseRes = res })
+            ]))
 
-        this.lastSuccesful = Date.now()
+            this.lastSuccesful = Date.now()
+        } catch (_) {
+            warn("RCON response timeout")
+        }
 
     }
 
