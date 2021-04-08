@@ -92,4 +92,3 @@ deno compile -A --unstable --lite index.ts
 -   Network check
     -   (firewall)
     -   (upnp)
-    -   tests

@@ -159,16 +159,11 @@ export class Server {
                     this.status_ = Status.Running
 
                     // network check
-                    /*
-                    try {
-                        if (await checkNetwork(this.serverAddr)) {
-                            info("Network OK", this.name)
-                        } else {
-                            warn(`Could not validate your Network setup for ${this.serverAddr} UDP.\nMake sure to check your Firewall/port forwarding!`)
-                        }
-                    } catch (e) {
-                        console.log(e)
-                    }*/
+                    if (await checkNetwork(this.serverAddr)) {
+                        info("Network OK", this.name)
+                    } else {
+                        warn(`Could not validate your Network setup for ${this.serverAddr} UDP.\nMake sure to check your Firewall/port forwarding!`)
+                    }
 
                     this.rcon.connect()
                 }
