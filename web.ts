@@ -169,7 +169,7 @@ export class WebServer {
         this.app.use(notFound)
 
         this.app.addEventListener("listen", ({ hostname, port }) => {
-            info(`Webserver listening on ${hostname}:${port}`)
+            info(`Webserver listening on localhost:${port}`)
         });
     }
 
@@ -193,6 +193,6 @@ export class WebServer {
         })
 
         // listen
-        await this.app.listen({ hostname: "127.0.0.1", port: this.starter.webserverPort })
+        await this.app.listen({ port: this.starter.webserverPort })
     }
 }
