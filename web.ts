@@ -116,29 +116,6 @@ export class WebServer {
             ctx.response.type = "json"
         })
 
-
-        // APP
-
-        /*
-        // Logger
-        this.app.use(async (ctx, next) => {
-            await next()
-            const rt = ctx.response.headers.get("X-Response-Time")
-            console.log(
-                `${Colors.green(ctx.request.method)} ${
-                    Colors.cyan(decodeURIComponent(ctx.request.url.pathname))
-                } - ${Colors.bold(String(rt))}`,
-            );
-        });
-
-        // Response Time
-        this.app.use(async (ctx, next) => {
-            const start = Date.now()
-            await next()
-            const ms = Date.now() - start
-            ctx.response.headers.set("X-Response-Time", `${ms}ms`)
-        });*/
-
         // Error handler
         this.app.use(async (ctx, next) => {
         try {

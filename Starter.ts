@@ -31,7 +31,7 @@ export class Starter {
         setLogDir(path.join(this.dir, "starterData", "logs"))
         
         console.log("")
-        info("astro-starter v0.1-beta")
+        info("astro-starter v0.1.1-beta")
         info("work dir: " + dir)
 
         this.readConfig()
