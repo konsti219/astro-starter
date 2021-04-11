@@ -97,6 +97,7 @@ export class RconManager {
         this.connectInterval = undefined
         this.close()
     }
+
     private close() {
         this.isConnected = false
         try {
@@ -125,11 +126,14 @@ export class RconManager {
                 for await (const buffer of Deno.iter(this.conn)) {
                     this.handleData(buffer)
                 }
-            } catch (_) {
+            } catch (e) {
                 // if an error occurs check if socket should have been connected, if yes warn
-                if (this.isConnected) warn("Socket error/disconnect, addr: " + this.consoleAddr)
-                // then close the socket and wait for the loop to establish a new one
-                this.close()
+                if (this.isConnected) {
+                    warn("Socket error/disconnect, addr: " + this.consoleAddr)
+                    console.error(e)
+                }
+
+                this.rconError()
             }
         }
     }
@@ -219,30 +223,23 @@ export class RconManager {
             return
         }
 
+        // add data gathering commands to queue
         this.run("DSServerStatistics")
         this.run("DSListGames")
         this.run("DSListPlayers")
+
         try {
+            // turn queue into a single command string with commands seperated by \n
             const rconCmd = this.queue.reduce((acc, cmd) => acc + cmd + "\n", "")
-            await this.conn?.write(this.encoder.encode(rconCmd));
             this.queue = []
-        } catch (_) {
+
+            // write command string into socket
+            await this.conn?.write(this.encoder.encode(rconCmd));
+        } catch (e) {
             error("failed to send RCON command to " + this.consoleAddr)
-            this.close()
+            console.error(e)
 
-            // stop returning players as online after 30 seconds
-            if (Date.now() - this.lastSuccesful > 30000) this.players.forEach(p => (p.inGame = false))
-
-            // check if it is time to abondon the socket
-            if (Date.now() - this.lastSuccesful > 600 * 1000) {
-                error("Could connect to connect to RCON in 10 minutes. Retrying in 5 minutes")
-                
-                this.players = []
-                this.saves = []
-                this.disconnect()
-
-                setTimeout(() => this.connect(), 300 * 1000)
-            }
+            this.rconError()
 
             // return and continue execution of update loop
             return
@@ -258,8 +255,29 @@ export class RconManager {
             this.lastSuccesful = Date.now()
         } catch (_) {
             warn("RCON response timeout")
+
+            this.rconError()
         }
 
+    }
+
+    private rconError() {
+        // close the socket and wait for the loop to establish a new one
+        this.close()
+
+        // stop returning players as online after 30 seconds
+        if (Date.now() - this.lastSuccesful > 30000) this.players.forEach(p => (p.inGame = false))
+
+        // check if it is time to abondon the socket
+        if (Date.now() - this.lastSuccesful > 600 * 1000) {
+            error("Could connect to connect to RCON in 10 minutes. Retrying in 1 minute")
+            
+            this.players = []
+            this.saves = []
+            this.disconnect()
+
+            setTimeout(() => this.connect(), 60000)
+        }
     }
 
 }
