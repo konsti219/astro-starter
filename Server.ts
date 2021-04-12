@@ -75,11 +75,24 @@ export class Server {
     async init() {
         // parse addresses from config file (here because we need the public IP)
         const { configIP, port, consolePort } = this.addrConfig
-        const IP = configIP === "_public" ? this.starter.publicIP : configIP
+
+        // get IP
+        let IP = "0.0.0.0"
+        if (configIP === "_public") {
+            IP = this.starter.publicIP
+        } else if (/^((25[0-5]|(2[0-4]|1[0-9]|[1-9]|)[0-9])(\.(?!$)|$)){4}$/.test(configIP)) {
+            IP = configIP
+        } else {
+            // assume it's a URL
+            IP = (await Deno.resolveDns(configIP, "A"))[0] ?? "0.0.0.0"
+        }
+
         this.serverAddr = IP + ":" + port
+
         this.consoleAddr = (this.serverType === "local" ? "127.0.0.1" : IP) + ":"
             + (consolePort === "_auto" ? port + 1 : consolePort)
 
+        // configure console password
         this.consolePassword = this.consolePassword === "_random"
             ? Math.random().toString(36).substring(2)
             : this.consolePassword
