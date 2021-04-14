@@ -27,9 +27,11 @@ const data = [
 ]
 
 async function waitForSocket(socket: Deno.DatagramConn) {
-    for await (const _ of socket) {
-        return
-    }
+    try {
+        for await (const _ of socket) {
+            return
+        }
+    } catch(_) {_}
 }
 
 export function checkNetwork(url: string) {
@@ -53,12 +55,16 @@ export function checkNetwork(url: string) {
 
             waitForSocket(socket).then(() => {
                 clearTimeout(timeout)
-                socket.close()
+                try {
+                    socket.close()
+                } catch(_) {_}
                 res(true)
             })
             
         } catch (_) {
-            socket.close()
+            try {
+                socket.close()
+            } catch(_) {_}
             res(false)
         }
     })

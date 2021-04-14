@@ -56,7 +56,7 @@ export class PlayerManager {
     private players: Player[] = []
     private playersFile = ""
 
-    constructor(serverDir: string, private server:Server, private starter: Starter) {
+    constructor(serverDir: string, private server:Server, private starter?: Starter) {
         this.playersFile = path.join(serverDir, "data.json")
     }
 

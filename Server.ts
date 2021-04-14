@@ -45,7 +45,7 @@ export class Server {
 
     // placeholder managers (so that I don't to deal with them being undefined)
     public rcon = new RconManager("", "", false)
-    public players = new PlayerManager(".", this, this.starter)
+    public players = new PlayerManager(".", this)
 
 
     constructor(
