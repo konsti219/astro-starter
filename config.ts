@@ -32,7 +32,7 @@ export const parseConfig = (configPath: string, starter: Starter) => {
     let config: ConfigFile = { servers: [] }
     try {
         config = JSON.parse(configJson)
-    } catch (e) {
+    } catch (_) {
         critical("Parsing config file failed")
         Deno.exit(1)
     }

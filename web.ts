@@ -168,7 +168,7 @@ export class WebServer {
         // A basic 404 page
         this.app.use(notFound)
 
-        this.app.addEventListener("listen", ({ hostname, port }) => {
+        this.app.addEventListener("listen", ({ port }) => {
             info(`Webserver listening on localhost:${port}`)
         });
     }

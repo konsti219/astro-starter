@@ -127,7 +127,7 @@ export class Starter {
                 // download steamcmd.zip
                 const blob = await (await fetch("https://steamcdn-a.akamaihd.net/client/installer/steamcmd.zip")).blob();
                 const file = await Deno.create(path.join(steamDir, "steamcmd.zip"));
-                await Deno.writeAll(file, new Uint8Array(await blob.arrayBuffer()));
+                await io.writeAll(file, new Uint8Array(await blob.arrayBuffer()));
                 Deno.close(file.rid);
 
                 // unzip file

@@ -4,6 +4,8 @@
     and reconnecting if the connection drops
 */
 
+import { io } from "./deps.ts";
+
 import { timeout } from "./util.ts";
 import { info, warn, error } from "./logging.ts"
 
@@ -123,7 +125,7 @@ export class RconManager {
                 this.conn.write(this.encoder.encode(this.consolePassword + "\n"))
 
                 // async iterator that handles all data coming in
-                for await (const buffer of Deno.iter(this.conn)) {
+                for await (const buffer of io.iter(this.conn)) {
                     this.handleData(buffer)
                 }
             } catch (e) {
