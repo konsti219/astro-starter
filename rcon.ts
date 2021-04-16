@@ -129,13 +129,15 @@ export class RconManager {
                     this.handleData(buffer)
                 }
             } catch (e) {
+                this.close()
+
                 // if an error occurs check if socket should have been connected, if yes warn
                 if (this.isConnected) {
                     warn("Socket error/disconnect, addr: " + this.consoleAddr)
-                    console.error(e)
+                    this.rconError(e)
+                } else {
+                    this.rconError()
                 }
-
-                this.rconError()
             }
         }
     }
@@ -239,9 +241,8 @@ export class RconManager {
             await this.conn?.write(this.encoder.encode(rconCmd));
         } catch (e) {
             error("failed to send RCON command to " + this.consoleAddr)
-            console.error(e)
 
-            this.rconError()
+            this.rconError(e)
 
             // return and continue execution of update loop
             return
@@ -263,7 +264,10 @@ export class RconManager {
 
     }
 
-    private rconError() {
+    private rconError(errorMsg?: Error) {
+        console.error(errorMsg)
+        error("RCON last success " + (Date.now() - this.lastSuccesful))
+
         // close the socket and wait for the loop to establish a new one
         this.close()
 
