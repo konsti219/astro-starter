@@ -134,10 +134,8 @@ export class RconManager {
                 // if an error occurs check if socket should have been connected, if yes warn
                 if (this.isConnected) {
                     warn("Socket error/disconnect, addr: " + this.consoleAddr)
-                    this.rconError(e)
-                } else {
-                    this.rconError()
                 }
+                this.rconError(e)
             }
         }
     }
@@ -180,7 +178,7 @@ export class RconManager {
         }
     }
 
-    run(cmd:string) {
+    run(cmd: string) {
         this.queue.push(cmd)
     }
 
@@ -259,14 +257,14 @@ export class RconManager {
         } catch (_) {
             warn("RCON response timeout")
 
-            this.rconError()
+            this.rconError("RCON timeout")
         }
 
     }
 
-    private rconError(errorMsg?: Error) {
+    private rconError(errorMsg: unknown) {
+        warn(`RCON Error. Last success (ms ago): ${Date.now() - this.lastSuccesful}, addr: ${this.consoleAddr}. (not critical, ignore me)`)
         console.error(errorMsg)
-        error("RCON last success " + (Date.now() - this.lastSuccesful))
 
         // close the socket and wait for the loop to establish a new one
         this.close()
@@ -277,7 +275,7 @@ export class RconManager {
         // check if it is time to abondon the socket
         if (Date.now() - this.lastSuccesful > 600 * 1000) {
             error("Could connect to connect to RCON in 10 minutes. Retrying in 1 minute")
-            
+
             this.players = []
             this.saves = []
             this.disconnect()
