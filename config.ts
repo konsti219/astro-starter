@@ -11,7 +11,10 @@ interface ConfigFileServer {
     port?: number
     consolePort?: string
     consolePassword?: string
+    serverPassword?: string
     whitelist?: boolean
+    maxPlayers?: number
+    afkTimeout?: number
     saveInterval?: number
     backupSaves?: boolean
     backupInterval?: number
@@ -51,12 +54,15 @@ export const parseConfig = (configPath: string, starter: Starter) => {
         starter.servers.push(new Server(
             s.id ?? `server${i}`,
             s.type ?? "local",
-            s.name ?? `My server ${i}`,
+            s.name ?? `Server ${i}`,
             s.IP ?? "_public",
             s.port ?? 8777,
             s.consolePort ?? "_auto",
             s.consolePassword ?? "_random",
+            s.serverPassword ?? "",
             s.whitelist ?? false,
+            s.maxPlayers ?? 8,
+            s.afkTimeout ?? 0,
             s.saveInterval ?? 900,
             s.backupSaves ?? true,
             s.backupInterval ?? 3600,

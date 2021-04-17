@@ -56,7 +56,10 @@ export class Server {
         port: number,
         consolePort: string,
         public consolePassword: string,
+        private serverPassword: string,
         public whitelist: boolean,
+        public maxPlayers: number,
+        public afkTimeout: number,
         public saveInterval: number,
         public backupSaves: boolean,
         public backupInterval: number,
@@ -231,10 +234,10 @@ export class Server {
             }
 
             // update
-            await this._updateFiles()
+            await this.updateFiles()
 
             // write config
-            await this._writeConfig()
+            await this.writeConfig()
 
             // start server process
             info("Starting Server process", this.name)
@@ -308,7 +311,7 @@ export class Server {
         clearTimeout(this.restartTimeout)
     }
 
-    private async _updateFiles() {
+    private async updateFiles() {
         if (this.updatingFiles) return
         this.updatingFiles = true
 
@@ -360,7 +363,7 @@ export class Server {
         this.updatingFiles = false
     }
 
-    private async _writeConfig() {
+    private async writeConfig() {
         const configPath = path.join(this.serverDir, "serverFiles", "Astro", "Saved", "Config", "WindowsServer")
         fs.ensureDirSync(configPath)
 
@@ -373,11 +376,11 @@ MaxServerIdleFramerate=3
 bWaitForPlayersBeforeShutdown=False
 PublicIP=${this.serverAddr.split(":")[0]}
 ServerName=${this.id}
-MaximumPlayerCount=8
-OwnerName=${this.starter.owner}
+MaximumPlayerCount=${this.maxPlayers}
+OwnerName=${this.owner}
 OwnerGuid=
-PlayerActivityTimeout=0
-ServerPassword=
+PlayerActivityTimeout=${this.afkTimeout}
+ServerPassword=${this.serverPassword}
 bDisableServerTravel=False
 DenyUnlistedPlayers=${this.whitelist ? "True" : "False"}
 VerbosePlayerProperties=True

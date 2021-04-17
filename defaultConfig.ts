@@ -5,18 +5,22 @@ export const defaultConfig = {
         {
             "id": "server1",
             "type": "local",
-            "name": "My local server",
+            "name": "Server 1",
             "IP": "_public",
             "port": 8777,
             "consolePort": "_auto",
             "consolePassword": "_random",
+            "serverPassword": "",
             "whitelist": false,
+            "maxPlayers": 8,
+            "afkTimeout": 0,
             "saveInterval": 900,
             "backupSaves": true,
             "backupInterval": 3600,
             "enableAstrochatIntegration": false,
             "customHeartbeat": true,
-            "restartAt": "03:00"
+            "discordWebhook": "",
+            "restartAt": ""
         }
     ]
 }
