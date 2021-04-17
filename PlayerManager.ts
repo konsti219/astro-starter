@@ -150,20 +150,25 @@ export class PlayerManager {
         // loop through all players and check for inGame change and update stats
         this.players.forEach(p => {
 
+            const onlinePlayersNum = rconPlayers.filter(p => p.inGame).length
+            const maxPlayers = this.server.playfabData?.Tags.maxPlayers ?? 0
+
             const rconP = rconPlayers.find(rp => rp.playerGuid === p.guid)
             // rconP could be undefined because the server could forget players
             if (rconP) {
 
                 // joining
                 if (rconP.inGame && !p.inGame) {
-                    infoWebhook(`'${rconP.playerName}' joining`, this.server.name, this.server.webhook)
+                    infoWebhook(`'${rconP.playerName}' joining (${onlinePlayersNum}/${maxPlayers})`,
+                        this.server.name, this.server.webhook)
                     p.inGame = true
                     p.onlineSince = Date.now()
                 }
 
                 // leaving
                 if (!rconP.inGame && p.inGame) {
-                    infoWebhook(`'${p.name}' leaving`, this.server.name, this.server.webhook)
+                    infoWebhook(`'${p.name}' leaving (${onlinePlayersNum}/${maxPlayers})`,
+                        this.server.name, this.server.webhook)
                     p.inGame = false
                     p.prevPlaytime = PlayerManager.playtime(p)
                     p.onlineSince = 0
