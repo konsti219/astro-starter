@@ -56,6 +56,10 @@ export class PlayerManager {
     private players: Player[] = []
     private playersFile = ""
 
+    private joinedPlayersRCON: Player[] = []
+    private playersPlayfab: string[] = []
+    private joinedPlayersPlayfab: string[] = []
+
     constructor(serverDir: string, private server:Server, private starter?: Starter) {
         this.playersFile = path.join(serverDir, "data.json")
     }
@@ -163,6 +167,9 @@ export class PlayerManager {
                         this.server.name, this.server.webhook)
                     p.inGame = true
                     p.onlineSince = Date.now()
+
+                    // add to playfab matching list
+                    this.joinedPlayersRCON.push(p)
                 }
 
                 // leaving
@@ -191,6 +198,36 @@ export class PlayerManager {
             // set cached, true means that the server forgot the player
             p.cached = !rconP
         })
+
+        // Do playfab id matching
+        const newPlayersPlayfab: string[] = this.server.playfabData?.PlayerUserIds ?? []
+
+        // update joined playfab list
+        // check check for new ids
+        newPlayersPlayfab.forEach(id => {
+            if (!this.playersPlayfab.includes(id)) {
+                this.joinedPlayersPlayfab.push(id)
+            }
+        })
+        // check if an old id is gone
+        this.joinedPlayersPlayfab =
+            this.joinedPlayersPlayfab.filter(id => newPlayersPlayfab.includes(id))
+        this.joinedPlayersRCON =
+            this.joinedPlayersRCON.filter(p => p.inGame)
+        
+        // do matching
+        // NOTE: if two players join at the same time this could switch up their ids
+        // but it's unlikely enough for me to ignore
+        if (this.joinedPlayersPlayfab.length > 0 && this.joinedPlayersRCON.length > 0) {
+            const player = this.joinedPlayersRCON.shift()
+            if (player) {
+                player.playfabid = this.joinedPlayersPlayfab.shift() ?? ""
+            }
+        }
+        
+        // update local array (clone it, NOT reference)
+        this.playersPlayfab = [...newPlayersPlayfab]
+        
 
         // save new data to disk
         this.writeFile()
