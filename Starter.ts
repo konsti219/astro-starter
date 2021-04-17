@@ -23,6 +23,8 @@ export class Starter {
     private loop = 0
     private lastPublucDataFetch = 0
 
+    public onlineSince = Date.now()
+
     constructor(public dir: string) {
         // ensure data and servers dir exists
         fs.ensureDirSync(path.join(this.dir, "starterData", "servers"))

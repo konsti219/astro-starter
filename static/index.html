@@ -183,8 +183,14 @@
         </p>
 
         <div id="servers"></div>
+        <br />
 
-        <br /><button id="btnShutdown">Shutdown</button>
+        <p>
+            <span>Starter Uptime: </span><span id="starterUptime"></span>
+        </p>
+        <br />
+
+        <button id="btnShutdown">Shutdown</button>
 
         <template id="server">
             <fieldset>
@@ -351,13 +357,14 @@
             const data = await (await fetch("/api/servers")).json();
             //console.log(data);
 
+            document.querySelector("#starterUptime").innerText =
+                humanizeDuration(Date.now() - data.onlineSince, {
+                    largest: 2,
+                    round: true,
+                })
+
             const serversDiv = document.querySelector("#servers");
             serversDiv.innerHTML = "";
-
-            /*
-        const versionSpan = document.createElement("span");
-        versionSpan.innerText = data.latestVersion;
-        serversDiv.appendChild(versionSpan);*/
 
             data.servers.forEach((s) => {
                 // server fieldset
