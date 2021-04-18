@@ -31,7 +31,7 @@ export class Server {
     private consoleAddr = "0.0.0.0:0"
     private addrConfig: ConfigAddr = { configIP: "", port: 0, consolePort: "" }
 
-    private serverDir = ""
+    public serverDir = ""
     private process?: Deno.Process
 
     private status_ = Status.Stopped
@@ -45,7 +45,7 @@ export class Server {
 
     // placeholder managers (so that I don't to deal with them being undefined)
     public rcon = new RconManager("", "", false)
-    public players = new PlayerManager(".", this)
+    public players = new PlayerManager(this)
 
 
     constructor(
@@ -114,7 +114,7 @@ export class Server {
         if (this.serverType === "remote") this.customHeartbeat = false
 
         // configure player manager
-        this.players = new PlayerManager(this.serverDir, this, this.starter)
+        this.players = new PlayerManager(this, this.starter)
         await this.players.readFile()
     }
 
@@ -189,6 +189,7 @@ export class Server {
 
                 // do player tracking
                 this.players.update(this.rcon.players)
+                this.starter.playerCache.update(this.players.list())
 
                 // do custom heartbeat
                 if (this.customHeartbeat) await this._heartbeat()

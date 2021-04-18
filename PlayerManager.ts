@@ -1,3 +1,9 @@
+/*
+    The player manager stores data about the players of a server
+    and is responsible for reading/storing to disk
+    and it does all the logic for join/leave and playfab ids
+*/
+
 import { path, fs } from "./deps.ts"
 
 import { Starter } from "./Starter.ts";
@@ -14,7 +20,7 @@ enum PlayerCategory {
     Pending = "Pending",
     Owner = "Owner"
 }
-interface Player {
+export interface Player {
     guid: string
     playfabid: string
     name: string
@@ -31,7 +37,7 @@ interface Player {
     cached: boolean
 }
 /*
-data.json
+starterData/servers/{server}/data.json
 {    
     players: [
         {
@@ -40,15 +46,14 @@ data.json
             name: "",
             firstJoinName: "",
 
-            firstJoin: 0
-            lastSeen: 0
-            playtime: 0
+            firstJoin: 0,
+            lastSeen: 0,
+            playtime: 0,
 
             category: PlayerCategory
         }
     ]
 }
-
 */
 
 
@@ -60,8 +65,8 @@ export class PlayerManager {
     private playersPlayfab: string[] = []
     private joinedPlayersPlayfab: string[] = []
 
-    constructor(serverDir: string, private server:Server, private starter?: Starter) {
-        this.playersFile = path.join(serverDir, "data.json")
+    constructor(private server:Server, private starter?: Starter) {
+        this.playersFile = path.join(this.server.serverDir, "data.json")
     }
 
     async readFile() {

@@ -5,13 +5,15 @@ import { PlayfabManager } from "./playfab.ts";
 import { parseConfig } from "./config.ts"
 import { defaultConfig } from "./defaultConfig.ts"
 import { WebServer } from "./web.ts";
+import { PlayerCache } from "./PlayerCache.ts";
 
 import { setLogDir, info, warn, critical } from "./logging.ts"
 
 
 export class Starter {
     public servers: Server[] = []
-    public playfab:PlayfabManager = new PlayfabManager()
+    public playfab = new PlayfabManager()
+    public playerCache = new PlayerCache(this)
 
     public webserverPort = 5000
     private webserver = new WebServer(this)
@@ -39,6 +41,7 @@ export class Starter {
         this.readConfig()
 
         this.webserver = new WebServer(this)
+        this.playerCache = new PlayerCache(this)
     }
 
     readConfig() {
@@ -72,7 +75,11 @@ export class Starter {
             Deno.exit(0)
         }
 
+        // fetch data
         await this.fetchPublicData()
+
+        // init player cache
+        await this.playerCache.readFile()
 
         // only deal with local servers when there are any
         if (this.servers.filter(s => s.serverType === "local").length > 0) {
