@@ -262,9 +262,10 @@ export class RconManager {
 
     }
 
-    private rconError(errorMsg: unknown) {
-        warn(`RCON Error. Last success (ms ago): ${Date.now() - this.lastSuccesful}, addr: ${this.consoleAddr}. (not critical, ignore me)`)
-        console.error(errorMsg)
+    private rconError(_: unknown) {
+        if (Date.now() - this.lastSuccesful > 15000)
+            warn(`RCON Error. Last success (ms ago): ${Date.now() - this.lastSuccesful}, addr: ${this.consoleAddr}. (not critical, ignore me)`)
+        //console.error(errorMsg)
 
         // close the socket and wait for the loop to establish a new one
         this.close()
