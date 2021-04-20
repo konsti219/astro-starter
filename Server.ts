@@ -94,6 +94,7 @@ export class Server {
 
         this.consoleAddr = (this.serverType === "local" ? "127.0.0.1" : IP) + ":"
             + (consolePort === "_auto" ? port + 1 : consolePort)
+        if (this.serverType === "playfab") this.consoleAddr = ""
 
         // configure console password
         this.consolePassword = this.consolePassword === "_random"
@@ -108,10 +109,11 @@ export class Server {
         this.starter.playfab.add(this.serverAddr)
 
         // configure rcon
-        this.rcon = new RconManager(this.consoleAddr, this.consolePassword, this.noShutdown)
+        if (this.serverType !== "playfab")
+            this.rcon = new RconManager(this.consoleAddr, this.consolePassword, this.noShutdown)
 
-        // do not allow custom heartbeat for remote servers
-        if (this.serverType === "remote") this.customHeartbeat = false
+        // only allow custom heartbeat for local servers
+        if (this.serverType !== "local") this.customHeartbeat = false
 
         // configure player manager
         this.players = new PlayerManager(this, this.starter)
@@ -181,15 +183,14 @@ export class Server {
                         warn(`Could not validate your Network setup for ${this.serverAddr} UDP.\nMake sure to check your Firewall/port forwarding!`)
                     }
 
-                    this.rcon.connect()
+                    if (this.consoleAddr !== "") this.rcon.connect()
                 }
             } else if (this.status_ === Status.Running) {
                 // update rcon when it's running
-                await this.rcon.update()
+                if (this.consoleAddr !== "") await this.rcon.update()
 
                 // do player tracking
                 this.players.update(this.rcon.players)
-                this.starter.playerCache.update(this.players.list())
 
                 // do custom heartbeat
                 if (this.customHeartbeat) await this._heartbeat()
@@ -214,7 +215,7 @@ export class Server {
 
     private async _start() {
         infoWebhook("Starting server ", this.name, this.webhook)
-        if (this.status !== "stopped") {
+        if (this.status_ !== Status.Stopped) {
             warn("Tried to start server that is not stopped, id: " + this.id)
             return
         }

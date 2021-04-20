@@ -87,41 +87,43 @@ export class PlayerCache {
         }))
     }
 
-    update(players: Player[]) {
-        players.forEach(p => {
-            // check if palyer has a known playfab id
-            if (p.playfabid === "") return
+    update(player: Player) {
+        // check if palyer has a known playfab id
+        if (player.playfabid === "") return
 
-            // check if new
-            if (!this.players.find(lp => lp.playfabid === p.playfabid)) {
-                console.log("new cache player")
-                this.players.push({
-                    guid: p.guid,
-                    playfabid: p.playfabid,
-                    name: p.name,
-                    firstJoinName: "",
+        // check if new
+        if (!this.players.find(lp => lp.playfabid === player.playfabid)) {
+            console.log("new cache player")
+            this.players.push({
+                guid: player.guid,
+                playfabid: player.playfabid,
+                name: player.name,
+                firstJoinName: "",
 
-                    firstJoin: 0,
-                    lastSeen: 0
-                })
+                firstJoin: 0,
+                lastSeen: 0
+            })
+        }
+
+        const cachePlayer = this.players.find(lp => lp.playfabid === player.playfabid)
+
+        if (cachePlayer) {
+            // check for incomplete first data
+            if (player.inGame) {
+                if (cachePlayer.firstJoinName === "") cachePlayer.firstJoinName = player.firstJoinName
+                if (cachePlayer.firstJoin === 0) cachePlayer.firstJoin = Date.now()
             }
 
-            const cachePlayer = this.players.find(lp => lp.playfabid === p.playfabid)
-
-            if (cachePlayer) {
-                // check for incomplete first data
-                if (p.inGame) {
-                    if (cachePlayer.firstJoinName === "") cachePlayer.firstJoinName = p.firstJoinName
-                    if (cachePlayer.firstJoin === 0) cachePlayer.firstJoin = Date.now()
-                }
-
-                // update other data
-                if (p.name !== "") cachePlayer.name = p.name
-                if (p.inGame) cachePlayer.lastSeen = Date.now()
-            }
-        })
+            // update other data
+            if (player.name !== "") cachePlayer.name = player.name
+            if (player.inGame) cachePlayer.lastSeen = Date.now()
+        }
 
         // save new data to disk
         this.writeFile()
+    }
+
+    find(id: string) {
+        return this.players.find(p => p.playfabid === id)
     }
 }
