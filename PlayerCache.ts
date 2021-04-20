@@ -93,7 +93,6 @@ export class PlayerCache {
 
         // check if new
         if (!this.players.find(lp => lp.playfabid === player.playfabid)) {
-            console.log("new cache player")
             this.players.push({
                 guid: player.guid,
                 playfabid: player.playfabid,
