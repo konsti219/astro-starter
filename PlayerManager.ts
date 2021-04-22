@@ -224,8 +224,17 @@ export class PlayerManager {
                 this.joinedPlayersRCON.filter(p => !!rconPlayers.find(rp => rp.playerGuid === p.guid))
         
             // do matching
-            // NOTE: if two players join at the same time this could switch up their ids
+            // (at this point I did not know it) NOTE: if two players join at the same time this could switch up their ids
             // but it's unlikely enough for me to ignore
+            // REALITY: If the tool just started it can actually cause two palyers to join at the same time
+
+            // stop matching if two joined at the same time
+            if (this.joinedPlayersPlayfab.length > 1
+                && this.joinedPlayersPlayfab.length === this.joinedPlayersRCON.length) {
+                    this.joinedPlayersPlayfab = []
+                    this.joinedPlayersRCON = []
+                }
+
             if (this.joinedPlayersPlayfab.length > 0 && this.joinedPlayersRCON.length > 0) {
                 const player = this.joinedPlayersRCON.shift()
                 if (player) {
@@ -235,18 +244,15 @@ export class PlayerManager {
         }
 
         
-
+        /* PLAYER STATE CHANGES */
         // loop through all players and check for inGame change and update stats
         this.players.forEach(player => {
 
             const onlinePlayersNum = newPlayfabPlayers.length
             const maxPlayers = this.server.playfabData?.Tags.maxPlayers ?? 0
 
-            let rconP: RconPlayer | undefined
-            
-            if (hasRCON)
-                rconP = rconPlayers.find(rp => rp.playerGuid === player.guid)
             // rconP could be undefined because the server could forget players or there might not be RCON
+            const rconP = rconPlayers.find(rp => rp.playerGuid === player.guid)
             
             // for join/leave
             const oldInGame = player.inGame
@@ -283,13 +289,13 @@ export class PlayerManager {
             }
             
 
-            // join / leave
+            // JOIN / LEAVE
             // basically just "UNKNOWN" instead of an empty string
-            const humanName = player.name === "" ? "UNKNOWN" : player.name
+            const humanName = player.name === "" ? "UNKNOWN" : `'${player.name}'`
 
             // joining
             if (player.inGame && !oldInGame) {
-                infoWebhook(`'${humanName}' joining (${onlinePlayersNum}/${maxPlayers})`,
+                infoWebhook(`${humanName} joining (${onlinePlayersNum}/${maxPlayers})`,
                     this.server.name, this.server.webhook)
                 
                 player.onlineSince = Date.now()
@@ -297,7 +303,7 @@ export class PlayerManager {
 
             // leaving
             if (!player.inGame && oldInGame) {
-                infoWebhook(`'${humanName}' leaving (${onlinePlayersNum}/${maxPlayers})`,
+                infoWebhook(`${humanName} leaving (${onlinePlayersNum}/${maxPlayers})`,
                     this.server.name, this.server.webhook)
                 
                 player.prevPlaytime = PlayerManager.playtime(player)
