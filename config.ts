@@ -27,6 +27,7 @@ interface ConfigFileServer {
 interface ConfigFile {
     webserverPort?: number
     owner?: string
+    rconErrorRestart?: boolean
     servers: ConfigFileServer[]
 }
 
@@ -42,6 +43,7 @@ export const parseConfig = (configPath: string, starter: Starter) => {
 
     starter.webserverPort = config.webserverPort ?? 5000
     starter.owner = config.owner ?? ""
+    starter.rconErrorRestart = config.rconErrorRestart ?? false
 
     if ((new Set(config.servers.map(s => s.id))).size !== config.servers.length) {
         critical("found duplicate id! ids have to be unique.")

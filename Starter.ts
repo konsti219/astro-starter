@@ -26,6 +26,7 @@ export class Starter {
     private lastPublucDataFetch = 0
 
     public onlineSince = Date.now()
+    public rconErrorRestart = false
 
     constructor(public dir: string) {
         // ensure data and servers dir exists
@@ -221,8 +222,13 @@ export class Starter {
         info("Public IP: " + this.publicIP)
     }
 
-    shutdown() {
+    shutdown(silent = false) {
         info("Shutting down servers and starter")
+
+        if (silent) {
+            this.servers.forEach(s => (s.webhook = ""))
+        }
+
         this.servers.forEach(s => s.stop())
         setTimeout(() => {
             clearInterval(this.loop)

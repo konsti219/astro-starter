@@ -44,7 +44,7 @@ export class Server {
     private lastHeartbeat = 0
 
     // placeholder managers (so that I don't to deal with them being undefined)
-    public rcon = new RconManager("", "", false)
+    public rcon = new RconManager("", "", this)
     public players = new PlayerManager(this)
 
 
@@ -69,7 +69,7 @@ export class Server {
         public restartAt: string,
         public noShutdown: boolean,
         public owner: string,
-        private starter: Starter
+        public starter: Starter
     ) {
         this.addrConfig = { configIP, port, consolePort }
     }
@@ -110,7 +110,7 @@ export class Server {
 
         // configure rcon
         if (this.serverType !== "playfab")
-            this.rcon = new RconManager(this.consoleAddr, this.consolePassword, this.noShutdown)
+            this.rcon = new RconManager(this.consoleAddr, this.consolePassword, this)
 
         // only allow custom heartbeat for local servers
         if (this.serverType !== "local") this.customHeartbeat = false
