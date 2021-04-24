@@ -231,7 +231,7 @@ export class PlayerManager {
             // stop matching if two joined at the same time
             if (this.joinedPlayersPlayfab.length > 1
                 && this.joinedPlayersPlayfab.length === this.joinedPlayersRCON.length) {
-                warn(`Two players joined at same time, aborting playfabid matching (${this.joinedPlayersPlayfab}, ${this.joinedPlayersRCON})`)
+                warn(`Two players joined at same time, aborting playfabid matching (${this.joinedPlayersPlayfab}, ${this.joinedPlayersRCON.map(p => p.name)})`)
                 this.joinedPlayersPlayfab = []
                 this.joinedPlayersRCON = []
             }
