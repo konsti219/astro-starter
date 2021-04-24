@@ -10,7 +10,7 @@ import { Starter } from "./Starter.ts";
 import { Server } from "./Server.ts";
 import { RconPlayer } from "./rcon.ts";
 
-import { info, infoWebhook } from "./logging.ts"
+import { info, infoWebhook, warn } from "./logging.ts"
 
 enum PlayerCategory {
     Unlisted = "Unlisted",
@@ -231,9 +231,9 @@ export class PlayerManager {
             // stop matching if two joined at the same time
             if (this.joinedPlayersPlayfab.length > 1
                 && this.joinedPlayersPlayfab.length === this.joinedPlayersRCON.length) {
-                    this.joinedPlayersPlayfab = []
-                    this.joinedPlayersRCON = []
-                }
+                this.joinedPlayersPlayfab = []
+                this.joinedPlayersRCON = []
+            }
 
             if (this.joinedPlayersPlayfab.length > 0 && this.joinedPlayersRCON.length > 0) {
                 const player = this.joinedPlayersRCON.shift()
@@ -241,6 +241,17 @@ export class PlayerManager {
                     player.playfabid = this.joinedPlayersPlayfab.shift() ?? ""
                 }
             }
+
+            // remove duplicate ids if found (backup)
+            this.players.forEach(p1 => {
+                this.players.forEach(p2 => {
+                    if (p1 != p2 && p1.playfabid == p2.playfabid && p1.playfabid != "") {
+                        warn(`Found duplicate playfabid (${p1.name}, ${p2.name}), removing`)
+                        p1.playfabid = ""
+                        p2.playfabid = ""
+                    }
+                })
+            })
         }
 
         

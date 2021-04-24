@@ -112,11 +112,13 @@ export class Starter {
         }, 4000)
 
         // disable silent after 1 min
-        if (fs.existsSync("./silent")) {
-            setTimeout(() => {
+
+        setTimeout(() => {
+            if (fs.existsSync("./silent")) {
                 Deno.removeSync("./silent")
-            }, 60000)
-        }
+            }
+        }, 60000)
+        
 
 
         // not implemented on windows
