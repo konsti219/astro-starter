@@ -252,6 +252,34 @@ export class PlayerManager {
                     }
                 })
             })
+
+            // remove duplicate accounts (RCON)
+            this.players.forEach(p1 => {
+                this.players.forEach(p2 => {
+                    if (p1 != p2 && p1.guid == p2.guid) {
+                        warn(`Found duplicate guid (${p1.name}, ${p2.name}), rm one with less palytime`)
+                        if (p1.prevPlaytime > p2.prevPlaytime) {
+                            this.players = this.players.filter(p => p.guid !== p2.guid)
+                        } else {
+                            this.players = this.players.filter(p => p.guid !== p1.guid)
+                        }
+                    }
+                })
+            })
+        } else {
+            // remove duplicate accounts (playfab)
+            this.players.forEach(p1 => {
+                this.players.forEach(p2 => {
+                    if (p1 != p2 && p1.playfabid == p2.playfabid) {
+                        warn(`Found duplicate playfabid (${p1.playfabid}, ${p2.playfabid}), rm one with less palytime`)
+                        if (p1.prevPlaytime > p2.prevPlaytime) {
+                            this.players = this.players.filter(p => p.playfabid !== p2.playfabid)
+                        } else {
+                            this.players = this.players.filter(p => p.playfabid !== p1.playfabid)
+                        }
+                    }
+                })
+            })
         }
 
         
