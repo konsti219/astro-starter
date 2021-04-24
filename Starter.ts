@@ -111,6 +111,13 @@ export class Starter {
             }
         }, 4000)
 
+        // disable silent after 1 min
+        if (fs.existsSync("./silent")) {
+            setTimeout(() => {
+                Deno.removeSync("./silent")
+            }, 60000)
+        }
+
 
         // not implemented on windows
         // wait for SIGINT to shutdown
@@ -227,6 +234,8 @@ export class Starter {
 
         if (silent) {
             this.servers.forEach(s => (s.webhook = ""))
+            const data = new Uint8Array([])
+            Deno.writeFileSync("./silent", data)
         }
 
         this.servers.forEach(s => s.stop())

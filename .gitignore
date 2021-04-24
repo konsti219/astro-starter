@@ -1,6 +1,7 @@
 starterData
 starter.json
 start.bat
+silent
 
 # linux compiled
 astro-starter

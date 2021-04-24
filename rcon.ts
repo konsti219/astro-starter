@@ -52,6 +52,7 @@ export class RconManager {
     private playersPromiseRes = () => {}
     private savesPromiseRes = () => { }
     private lastSuccesful = Date.now()
+    private lastSuccesfulTotal = Date.now()
     
     private conn?: Deno.Conn
     private connectInterval: number | undefined = undefined
@@ -253,6 +254,7 @@ export class RconManager {
             ]))
 
             this.lastSuccesful = Date.now()
+            this.lastSuccesfulTotal = Date.now()
         } catch (_) {
             warn("RCON response timeout")
 
@@ -275,16 +277,16 @@ export class RconManager {
         // check if it is time to abondon the socket
         if (Date.now() - this.lastSuccesful > 600 * 1000) {
             error("Could connect to connect to RCON for 10 minutes. Retrying in 1 minute")
-            
-            if (this.server.starter.rconErrorRestart) {
-                this.server.starter.shutdown(true)
-            }
 
             this.players = []
             this.saves = []
             this.disconnect()
 
             setTimeout(() => this.connect(), 60000)
+        }
+
+        if (this.server.starter.rconErrorRestart && (Date.now() - this.lastSuccesful > 1800 * 1000)) {
+            this.server.starter.shutdown(true)
         }
     }
 

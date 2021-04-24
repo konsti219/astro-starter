@@ -24,7 +24,7 @@ export function infoWebhook(msg: string, server: string, webhook: string): void 
     console.log(Colors.green(`[INFO - ${server}] `) + msg)
     addToLogFile(`[INFO - ${server}] ` + msg)
 
-    if (webhook !== "") {
+    if (webhook !== "" && !fs.existsSync("./silent")) {
         try {
             fetch(webhook, {
                 method: "POST",
@@ -38,7 +38,7 @@ export function infoWebhook(msg: string, server: string, webhook: string): void 
                     allowed_mentions: { parse: [] }
                 })
             })
-        } catch(_) {/**/}
+        } catch(_) {_}
     }
 }
 
