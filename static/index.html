@@ -296,6 +296,9 @@
                     <p>
                         <span>Guid: </span><span class="playerGuid"></span>
                     </p>
+                    <p>
+                        <span>Playfabid: </span><span class="playerPlayfabid"></span>
+                    </p>
 
                     <p>
                         <button class="btnKick btnYellow">Kick</button>
@@ -544,11 +547,13 @@
                             p.cached;
                         // guid
                         row.querySelector(".playerGuid").innerText = p.guid;
+                        // playfabid
+                        row.querySelector(".playerPlayfabid").innerText = p.playfabid;
 
                         // expand stuff
                         const columns = row.children[0].children[0];
                         // set tracking id
-                        const id = s.id + (p.guid != "" ? p.guid : p.name);
+                        const id = s.id + (p.guid != "" ? p.guid : p.name) + p.playfabid;
                         columns.setAttribute("data-expandgroup", id);
 
                         // add listener
