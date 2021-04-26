@@ -331,7 +331,7 @@ export class PlayerManager {
 
             // JOIN / LEAVE
             // basically just "UNKNOWN" instead of an empty string
-            const humanName = player.name === "" ? "UNKNOWN" : `'${player.name}'`
+            const humanName = player.name === "" ? `UNKNOWN ('${player.playfabid.substr(0, 4)}')` : `'${player.name}'`
 
             // joining
             if (player.inGame && !oldInGame) {
