@@ -1,34 +1,40 @@
-import { oak, path, fs } from "./deps.ts"
+import { oak } from "./deps.ts"
 
 import { Starter } from "./Starter.ts"
 
 import { info, error } from "./logging.ts"
 
-
+// not found 404
 function notFound(ctx: oak.Context) {
   ctx.response.status = oak.Status.NotFound
   ctx.response.body =
     `<html><body><h1>404 - Not Found</h1><p>Path <code>${ctx.request.url}</code> not found.`
 }
 
+// static files
+import { indexHtml, scriptJs } from "./static/static.ts";
+const staticFiles = [
+    { name: "index.html", content: indexHtml },
+    { name: "script.js", content: scriptJs }
+]
+
 export class WebServer {
     private router = new oak.Router()
     private app = new oak.Application()
-    private staticPath = ""
     
     constructor(private starter: Starter) {
         if (!this.starter.dir) return
 
-        this.staticPath = path.join(this.starter.dir, "starterData", "static")
-
         // ROUTER
-
         // home
-        this.router.get("/", async ctx => {
-            ctx.response.body = await Deno.readFile(path.join(this.staticPath, "index.html"))
+        this.router.get("/", ctx => {
+            ctx.response.body = indexHtml
         })
-        this.router.get("/script.js", async ctx => {
-            ctx.response.body = await Deno.readFile(path.join(this.staticPath, "script.js"))
+        // static
+        staticFiles.forEach(file => {
+            this.router.get(`/${file.name}`, ctx => {
+                ctx.response.body = file.content
+            })
         })
 
         // server data
@@ -120,26 +126,6 @@ export class WebServer {
 
         // APP
 
-        /*
-        // Logger
-        this.app.use(async (ctx, next) => {
-            await next()
-            const rt = ctx.response.headers.get("X-Response-Time")
-            console.log(
-                `${Colors.green(ctx.request.method)} ${
-                    Colors.cyan(decodeURIComponent(ctx.request.url.pathname))
-                } - ${Colors.bold(String(rt))}`,
-            );
-        });
-
-        // Response Time
-        this.app.use(async (ctx, next) => {
-            const start = Date.now()
-            await next()
-            const ms = Date.now() - start
-            ctx.response.headers.set("X-Response-Time", `${ms}ms`)
-        });*/
-
         // Error handler
         this.app.use(async (ctx, next) => {
         try {
@@ -175,24 +161,6 @@ export class WebServer {
     }
 
     async listen() {
-        fs.ensureDirSync(path.join(this.starter.dir, "starterData", "static"))
-
-        // get static files
-        const staticFiles = [
-            { path: path.join(Deno.cwd(), "static", "index.html"), name: "index.html" },
-            //{ path: "https://astro-starter.glitch.me/index_.html", name: "index.html" },
-            //{ path: path.join(Deno.cwd(), "static", "script.js"), name: "script.js" },
-        ]
-        staticFiles.forEach(async f => {
-            let data
-            if (f.path.startsWith("http")) {
-                data = new Uint8Array(await (await fetch(f.path)).arrayBuffer())
-            } else {
-                data = await Deno.readFile(f.path)
-            }
-            await Deno.writeFile(path.join(this.starter.dir, "starterData", "static", f.name), data)
-        })
-
         // listen
         await this.app.listen({ port: this.starter.webserverPort })
     }
