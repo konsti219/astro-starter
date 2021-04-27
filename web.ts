@@ -12,10 +12,10 @@ function notFound(ctx: oak.Context) {
 }
 
 // static files
-import { indexHtml, scriptJs } from "./static/static.ts";
+import { indexhtml, scriptjs } from "./static/static.ts";
 const staticFiles = [
-    { name: "index.html", content: indexHtml },
-    { name: "script.js", content: scriptJs }
+    { name: "index.html", content: indexhtml },
+    { name: "script.js", content: scriptjs }
 ]
 
 export class WebServer {
@@ -28,7 +28,7 @@ export class WebServer {
         // ROUTER
         // home
         this.router.get("/", ctx => {
-            ctx.response.body = indexHtml
+            ctx.response.body = indexhtml
         })
         // static
         staticFiles.forEach(file => {

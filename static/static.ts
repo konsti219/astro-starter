@@ -1,2 +1,2 @@
-export const indexHtml = Deno.readTextFileSync("./static/index.html")
-export const scriptJs = Deno.readTextFileSync("./static/script.js")
+export const indexhtml = Deno.readTextFileSync("./static/index.html")
+export const scriptjs = Deno.readTextFileSync("./static/script.js")

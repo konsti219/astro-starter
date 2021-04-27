@@ -77,11 +77,10 @@ deno run -A --unstable index.ts
 
 ## compile
 
-To build the .exe for a release you need to take the files in /static and upload them somewhere.
-Then you need to replace the paths in web.ts
+To build binaries for windows and linux just run the following command to run the build script that takes care of statoc files.
 
 ```
-deno compile -A --unstable --lite index.ts
+deno run -A --unstable buildBinaries.ts
 ```
 
 ## TODO

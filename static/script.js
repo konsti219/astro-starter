@@ -1,6 +1,7 @@
 // deno-lint-ignore-file
 
 const DateTime = luxon.DateTime;
+let test = `\${}`;
 
 // shutdown button
 document.querySelector("#btnShutdown").addEventListener("click", async (_) => {
