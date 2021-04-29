@@ -33,7 +33,7 @@ staticFiles.forEach(file => {
     const fileContent = base64.fromUint8Array(Deno.readFileSync(`./static/${file.name}`))
     // generate code
     const varname = file.name.split("").filter(char => char !== ".").join("")
-    const content = `export const ${varname} = decoder.decode(base64.toUint8Array(\`${fileContent}\`))\n`
+    const content = `export const ${varname} = decoder.decode(base64.toUint8Array("${fileContent}"))\n`
 
     // append to static.ts
     Deno.writeTextFileSync("./static/static.ts", content, { append: true })
@@ -59,8 +59,8 @@ for (const target of targets) {
 // #endregion
 
 // #region CLEANUP
-//Deno.removeSync("./static/static.ts")
-//Deno.renameSync("./static/static_.ts", "./static/static.ts")
+Deno.removeSync("./static/static.ts")
+Deno.renameSync("./static/static_.ts", "./static/static.ts")
 // #endregion
 
 console.log("DONE")

@@ -1,12 +1,12 @@
-import { oak } from "./deps.ts"
+import { Application, Router, Context, Status, isHttpError } from "./deps.ts"
 
 import { Starter } from "./Starter.ts"
 
 import { info, error } from "./logging.ts"
 
 // not found 404
-function notFound(ctx: oak.Context) {
-  ctx.response.status = oak.Status.NotFound
+function notFound(ctx: Context) {
+  ctx.response.status = Status.NotFound
   ctx.response.body =
     `<html><body><h1>404 - Not Found</h1><p>Path <code>${ctx.request.url}</code> not found.`
 }
@@ -19,8 +19,8 @@ const staticFiles = [
 ]
 
 export class WebServer {
-    private router = new oak.Router()
-    private app = new oak.Application()
+    private router = new Router()
+    private app = new Application()
     
     constructor(private starter: Starter) {
         if (!this.starter.dir) return
@@ -65,7 +65,7 @@ export class WebServer {
 
             const err = () => {
                 ctx.response.body = { status: "NOT FOUND" }
-                ctx.response.status = oak.Status.NotFound
+                ctx.response.status = Status.NotFound
             }
 
             // Server actions
@@ -131,7 +131,7 @@ export class WebServer {
         try {
             await next()
         } catch (err) {
-            if (oak.isHttpError(err)) {
+            if (isHttpError(err)) {
                 ctx.response.status = err.status
                 const { message, status, stack } = err
                 if (ctx.request.accepts("json")) {
