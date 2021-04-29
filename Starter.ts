@@ -34,9 +34,9 @@ export class Starter {
 
         // set log path
         setLogDir(path.join(this.dir, "starterData", "logs"))
-        
+
         console.log("")
-        info("astro-starter v0.1-beta")
+        info("astro-starter v0.2-beta")
         info("work dir: " + dir)
 
         this.readConfig()
@@ -118,7 +118,7 @@ export class Starter {
                 Deno.removeSync("./silent")
             }
         }, 60000)
-        
+
 
 
         // not implemented on windows
