@@ -144,13 +144,13 @@ export class PlayerManager {
         /* CHECK FOR UNTRACKED */
         if (hasRCON) {
             // based on RCON
-            rconPlayers.forEach(p => {
+            rconPlayers.forEach(rconP => {
                 // check for untracked players
-                if (!this.players.find(cp => cp.guid === p.playerGuid)) {
-                    info(`'${p.playerName}' is new`, this.server.name)
+                if (!this.players.find(cp => cp.guid === rconP.playerGuid) && rconP.playerGuid !== "") {
+                    info(`'${rconP.playerName}' is new`, this.server.name)
 
                     this.players.push({
-                        guid: p.playerGuid,
+                        guid: rconP.playerGuid,
                         playfabid: "",
                         name: "",
                         firstJoinName: "",
@@ -161,7 +161,25 @@ export class PlayerManager {
                         lastSeen: 0,
                         prevPlaytime: 0,
 
-                        category: PlayerManager.categoryToEnum(p.playerCategory),
+                        category: PlayerManager.categoryToEnum(rconP.playerCategory),
+
+                        cached: true
+                    })
+                } else if (rconP.playerGuid === "" && rconP.playerName !== "") {
+                    // whitelisted player
+                    this.players.push({
+                        guid: "",
+                        playfabid: "",
+                        name: rconP.playerName,
+                        firstJoinName: "",
+
+                        inGame: false,
+                        firstJoin: 0,
+                        onlineSince: 0,
+                        lastSeen: 0,
+                        prevPlaytime: 0,
+
+                        category: PlayerManager.categoryToEnum(rconP.playerCategory),
 
                         cached: true
                     })
@@ -229,59 +247,20 @@ export class PlayerManager {
             // REALITY: If the tool just started it can actually cause two palyers to join at the same time
 
             // stop matching if two joined at the same time
-            if (this.joinedPlayersPlayfab.length > 1
-                && this.joinedPlayersPlayfab.length === this.joinedPlayersRCON.length) {
+            if (this.joinedPlayersPlayfab.length > 1 || this.joinedPlayersRCON.length > 1) {
                 warn(`Two players joined at same time, aborting playfabid matching (${this.joinedPlayersPlayfab}, ${this.joinedPlayersRCON.map(p => p.name)})`)
                 this.joinedPlayersPlayfab = []
                 this.joinedPlayersRCON = []
             }
 
-            if (this.joinedPlayersPlayfab.length > 0 && this.joinedPlayersRCON.length > 0) {
+            if (this.joinedPlayersPlayfab.length === 1 && this.joinedPlayersRCON.length === 1) {
                 const player = this.joinedPlayersRCON.shift()
                 if (player) {
                     player.playfabid = this.joinedPlayersPlayfab.shift() ?? ""
                 }
             }
-
-            // remove duplicate ids if found (backup)
-            this.players.forEach(p1 => {
-                this.players.forEach(p2 => {
-                    if (p1 != p2 && p1.playfabid == p2.playfabid && p1.playfabid != "") {
-                        warn(`Found duplicate playfabid (${p1.name}, ${p2.name}), removing`)
-                        p1.playfabid = ""
-                        p2.playfabid = ""
-                    }
-                })
-            })
-
-            // remove duplicate accounts (RCON)
-            this.players.forEach(p1 => {
-                this.players.forEach(p2 => {
-                    if (p1 != p2 && p1.guid == p2.guid) {
-                        warn(`Found duplicate guid (${p1.name}, ${p2.name}), rm one with less palytime`)
-                        if (p1.prevPlaytime > p2.prevPlaytime) {
-                            this.players = this.players.filter(p => p.guid !== p2.guid)
-                        } else {
-                            this.players = this.players.filter(p => p.guid !== p1.guid)
-                        }
-                    }
-                })
-            })
-        } else {
-            // remove duplicate accounts (playfab)
-            this.players.forEach(p1 => {
-                this.players.forEach(p2 => {
-                    if (p1 != p2 && p1.playfabid == p2.playfabid) {
-                        warn(`Found duplicate playfabid (${p1.playfabid}, ${p2.playfabid}), rm one with less palytime`)
-                        if (p1.prevPlaytime > p2.prevPlaytime) {
-                            this.players = this.players.filter(p => p.playfabid !== p2.playfabid)
-                        } else {
-                            this.players = this.players.filter(p => p.playfabid !== p1.playfabid)
-                        }
-                    }
-                })
-            })
         }
+        this.cleanup(hasRCON)
 
         
         /* PLAYER STATE CHANGES */
@@ -358,6 +337,59 @@ export class PlayerManager {
 
         // save new data to disk
         this.writeFile()
+    }
+
+    private cleanup(hasRCON: boolean) {
+        if (hasRCON) {
+            // remove duplicate ids if found (backup)
+            this.players.forEach(p1 => {
+                this.players.forEach(p2 => {
+                    if (p1 != p2 && p1.playfabid == p2.playfabid && p1.playfabid != "") {
+                        warn(`Found duplicate playfabid (${p1.name}, ${p2.name}), removing`)
+                        p1.playfabid = ""
+                        p2.playfabid = ""
+                    }
+                })
+            })
+
+            // remove duplicate accounts (RCON)
+            this.players.forEach(p1 => {
+                this.players.forEach(p2 => {
+                    // based on guid
+                    if (p1 !== p2 && p1.guid === p2.guid && p1.guid !== "") {
+                        warn(`Found duplicate guid (${p1.name}, ${p2.name}), rm one with less palytime`)
+                        if (p1.prevPlaytime > p2.prevPlaytime) {
+                            this.players = this.players.filter(p => p !== p2)
+                        } else {
+                            this.players = this.players.filter(p => p !== p1)
+                        }
+                    }
+
+                    // based on name (for whitelisted players)
+                    if (p1 !== p2 && p1.name === p2.name && (p1.guid === "" || p2.guid === "")) {
+                        if (p1.guid === "") {
+                            this.players = this.players.filter(p => p !== p1)
+                        } else {
+                            this.players = this.players.filter(p => p !== p2)
+                        }
+                    }
+                })
+            })
+        } else {
+        // remove duplicate accounts (playfab)
+        this.players.forEach(p1 => {
+            this.players.forEach(p2 => {
+                if (p1 !== p2 && p1.playfabid === p2.playfabid) {
+                    warn(`Found duplicate playfabid (${p1.playfabid}, ${p2.playfabid}), rm one with less palytime`)
+                    if (p1.prevPlaytime > p2.prevPlaytime) {
+                        this.players = this.players.filter(p => p !== p2)
+                    } else {
+                        this.players = this.players.filter(p => p !== p1)
+                    }
+                }
+            })
+        })
+        }
     }
 
     // calculate playtime based on previously recorded time and for how long the player has been online
