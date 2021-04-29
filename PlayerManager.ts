@@ -140,7 +140,7 @@ export class PlayerManager {
             hasRcon == true: players are identified by guid and added to list when they show up there
             hasRcon == false: players are identified by playfabid and added when in playfab
         */
-        
+
         /* CHECK FOR UNTRACKED */
         if (hasRCON) {
             // based on RCON
@@ -240,7 +240,7 @@ export class PlayerManager {
                 this.joinedPlayersPlayfab.filter(id => newPlayfabPlayers.includes(id))
             this.joinedPlayersRCON =
                 this.joinedPlayersRCON.filter(p => !!rconPlayers.find(rp => rp.playerGuid === p.guid))
-        
+
             // do matching
             // (at this point I did not know it) NOTE: if two players join at the same time this could switch up their ids
             // but it's unlikely enough for me to ignore
@@ -249,8 +249,10 @@ export class PlayerManager {
             // stop matching if two joined at the same time
             if (this.joinedPlayersPlayfab.length > 1 || this.joinedPlayersRCON.length > 1) {
                 warn(`Two players joined at same time, aborting playfabid matching (${this.joinedPlayersPlayfab}, ${this.joinedPlayersRCON.map(p => p.name)})`)
-                this.joinedPlayersPlayfab = []
-                this.joinedPlayersRCON = []
+                while (this.joinedPlayersPlayfab.length > 0 && this.joinedPlayersRCON.length > 0) {
+                    this.joinedPlayersPlayfab.shift()
+                    this.joinedPlayersRCON.shift()
+                }
             }
 
             if (this.joinedPlayersPlayfab.length === 1 && this.joinedPlayersRCON.length === 1) {
@@ -262,7 +264,7 @@ export class PlayerManager {
         }
         this.cleanup(hasRCON)
 
-        
+
         /* PLAYER STATE CHANGES */
         // loop through all players and check for inGame change and update stats
         this.players.forEach(player => {
@@ -272,13 +274,13 @@ export class PlayerManager {
 
             // rconP could be undefined because the server could forget players or there might not be RCON
             const rconP = rconPlayers.find(rp => rp.playerGuid === player.guid)
-            
+
             // for join/leave
             const oldInGame = player.inGame
 
             player.inGame = newPlayfabPlayers.includes(player.playfabid)
 
-            
+
             if (rconP) {
                 // if we have the player via RCON update data locally and send to cache
 
@@ -306,7 +308,7 @@ export class PlayerManager {
 
                 player.lastSeen = Date.now()
             }
-            
+
 
             // JOIN / LEAVE
             // basically just "UNKNOWN" instead of an empty string
@@ -316,7 +318,7 @@ export class PlayerManager {
             if (player.inGame && !oldInGame) {
                 infoWebhook(`${humanName} joining (${onlinePlayersNum}/${maxPlayers})`,
                     this.server.name, this.server.webhook)
-                
+
                 player.onlineSince = Date.now()
             }
 
@@ -324,7 +326,7 @@ export class PlayerManager {
             if (!player.inGame && oldInGame) {
                 infoWebhook(`${humanName} leaving (${onlinePlayersNum}/${maxPlayers})`,
                     this.server.name, this.server.webhook)
-                
+
                 player.prevPlaytime = PlayerManager.playtime(player)
                 player.onlineSince = 0
             }
@@ -376,19 +378,19 @@ export class PlayerManager {
                 })
             })
         } else {
-        // remove duplicate accounts (playfab)
-        this.players.forEach(p1 => {
-            this.players.forEach(p2 => {
-                if (p1 !== p2 && p1.playfabid === p2.playfabid) {
-                    warn(`Found duplicate playfabid (${p1.playfabid}, ${p2.playfabid}), rm one with less palytime`)
-                    if (p1.prevPlaytime > p2.prevPlaytime) {
-                        this.players = this.players.filter(p => p !== p2)
-                    } else {
-                        this.players = this.players.filter(p => p !== p1)
+            // remove duplicate accounts (playfab)
+            this.players.forEach(p1 => {
+                this.players.forEach(p2 => {
+                    if (p1 !== p2 && p1.playfabid === p2.playfabid) {
+                        warn(`Found duplicate playfabid (${p1.playfabid}, ${p2.playfabid}), rm one with less palytime`)
+                        if (p1.prevPlaytime > p2.prevPlaytime) {
+                            this.players = this.players.filter(p => p !== p2)
+                        } else {
+                            this.players = this.players.filter(p => p !== p1)
+                        }
                     }
-                }
+                })
             })
-        })
         }
     }
 
