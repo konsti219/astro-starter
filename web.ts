@@ -6,9 +6,9 @@ import { info, error } from "./logging.ts"
 
 // not found 404
 function notFound(ctx: Context) {
-  ctx.response.status = Status.NotFound
-  ctx.response.body =
-    `<html><body><h1>404 - Not Found</h1><p>Path <code>${ctx.request.url}</code> not found.`
+    ctx.response.status = Status.NotFound
+    ctx.response.body =
+        `<html><body><h1>404 - Not Found</h1><p>Path <code>${ctx.request.url}</code> not found.`
 }
 
 // static files
@@ -21,7 +21,7 @@ const staticFiles = [
 export class WebServer {
     private router = new Router()
     private app = new Application()
-    
+
     constructor(private starter: Starter) {
         if (!this.starter.dir) return
 
@@ -106,7 +106,7 @@ export class WebServer {
                     }
 
                     ctx.response.body = { status: "OK" }
-                        
+
                     // TODO save management
                 } else {
                     err()
@@ -128,24 +128,24 @@ export class WebServer {
 
         // Error handler
         this.app.use(async (ctx, next) => {
-        try {
-            await next()
-        } catch (err) {
-            if (isHttpError(err)) {
-                ctx.response.status = err.status
-                const { message, status, stack } = err
-                if (ctx.request.accepts("json")) {
-                    ctx.response.body = { message, status, stack }
-                    ctx.response.type = "json"
+            try {
+                await next()
+            } catch (err) {
+                if (isHttpError(err)) {
+                    ctx.response.status = err.status
+                    const { message, status, stack } = err
+                    if (ctx.request.accepts("json")) {
+                        ctx.response.body = { message, status, stack }
+                        ctx.response.type = "json"
+                    } else {
+                        ctx.response.body = `${status} ${message}\n\n${stack ?? ""}`
+                        ctx.response.type = "text/plain"
+                    }
                 } else {
-                    ctx.response.body = `${status} ${message}\n\n${stack ?? ""}`
-                    ctx.response.type = "text/plain"
+                    error(err)
+                    throw err
                 }
-            } else {
-                error(err)
-                throw err
             }
-        }
         });
 
         // Use the router
@@ -162,6 +162,13 @@ export class WebServer {
 
     async listen() {
         // listen
-        await this.app.listen({ port: this.starter.webserverPort })
+        while (true) {
+            try {
+                await this.app.listen({ port: this.starter.webserverPort })
+            } catch (e) {
+                error("Webserver failed")
+                console.error(e)
+            }
+        }
     }
 }
