@@ -118,6 +118,7 @@ export class PlayerManager {
             players: this.players.map(p => ({
                 guid: p.guid,
                 playfabid: p.playfabid,
+                idMatches: p.idMatches,
                 name: p.name,
                 firstJoinName: p.firstJoinName,
 
@@ -139,8 +140,6 @@ export class PlayerManager {
         const hasRCON = this.server.serverType !== "playfab"
         const playfabPlayers: string[] = this.server.playfabData?.PlayerUserIds ?? []
 
-        console.log(this.players.length)
-
         /*
             hasRcon == true: players are identified by guid and added to list when they show up there
             hasRcon == false: players are identified by playfabid and added when in playfab
@@ -153,10 +152,6 @@ export class PlayerManager {
                 // this accounts for new normal players and whitelisted ones
                 const existingGuid = !!this.players.find(cp => cp.guid === rconP.playerGuid)
                 const existingName = !!this.players.find(cp => cp.name === rconP.playerName)
-
-                if (rconP.playerName.includes("Gina")) {
-                    //console.log(rconP, existingGuid, existingName)
-                }
 
                 if (!existingGuid || (!existingName && rconP.playerGuid === "")) {
                     info(`'${rconP.playerName}' is new`, this.server.name)
@@ -223,15 +218,35 @@ export class PlayerManager {
             this.players.forEach(player => {
                 // make sure player has guid and is online
                 const rconP = rconPlayers.find(rp => rp.playerGuid === player.guid)
-                if (player.guid !== "" || !rconP || !rconP.inGame) return
+                if (player.guid !== "" && rconP && rconP.inGame) {
 
-                console.log(rconP.playerName)
+                    // increment counter for how often the player has been seen online with this id
+                    userIds.forEach(id => {
+                        // add new entry
+                        if (!player.idMatches.find(match => match.id === id)) {
+                            player.idMatches.push({ id, seen: 0 })
+                        }
+
+                        // increment
+                        const match = player.idMatches.find(match => match.id === id)
+                        if (match) {
+                            match.seen++
+                        }
+                    })
+
+                    // then calculate percentage for each id how much it is part of the total of what the player has been seen with
+                    const totalSeen = player.idMatches.reduce((acc, cur) => acc + cur.seen, 0)
+                    playerMatchPool.push({
+                        player,
+                        ids: player.idMatches.map(match => ({ id: match.id, percent: match.seen / totalSeen }))
+                    })
+                    console.log(playerMatchPool)
+                }
             })
 
 
         }
         this.cleanup(hasRCON)
-        console.log(this.players)
 
 
         /* PLAYER STATE CHANGES */
@@ -310,7 +325,6 @@ export class PlayerManager {
             }
 
         })
-        console.log(this.players)
 
         // save new data to disk
         this.writeFile()
