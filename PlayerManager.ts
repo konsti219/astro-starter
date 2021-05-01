@@ -23,6 +23,7 @@ enum PlayerCategory {
 export interface Player {
     guid: string
     playfabid: string
+    idMatches: { id: string, seen: number }[]
     name: string
     firstJoinName: string
 
@@ -42,7 +43,10 @@ starterData/servers/{server}/data.json
     players: [
         {
             guid: "",
-            playfabid: ""
+            playfabid: "",
+            idMatches: [
+                { id: "", seen: 0 }
+            ]
             name: "",
             firstJoinName: "",
 
@@ -61,11 +65,6 @@ export class PlayerManager {
     private players: Player[] = []
     private playersFile = ""
 
-    private playersRCON: RconPlayer[] = []
-    private joinedPlayersRCON: Player[] = []
-    private playersPlayfab: string[] = []
-    private joinedPlayersPlayfab: string[] = []
-
     constructor(private server: Server, private starter?: Starter) {
         this.playersFile = path.join(this.server.serverDir, "data.json")
     }
@@ -76,6 +75,9 @@ export class PlayerManager {
                 players: {
                     guid: string
                     playfabid: string
+                    idMatches?: [
+                        { id: string, seen: number }
+                    ]
                     name: string
                     firstJoinName: string
 
@@ -91,6 +93,7 @@ export class PlayerManager {
                 this.players.push({
                     guid: p.guid,
                     playfabid: p.playfabid,
+                    idMatches: p.idMatches ?? [],
                     name: p.name,
                     firstJoinName: p.firstJoinName,
 
@@ -134,7 +137,9 @@ export class PlayerManager {
     /* this function does player tracking shit and diffing. IT'S A MESS */
     update(rconPlayers: RconPlayer[]) {
         const hasRCON = this.server.serverType !== "playfab"
-        const newPlayfabPlayers: string[] = this.server.playfabData?.PlayerUserIds ?? []
+        const playfabPlayers: string[] = this.server.playfabData?.PlayerUserIds ?? []
+
+        console.log(this.players.length)
 
         /*
             hasRcon == true: players are identified by guid and added to list when they show up there
@@ -145,31 +150,21 @@ export class PlayerManager {
         if (hasRCON) {
             // based on RCON
             rconPlayers.forEach(rconP => {
-                // check for untracked players
-                if (!this.players.find(cp => cp.guid === rconP.playerGuid) && rconP.playerGuid !== "") {
+                // this accounts for new normal players and whitelisted ones
+                const existingGuid = !!this.players.find(cp => cp.guid === rconP.playerGuid)
+                const existingName = !!this.players.find(cp => cp.name === rconP.playerName)
+
+                if (rconP.playerName.includes("Gina")) {
+                    //console.log(rconP, existingGuid, existingName)
+                }
+
+                if (!existingGuid || (!existingName && rconP.playerGuid === "")) {
                     info(`'${rconP.playerName}' is new`, this.server.name)
 
                     this.players.push({
                         guid: rconP.playerGuid,
                         playfabid: "",
-                        name: "",
-                        firstJoinName: "",
-
-                        inGame: false,
-                        firstJoin: 0,
-                        onlineSince: 0,
-                        lastSeen: 0,
-                        prevPlaytime: 0,
-
-                        category: PlayerManager.categoryToEnum(rconP.playerCategory),
-
-                        cached: true
-                    })
-                } else if (rconP.playerGuid === "" && rconP.playerName !== "") {
-                    // whitelisted player
-                    this.players.push({
-                        guid: "",
-                        playfabid: "",
+                        idMatches: [],
                         name: rconP.playerName,
                         firstJoinName: "",
 
@@ -183,11 +178,12 @@ export class PlayerManager {
 
                         cached: true
                     })
+
                 }
             })
         } else {
             // based on playfab
-            newPlayfabPlayers.forEach(p => {
+            playfabPlayers.forEach(p => {
                 // check for untracked players
                 if (!this.players.find(cp => cp.playfabid === p)) {
                     info(`'${p}' is new`, this.server.name)
@@ -195,6 +191,7 @@ export class PlayerManager {
                     this.players.push({
                         guid: "",
                         playfabid: p,
+                        idMatches: [],
                         name: "",
                         firstJoinName: "",
 
@@ -212,83 +209,60 @@ export class PlayerManager {
             })
         }
 
+
         /* ID MATCHING */
-        if (hasRCON) {
-            // update joined playfab list
-            // check for new ids
-            newPlayfabPlayers.forEach(id => {
-                if (!this.playersPlayfab.includes(id)) {
-                    this.joinedPlayersPlayfab.push(id)
-                }
+        const userIds = this.server.playfabData?.PlayerUserIds
+        if (hasRCON && userIds) {
+            let playerMatchPool: {
+                player: Player,
+                ids: {
+                    id: string,
+                    percent: number
+                }[]
+            }[] = []
+            this.players.forEach(player => {
+                // make sure player has guid and is online
+                const rconP = rconPlayers.find(rp => rp.playerGuid === player.guid)
+                if (player.guid !== "" || !rconP || !rconP.inGame) return
+
+                console.log(rconP.playerName)
             })
 
-            // update joined RCON list
-            this.players.forEach(p => {
-                const newRconP = rconPlayers.find(rp => rp.playerGuid === p.guid)
-                const oldRconP = this.playersRCON.find(rp => rp.playerGuid === p.guid) ?? { inGame: false }
 
-                if (newRconP) {
-                    if (newRconP.inGame && !oldRconP.inGame) {
-                        // add to playfab matching list
-                        this.joinedPlayersRCON.push(p)
-                    }
-                }
-            })
-
-            // check if an old id is gone
-            this.joinedPlayersPlayfab =
-                this.joinedPlayersPlayfab.filter(id => newPlayfabPlayers.includes(id))
-            this.joinedPlayersRCON =
-                this.joinedPlayersRCON.filter(p => !!rconPlayers.find(rp => rp.playerGuid === p.guid))
-
-            // do matching
-            // (at this point I did not know it) NOTE: if two players join at the same time this could switch up their ids
-            // but it's unlikely enough for me to ignore
-            // REALITY: If the tool just started it can actually cause two palyers to join at the same time
-
-            // stop matching if two joined at the same time
-            if (this.joinedPlayersPlayfab.length > 1 || this.joinedPlayersRCON.length > 1) {
-                warn(`Two players joined at same time, aborting playfabid matching (${this.joinedPlayersPlayfab}, ${this.joinedPlayersRCON.map(p => p.name)})`)
-                while (this.joinedPlayersPlayfab.length > 0 && this.joinedPlayersRCON.length > 0) {
-                    this.joinedPlayersPlayfab.shift()
-                    this.joinedPlayersRCON.shift()
-                }
-            }
-
-            if (this.joinedPlayersPlayfab.length === 1 && this.joinedPlayersRCON.length === 1) {
-                const player = this.joinedPlayersRCON.shift()
-                if (player) {
-                    player.playfabid = this.joinedPlayersPlayfab.shift() ?? ""
-                }
-            }
         }
         this.cleanup(hasRCON)
+        console.log(this.players)
 
 
         /* PLAYER STATE CHANGES */
+
+        const onlinePlayersNum = playfabPlayers.length
+        const maxPlayers = this.server.playfabData?.Tags.maxPlayers ?? 0
+
         // loop through all players and check for inGame change and update stats
         this.players.forEach(player => {
 
-            const onlinePlayersNum = newPlayfabPlayers.length
-            const maxPlayers = this.server.playfabData?.Tags.maxPlayers ?? 0
-
             // rconP could be undefined because the server could forget players or there might not be RCON
-            const rconP = rconPlayers.find(rp => rp.playerGuid === player.guid)
+            let rconP = rconPlayers.find(rp => rp.playerGuid === player.guid)
+            // make sure not to fetch if there is no guid
+            if (rconP?.playerGuid === "") rconP = undefined
 
-            // for join/leave
-            const oldInGame = player.inGame
-
-            player.inGame = newPlayfabPlayers.includes(player.playfabid)
-
+            // pick out by name for whitelisted
+            const rconPName = rconPlayers.find(rp => rp.playerName === player.name)
 
             if (rconP) {
                 // if we have the player via RCON update data locally and send to cache
 
-                if (rconP.playerName !== "") player.name = rconP.playerName
-                player.category = PlayerManager.categoryToEnum(rconP.playerCategory)
+                if (rconP.playerGuid !== "") {
+                    if (rconP.playerName !== "") player.name = rconP.playerName
+                    player.category = PlayerManager.categoryToEnum(rconP.playerCategory)
 
-                this.starter?.playerCache.update(player)
+                    this.starter?.playerCache.update(player)
 
+                    player.cached = false
+                }
+            } else if (rconPName && !rconP) {
+                // for players on whitelist
                 player.cached = false
             } else {
                 // else try to read data from cache
@@ -300,6 +274,10 @@ export class PlayerManager {
 
                 player.cached = true
             }
+
+            // for join/leave
+            const oldInGame = player.inGame
+            player.inGame = playfabPlayers.includes(player.playfabid)
 
             if (player.inGame) {
                 // check for incomplete first data
@@ -332,10 +310,7 @@ export class PlayerManager {
             }
 
         })
-
-        // update local arrays (clone it, NOT reference)
-        this.playersPlayfab = [...newPlayfabPlayers]
-        this.playersRCON = [...rconPlayers]
+        console.log(this.players)
 
         // save new data to disk
         this.writeFile()
