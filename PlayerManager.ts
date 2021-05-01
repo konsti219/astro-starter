@@ -145,7 +145,7 @@ export class PlayerManager {
             hasRcon == false: players are identified by playfabid and added when in playfab
         */
 
-        /* CHECK FOR UNTRACKED */
+        //#region CHECK FOR UNTRACKED
         if (hasRCON) {
             // based on RCON
             rconPlayers.forEach(rconP => {
@@ -203,13 +203,16 @@ export class PlayerManager {
                 }
             })
         }
+        //#endregion
 
 
-        /* ID MATCHING */
+        //#region ID MATCHING
+        // this works by recording for how many time each player was seen with different playfabids
+        // then there is some fancy stuff to match each player to it's best fit
         const userIds = this.server.playfabData?.PlayerUserIds
         if (hasRCON && userIds) {
-            // gather up all possible matches
-            const playerMatchPool: {
+            //#region gather up all possible matches
+            let playerMatchPool: {
                 player: Player,
                 ids: {
                     id: string,
@@ -243,29 +246,51 @@ export class PlayerManager {
                     })
                 }
             })
+            //#endregion
 
-            // get all possible ids
-            let allIds = playerMatchPool.flatMap(matches => matches.ids)
+            //#region Get all possible ids
+            let allMatches = playerMatchPool.flatMap(matches => matches.ids)
 
             // only keep entry with highest percent
             // first get the highest for each number
             const highest: Record<string, number> = {}
-            allIds.forEach(id => {
-                if (!highest[id.id]) {
-                    highest[id.id] = id.percent
+            allMatches.forEach(match => {
+                if (!highest[match.id]) {
+                    highest[match.id] = match.percent
                 } else {
-                    if (highest[id.id] < id.percent) {
-                        highest[id.id] = id.percent
+                    if (highest[match.id] < match.percent) {
+                        highest[match.id] = match.percent
                     }
                 }
             })
             // then filter out the lower ones
-            allIds = allIds.filter(id => highest[id.id] === id.percent)
+            allMatches = allMatches.filter(id => highest[id.id] === id.percent)
+
+            allMatches.sort((a, b) => b.percent - a.percent)
+
+            //#endregion
+
+            //#region Do actual matching
+            allMatches.forEach(match => {
+                const player = playerMatchPool.sort((a, b) => {
+                    const percentA = a.ids.find(id => id.id === match.id)?.percent ?? 0
+                    const percentB = b.ids.find(id => id.id === match.id)?.percent ?? 0
+
+                    return percentB - percentA
+                })[0]
+
+                if (player) {
+                    player.player.playfabid = match.id
+                    playerMatchPool = playerMatchPool.filter(p => p !== player)
+                }
+            })
+            //#endregion
         }
         this.cleanup(hasRCON)
+        //#endregion
 
 
-        /* PLAYER STATE CHANGES */
+        //#region PLAYER STATE CHANGES
 
         const onlinePlayersNum = playfabPlayers.length
         const maxPlayers = this.server.playfabData?.Tags.maxPlayers ?? 0
@@ -341,6 +366,7 @@ export class PlayerManager {
             }
 
         })
+        //#endregion
 
         // save new data to disk
         this.writeFile()
