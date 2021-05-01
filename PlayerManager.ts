@@ -208,7 +208,8 @@ export class PlayerManager {
         /* ID MATCHING */
         const userIds = this.server.playfabData?.PlayerUserIds
         if (hasRCON && userIds) {
-            let playerMatchPool: {
+            // gather up all possible matches
+            const playerMatchPool: {
                 player: Player,
                 ids: {
                     id: string,
@@ -240,11 +241,26 @@ export class PlayerManager {
                         player,
                         ids: player.idMatches.map(match => ({ id: match.id, percent: match.seen / totalSeen }))
                     })
-                    console.log(playerMatchPool)
                 }
             })
 
+            // get all possible ids
+            let allIds = playerMatchPool.flatMap(matches => matches.ids)
 
+            // only keep entry with highest percent
+            // first get the highest for each number
+            const highest: Record<string, number> = {}
+            allIds.forEach(id => {
+                if (!highest[id.id]) {
+                    highest[id.id] = id.percent
+                } else {
+                    if (highest[id.id] < id.percent) {
+                        highest[id.id] = id.percent
+                    }
+                }
+            })
+            // then filter out the lower ones
+            allIds = allIds.filter(id => highest[id.id] === id.percent)
         }
         this.cleanup(hasRCON)
 
