@@ -333,7 +333,13 @@ export class PlayerManager {
 
             // for join/leave
             const oldInGame = player.inGame
-            player.inGame = playfabPlayers.includes(player.playfabid)
+
+            // RCON is WAY more reliable, so prefer that
+            if (hasRCON) {
+                player.inGame = rconP?.inGame ?? false
+            } else {
+                player.inGame = playfabPlayers.includes(player.playfabid)
+            }
 
             if (player.inGame) {
                 // check for incomplete first data
