@@ -292,7 +292,9 @@ export class PlayerManager {
 
         //#region PLAYER STATE CHANGES
 
-        const onlinePlayersNum = playfabPlayers.length
+        const onlinePlayersNum = hasRCON ?
+            rconPlayers.filter(p => p.inGame).length :
+            playfabPlayers.length
         const maxPlayers = this.server.playfabData?.Tags.maxPlayers ?? 0
 
         // loop through all players and check for inGame change and update stats
