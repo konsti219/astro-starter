@@ -63,9 +63,7 @@ const update = async () => {
             // server address
             field.querySelector(".serverAddr").innerText = s.serverAddr + " ";
             const a = document.createElement("a");
-            a.addEventListener("click", () =>
-                navigator.clipboard.writeText(s.serverAddr)
-            );
+            a.addEventListener("click", () => copyText(s.serverAddr));
             a.innerText = "Copy";
             field.querySelector(".serverAddr").appendChild(a);
 
@@ -410,4 +408,16 @@ const timeAgo = (date) => {
         numeric: "auto",
     });
     return relativeFormatter.format(Math.trunc(diff.as(unit)), unit);
+};
+
+// copy to clipboard on http
+const copyText = (text) => {
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+    textArea.style.position = "fixed";
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    document.execCommand("copy");
+    document.body.removeChild(textArea);
 };
