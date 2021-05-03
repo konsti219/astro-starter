@@ -222,7 +222,7 @@ export class PlayerManager {
             this.players.forEach(player => {
                 // make sure player has guid and is online
                 const rconP = rconPlayers.find(rp => rp.playerGuid === player.guid)
-                if (player.guid !== "" && rconP && rconP.inGame) {
+                if (player.guid !== "" && rconP && (rconP.inGame || player.idMatches.length > 0)) {
 
                     // increment counter for how often the player has been seen online with this id
                     userIds.forEach(id => {
@@ -280,6 +280,7 @@ export class PlayerManager {
                 })[0]
 
                 if (player) {
+                    // console.log(`matching ${player.player.name} with ${match.id}`)
                     player.player.playfabid = match.id
                     playerMatchPool = playerMatchPool.filter(p => p !== player)
                 }
