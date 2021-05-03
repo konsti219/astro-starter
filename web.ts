@@ -162,13 +162,6 @@ export class WebServer {
 
     async listen() {
         // listen
-        while (true) {
-            try {
-                await this.app.listen({ port: this.starter.webserverPort })
-            } catch (e) {
-                error("Webserver failed")
-                console.error(e)
-            }
-        }
+        await this.app.listen({ port: this.starter.webserverPort })
     }
 }
