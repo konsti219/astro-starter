@@ -71,6 +71,8 @@ Astro-starter does provide native linux builds that can be used for remote serve
 
 ## run (development)
 
+Tested with deno 1.10.2
+
 ```
 deno run -A --unstable index.ts
 ```
