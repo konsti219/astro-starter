@@ -1,6 +1,6 @@
 # astro-starter
 
-Astro Launcher alternative written in Typescript/Deno
+A tool to help you host and manage Astroneer dedicated servers written in Typescript/Deno
 
 ## About
 
@@ -17,7 +17,8 @@ This tool offers many advantages over AstroLauncher, these include:
 
 -   [How to set up a locally hosted server](https://github.com/konsti219/astro-starter/wiki/How-to-set-up-a-locally-hosted-server)
 -   [How to set up a local server with playit.gg](https://github.com/konsti219/astro-starter/wiki/How-to-set-up-a-local-server-with-playit.gg)
--   How to set up RCON for a Gportal server
+-   [How to set up RCON management for a Gportal server](https://github.com/konsti219/astro-starter/wiki/How-to-set-up-RCON-management-for-a-Gportal-server)
+-   [How to add Discord integration](https://github.com/konsti219/astro-starter/wiki/How-to-add-Discord-integration)
 
 ## Config
 
@@ -64,6 +65,10 @@ starter.json
 }
 ```
 
+Docs:
+
+-   [Configuration file - starter.json](https://github.com/konsti219/astro-starter/wiki/Configuration-file---starter.json)
+
 ## Linux
 
 Currently the Astroneer dedicated server software is not available for linux and wine is not able to run it either.
@@ -79,7 +84,7 @@ deno run -A --unstable index.ts
 
 ## compile
 
-To build binaries for windows and linux just run the following command to run the build script that takes care of statoc files.
+To build binaries for windows and linux just run the following command to run the build script that takes care of static files.
 
 ```
 deno run -A --unstable buildBinaries.ts
