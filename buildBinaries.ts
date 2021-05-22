@@ -46,7 +46,7 @@ for (const target of targets) {
         cmd: [
             "deno",
             "compile",
-            "--unstable", "--lite", "-A",
+            "-A", "--unstable",
             `--target=${target}`,
             "index.ts"
         ],
