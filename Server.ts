@@ -290,7 +290,7 @@ export class Server {
         this.rcon.saveGame()
 
         // gave 8 seconds to save
-        setTimeout(() => { 
+        setTimeout(() => {
             // clean server shutdown with RCON
             if (!this.noShutdown) this.rcon.shutdown()
 
@@ -431,7 +431,7 @@ WebhookUrl="http://localhost:5001/api/astrochat/${this.id}"
         if (this.lastHeartbeat + 55000 < Date.now()) {
 
             // generate name with special data
-            this.playfabData.Tags.serverName = `{\"customdata\": {\"ServerName\": \"${this.name}\", \"ServerType\": \"astro-starter v0.1.0\", \"ServerPaks\": []}}`
+            this.playfabData.Tags.serverName = `{\"customdata\": {\"ServerName\": \"${this.name}\", \"ServerType\": \"astro-starter v${this.starter.version}\", \"ServerPaks\": []}}`
             await this.starter.playfab.heartbeatServer(this.playfabData)
 
             this.lastHeartbeat = Date.now()

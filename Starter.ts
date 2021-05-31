@@ -11,6 +11,8 @@ import { setLogDir, info, warn, critical } from "./logging.ts"
 
 
 export class Starter {
+    public version = "1.0.1"
+
     public servers: Server[] = []
     public playfab = new PlayfabManager()
     public playerCache = new PlayerCache(this)
@@ -36,7 +38,7 @@ export class Starter {
         setLogDir(path.join(this.dir, "starterData", "logs"))
 
         console.log("")
-        info("astro-starter v1.0.0")
+        info(`astro-starter v${this.version}`)
         info("work dir: " + dir)
 
         this.readConfig()
@@ -212,7 +214,12 @@ export class Starter {
         info("Steamcmd finished with code: " + code)
 
         // cleanup steam stuff
-        await Deno.remove(path.join(this.dir, "starterData", "serverfiles", "steamapps"), { recursive: true });
+        try {
+            await Deno.remove(path.join(this.dir, "starterData", "serverfiles", "steamapps"), { recursive: true });
+        } catch (e) {
+            warn("Failed to cleanup steam, continouing...")
+            console.error(e)
+        }
     }
 
     async fetchPublicData() {
