@@ -333,34 +333,52 @@ export class Server {
         const hasSaves = fs.existsSync(path.join(savedPath, "SaveGames"))
         const hasPaks = fs.existsSync(path.join(savedPath, "Paks"))
 
-        Deno.mkdirSync(path.join(this.serverDir, "temp"))
-        if (hasSaves) {
-            await fs.copy(path.join(savedPath, "SaveGames"), path.join(this.serverDir, "temp", "SaveGames"))
-        }
-        if (hasPaks) {
-            await fs.copy(path.join(savedPath, "Paks"), path.join(this.serverDir, "temp", "Paks"))
+        info(`Making backups of old files, Saves: ${hasSaves}, Paks: ${hasPaks}`)
+
+        try {
+            Deno.mkdirSync(path.join(this.serverDir, "temp"))
+            if (hasSaves) {
+                await fs.copy(path.join(savedPath, "SaveGames"), path.join(this.serverDir, "temp", "SaveGames"))
+            }
+            if (hasPaks) {
+                await fs.copy(path.join(savedPath, "Paks"), path.join(this.serverDir, "temp", "Paks"))
+            }
+
+            // remove folder
+            if (fs.existsSync(path.join(this.serverDir, "serverFiles"))) {
+                await Deno.remove(path.join(this.serverDir, "serverFiles"), { recursive: true });
+            }
+        } catch (e) {
+            error("making backups failes")
+            throw e
         }
 
-        // remove folder
-        if (fs.existsSync(path.join(this.serverDir, "serverFiles"))) {
-            await Deno.remove(path.join(this.serverDir, "serverFiles"), { recursive: true });
-        }
         // copy fresh files from steam
         info("Copying files...", this.name)
-        await fs.copy(
-            path.join(this.starter.dir, "starterData", "serverfiles"),
-            path.join(this.serverDir, "serverFiles"))
+        try {
+            await fs.copy(
+                path.join(this.starter.dir, "starterData", "serverfiles"),
+                path.join(this.serverDir, "serverFiles"))
+        } catch (e) {
+            error("copying files failed")
+            throw e
+        }
 
 
         // restore SaveGames/Paks
-        if (hasSaves) {
-            await fs.copy(path.join(this.serverDir, "temp", "SaveGames"), path.join(savedPath, "SaveGames"))
+        try {
+            if (hasSaves) {
+                await fs.copy(path.join(this.serverDir, "temp", "SaveGames"), path.join(savedPath, "SaveGames"))
+            }
+            if (hasPaks) {
+                await fs.copy(path.join(this.serverDir, "temp", "Paks"), path.join(savedPath, "Paks"))
+            }
+            // remove temp folder
+            await Deno.remove(path.join(this.serverDir, "temp"), { recursive: true });
+        } catch (e) {
+            error("restoring files failed")
+            throw e
         }
-        if (hasPaks) {
-            await fs.copy(path.join(this.serverDir, "temp", "Paks"), path.join(savedPath, "Paks"))
-        }
-        // remove temp folder
-        await Deno.remove(path.join(this.serverDir, "temp"), { recursive: true });
 
         this.updatingFiles = false
     }
