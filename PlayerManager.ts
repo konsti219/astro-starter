@@ -12,7 +12,7 @@ import { RconPlayer } from "./rcon.ts";
 
 import { info, infoWebhook, warn } from "./logging.ts"
 
-enum PlayerCategory {
+export enum PlayerCategory {
     Unlisted = "Unlisted",
     Blacklisted = "Blacklisted",
     Whitelisted = "Whitelisted",

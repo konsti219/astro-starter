@@ -3,7 +3,7 @@ import { path, fs } from "./deps.ts"
 import { Starter } from "./Starter.ts";
 import { PlayfabServer } from "./playfab.ts";
 import { RconManager } from "./rcon.ts";
-import { PlayerManager } from "./PlayerManager.ts";
+import { PlayerManager, PlayerCategory } from "./PlayerManager.ts";
 import { checkNetwork } from "./network.ts";
 
 import { info, infoWebhook, warn, error } from "./logging.ts"
@@ -387,6 +387,8 @@ export class Server {
         const configPath = path.join(this.serverDir, "serverFiles", "Astro", "Saved", "Config", "WindowsServer")
         fs.ensureDirSync(configPath)
 
+        const owner = this.players.list().find(p => p.category === PlayerCategory.Owner)
+
         // AstroServerSettings.ini
         let astroConfig = `
 [/Script/Astro.AstroServerSettings]
@@ -398,7 +400,7 @@ PublicIP=${this.serverAddr.split(":")[0]}
 ServerName=${this.id}
 MaximumPlayerCount=${this.maxPlayers}
 OwnerName=${this.owner}
-OwnerGuid=
+OwnerGuid=${owner ? owner.guid : ""}
 PlayerActivityTimeout=${this.afkTimeout}
 ServerPassword=${this.serverPassword}
 bDisableServerTravel=False
