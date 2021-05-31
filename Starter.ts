@@ -250,6 +250,7 @@ export class Starter {
         this.servers.forEach(s => s.stop())
         setTimeout(() => {
             clearInterval(this.loop)
+            console.log("Bye! Thanks for using astro-starter")
             Deno.exit(0)
         }, 20000)
     }
