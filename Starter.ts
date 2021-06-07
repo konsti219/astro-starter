@@ -247,7 +247,9 @@ export class Starter {
             Deno.writeFileSync("./silent", data)
         }
 
-        this.servers.forEach(s => s.stop())
+        this.servers.forEach(s => {
+            if (s.serverType === "local") s.stop()
+        })
         setTimeout(() => {
             clearInterval(this.loop)
             console.log("Bye! Thanks for using astro-starter")

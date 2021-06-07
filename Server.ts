@@ -50,7 +50,7 @@ export class Server {
 
     constructor(
         public id: string,
-        public serverType: string,
+        public serverType: "local" | "remote" | "playfab",
         public name: string,
         configIP: string,
         port: number,
