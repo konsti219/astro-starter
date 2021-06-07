@@ -53,6 +53,11 @@ export const parseConfig = (configPath: string, starter: Starter) => {
     for (const i in (config.servers)) {
         const s = config.servers[i]
 
+        if (!(s.type === "local" || s.type === "remote" || s.type === "playfab")) {
+            critical(`serverTypr can only be "local" || "remote" || "playfab". Server id: ${s.id}`)
+            Deno.exit(1)
+        }
+
         starter.servers.push(new Server(
             s.id ?? `server${i}`,
             s.type ?? "local",
