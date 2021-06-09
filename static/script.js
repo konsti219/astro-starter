@@ -101,6 +101,7 @@ const update = async () => {
 
             // players
             s.players
+                .sort((a, b) => a.playtime - b.playtime)
                 .filter((s) => s.inGame)
                 .concat(s.players.filter((s) => !s.inGame))
                 .forEach((p) => {
