@@ -7,6 +7,11 @@ let test = `\${}`;
 document.querySelector("#btnShutdown").addEventListener("click", async (_) => {
     await fetch("/api/shutdown", { method: "POST" });
 });
+document
+    .querySelector("#btnSilentShutdown")
+    .addEventListener("click", async (_) => {
+        await fetch("/api/silentshutdown", { method: "POST" });
+    });
 
 let expanded = {};
 
@@ -158,20 +163,18 @@ const update = async () => {
                         row.querySelector(".playerLastSeen").innerText =
                             "Never";
                     } else {
-                        row.querySelector(
-                            ".playerLastSeen"
-                        ).innerText = timeAgo(DateTime.fromMillis(p.lastSeen));
+                        row.querySelector(".playerLastSeen").innerText =
+                            timeAgo(DateTime.fromMillis(p.lastSeen));
                     }
                     // playtime
                     const curPlaytime =
                         p.onlineSince > 0 ? Date.now() - p.onlineSince : 0;
                     const playtime = p.prevPlaytime + curPlaytime;
-                    row.querySelector(
-                        ".playerPlaytime"
-                    ).innerText = humanizeDuration(playtime, {
-                        largest: 2,
-                        round: true,
-                    });
+                    row.querySelector(".playerPlaytime").innerText =
+                        humanizeDuration(playtime, {
+                            largest: 2,
+                            round: true,
+                        });
 
                     // cached
                     row.querySelector(".playerCached").innerText = p.cached;
@@ -190,14 +193,14 @@ const update = async () => {
 
                     // add listener
                     columns.addEventListener("click", (e) => {
-                        const id = e.target.parentElement.getAttribute(
-                            "data-expandgroup"
-                        );
+                        const id =
+                            e.target.parentElement.getAttribute(
+                                "data-expandgroup"
+                            );
                         const isExpanded = id in expanded;
 
-                        e.target.parentElement.parentElement.children[1].style.display = isExpanded
-                            ? "none"
-                            : "block";
+                        e.target.parentElement.parentElement.children[1].style.display =
+                            isExpanded ? "none" : "block";
 
                         if (isExpanded) delete expanded[id];
                         else expanded[id] = true;
@@ -295,14 +298,12 @@ const update = async () => {
 
                 // add listener
                 columns.addEventListener("click", (e) => {
-                    const id = e.target.parentElement.getAttribute(
-                        "data-expandgroup"
-                    );
+                    const id =
+                        e.target.parentElement.getAttribute("data-expandgroup");
                     const isExpanded = id in expanded;
 
-                    e.target.parentElement.parentElement.children[1].style.display = isExpanded
-                        ? "none"
-                        : "block";
+                    e.target.parentElement.parentElement.children[1].style.display =
+                        isExpanded ? "none" : "block";
 
                     if (isExpanded) delete expanded[id];
                     else expanded[id] = true;

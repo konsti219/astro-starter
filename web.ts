@@ -122,6 +122,11 @@ export class WebServer {
             ctx.response.body = { status: "OK" }
             ctx.response.type = "json"
         })
+        this.router.post("/api/silentshutdown", ctx => {
+            this.starter.shutdown(true)
+            ctx.response.body = { status: "OK" }
+            ctx.response.type = "json"
+        })
 
 
         // APP
