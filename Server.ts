@@ -40,6 +40,7 @@ export class Server {
     private running = false
     private updatingFiles = false
     private restartTimeout = 0
+    private backupTimeout = 0
 
     public playfabData: PlayfabServer | undefined
     private lastHeartbeat = 0
@@ -278,18 +279,7 @@ export class Server {
             }
         }
 
-        // set backup save timeout
-        if (this.makeBackupSaveAt !== "") {
-            const times = this.makeBackupSaveAt.split(":")
-            const hour = parseInt(times[0]) ?? 0
-            const minute = parseInt(times[1]) ?? 0
-            const ms = (new Date(2030, 0, 0, hour, minute).getTime() - Date.now()) % (3600 * 1000)
-
-            this.restartTimeout = setTimeout(() => {
-                const saveName = this.rcon.stats.saveGameName.split("+")[0]
-                this.rcon.saveGame(`${saveName}+${getTimeStamp()}`)
-            }, ms)
-        }
+        this.setBackupTimeout()
 
         this.running = true
     }
@@ -470,6 +460,24 @@ WebhookUrl="http://localhost:5001/api/astrochat/${this.id}"
             await this.starter.playfab.heartbeatServer(this.playfabData)
 
             this.lastHeartbeat = Date.now()
+        }
+    }
+
+    private setBackupTimeout() {
+        if (this.makeBackupSaveAt !== "") {
+            clearTimeout(this.backupTimeout)
+
+            const times = this.makeBackupSaveAt.split(":")
+            const hour = parseInt(times[0]) ?? 0
+            const minute = parseInt(times[1]) ?? 0
+            const ms = (new Date(2030, 0, 0, hour, minute).getTime() - Date.now()) % (3600 * 1000)
+
+            this.backupTimeout = setTimeout(() => {
+                const saveName = this.rcon.stats.saveGameName.split("+")[0]
+                this.rcon.saveGame(`${saveName}+${getTimeStamp()}`)
+
+                this.setBackupTimeout()
+            }, ms)
         }
     }
 }
