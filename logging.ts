@@ -1,4 +1,5 @@
 import { Colors, fs, path } from "./deps.ts"
+import { getTimeStamp, getDate } from "./timespamp.ts";
 
 let logDir = Deno.cwd()
 export function setLogDir(dir: string): void {
@@ -6,8 +7,7 @@ export function setLogDir(dir: string): void {
     fs.ensureDirSync(logDir)
 
     // add an empty line at each start for seperation
-    const now = new Date
-    Deno.writeTextFileSync(path.join(logDir, logFileName(now)), "\n", { append: true })
+    Deno.writeTextFileSync(path.join(logDir, logFileName()), "\n", { append: true })
 }
 
 export function debug(msg: string): void {
@@ -38,7 +38,7 @@ export function infoWebhook(msg: string, server: string, webhook: string): void 
                     allowed_mentions: { parse: [] }
                 })
             })
-        } catch(_) {_}
+        } catch (_) { _ }
     }
 }
 
@@ -57,40 +57,11 @@ export function critical(msg: string): void {
 }
 
 function addToLogFile(msg: string) {
-    const now = new Date
-
-    Deno.writeTextFileSync(path.join(logDir, logFileName(now)),
-        `[${year(now)}-${month(now)}-${date(now)} ${hour(now)}:${minute(now)}:${second(now)}]${msg}\n`
+    Deno.writeTextFileSync(path.join(logDir, logFileName()),
+        `[${getTimeStamp()}]${msg}\n`
         , { append: true })
 }
 
-function year(now: Date) {
-    return now.getFullYear()
-}
-function month(now: Date) {
-    return zeroPad(now.getMonth() + 1)
-}
-function date(now: Date) {
-    return zeroPad(now.getDate())
-}
-function hour(now: Date) {
-    return zeroPad(now.getHours())
-}
-function minute(now: Date) {
-    return zeroPad(now.getMinutes())
-}
-function second(now: Date) {
-    return zeroPad(now.getSeconds())
-}
-
-function zeroPad(num: number) {
-    if (num.toString().length === 1) {
-        return "0" + num
-    } else {
-        return num.toString()
-    }
-}
-
-function logFileName(now: Date) {
-    return `log_${year(now)}-${month(now)}-${date(now)}.txt`
+function logFileName() {
+    return `log_${getDate()}.txt`
 }
