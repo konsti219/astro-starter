@@ -7,6 +7,7 @@ import { PlayerManager, PlayerCategory } from "./PlayerManager.ts";
 import { checkNetwork } from "./network.ts";
 
 import { info, infoWebhook, warn, error } from "./logging.ts"
+import { getTimeStamp } from "./timespamp.ts";
 
 interface ConfigAddr {
     configIP: string
@@ -275,7 +276,19 @@ export class Server {
                     this.restart()
                 }, ms)
             }
+        }
 
+        // set backup save timeout
+        if (this.makeBackupSaveAt !== "") {
+            const times = this.makeBackupSaveAt.split(":")
+            const hour = parseInt(times[0]) ?? 0
+            const minute = parseInt(times[1]) ?? 0
+            const ms = (new Date(2030, 0, 0, hour, minute).getTime() - Date.now()) % (3600 * 1000)
+
+            this.restartTimeout = setTimeout(() => {
+                const saveName = this.rcon.stats.saveGameName.split("+")[0]
+                this.rcon.saveGame(`${saveName}+${getTimeStamp()}`)
+            }, ms)
         }
 
         this.running = true

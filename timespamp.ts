@@ -28,7 +28,7 @@ function zeroPad(num: number) {
 export function getTimeStamp() {
     const now = new Date
 
-    return `${year(now)}-${month(now)}-${date(now)} ${hour(now)}:${minute(now)}:${second(now)}`
+    return `${year(now)}_${month(now)}_${date(now)}-${hour(now)}_${minute(now)}_${second(now)}`
 }
 
 export function getDate() {
