@@ -20,7 +20,9 @@ export const defaultConfig = {
             "enableAstrochatIntegration": false,
             "customHeartbeat": true,
             "discordWebhook": "",
-            "restartAt": ""
+            "restartAt": "06:00",
+            "makeBackupSaveAt": "06:00",
+            "restoreSaveName": ""
         }
     ]
 }

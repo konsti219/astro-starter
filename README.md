@@ -47,7 +47,9 @@ starter.json
             "enableAstrochatIntegration": false,
             "customHeartbeat": true,
             "discordWebhook": "<webhook url>",
-            "restartAt": "03:00"
+            "restartAt": "06:00",
+            "makeBackupSaveAt": "06:00",
+            "restoreSaveName": ""
         },
         {
             "id": "server2",

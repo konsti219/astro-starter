@@ -67,6 +67,8 @@ export class Server {
         public customHeartbeat: boolean,
         public webhook: string,
         public restartAt: string,
+        public makeBackupSaveAt: string,
+        public restoreSaveName: string,
         public noShutdown: boolean,
         public owner: string,
         public starter: Starter
