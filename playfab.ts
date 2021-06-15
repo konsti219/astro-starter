@@ -39,7 +39,7 @@ export interface PlayfabServer {
 export class PlayfabManager {
     private servers: string[] = []
     private serversData: PlayfabServer[] = []
-    private headers:Record<string, string> = {
+    private headers: Record<string, string> = {
         "Accept": "*/*",
         "Accept-Encoding": "none", //"deflate, gzip",
         "Content-Type": "application/json; charset=utf-8",
@@ -57,7 +57,7 @@ export class PlayfabManager {
 
     async update() {
         const fetchData = async () => {
-        
+
             // generateXAUTH
             await this.getAuth()
 
@@ -105,7 +105,7 @@ export class PlayfabManager {
                     headers: this.headers,
                 })
             ).json();
-        
+
             // check if data is present (if anything is wrong this will throw)
             if (!serverRes.data.Games) {
                 console.log(serverRes)
@@ -157,9 +157,9 @@ export class PlayfabManager {
             });
 
             this.lastSuccesfullQuery = Date.now()
-        
+
         }
-        
+
         try {
             await timeout(1000, fetchData())
         } catch (_) {
@@ -185,14 +185,16 @@ export class PlayfabManager {
                 headers: this.headers,
             });
             this.headers["X-Authorization"] = (await resXAUTH.json()).data.SessionTicket;
+
+            this.lastAuth = Date.now()
         }
     }
 
-    add(server:string) {
+    add(server: string) {
         this.servers.push(server)
     }
 
-    get(server:string):PlayfabServer | undefined {
+    get(server: string): PlayfabServer | undefined {
         return this.serversData.find(s => server === s.Tags.gameId)
     }
 
