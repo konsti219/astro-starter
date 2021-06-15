@@ -70,6 +70,7 @@ export class Server {
         public webhook: string,
         public restartAt: string,
         public makeBackupSaveAt: string,
+        public backupIntervalHours: number,
         public restoreSaveName: string,
         public noShutdown: boolean,
         public owner: string,
@@ -470,7 +471,7 @@ WebhookUrl="http://localhost:5001/api/astrochat/${this.id}"
             const times = this.makeBackupSaveAt.split(":")
             const hour = parseInt(times[0]) ?? 0
             const minute = parseInt(times[1]) ?? 0
-            const ms = (new Date(2030, 0, 0, hour, minute).getTime() - Date.now()) % (24 * 3600 * 1000)
+            const ms = (new Date(2030, 0, 0, hour, minute).getTime() - Date.now()) % (this.backupIntervalHours * 3600 * 1000)
 
             this.backupTimeout = setTimeout(() => {
                 const saveName = this.rcon.stats.saveGameName.split("+")[0]

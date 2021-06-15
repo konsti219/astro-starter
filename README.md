@@ -49,6 +49,7 @@ starter.json
             "discordWebhook": "<webhook url>",
             "restartAt": "06:00",
             "makeBackupSaveAt": "06:00",
+            "backupIntervalHours": 24,
             "restoreSaveName": ""
         },
         {

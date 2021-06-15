@@ -23,6 +23,7 @@ interface ConfigFileServer {
     discordWebhook?: string
     restartAt?: string
     makeBackupSaveAt?: string
+    backupIntervalHours?: number
     restoreSaveName?: string
     noShutdown?: boolean
 }
@@ -80,6 +81,7 @@ export const parseConfig = (configPath: string, starter: Starter) => {
             s.discordWebhook ?? "",
             s.restartAt ?? "",
             s.makeBackupSaveAt ?? "",
+            s.backupIntervalHours ?? 24,
             s.restoreSaveName ?? "",
             s.noShutdown ?? false,
             starter.owner,
