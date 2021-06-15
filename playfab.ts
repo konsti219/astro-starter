@@ -2,6 +2,7 @@
     This code communicates with playfab (the astroneer backend for dedicated servers)
     It's main point is to cache the server response and to request data for all servers in one request
 */
+import { createHash } from "./deps.ts";
 
 import { warn, critical } from "./logging.ts"
 import { timeout } from "./util.ts";
@@ -49,6 +50,7 @@ export class PlayfabManager {
     }
     private lastSuccesfullQuery = 0
     private lastAuth = 0
+    private accountId = ""
     private deregisteredServers: Record<string, number> = {}
 
     constructor() {
@@ -179,7 +181,7 @@ export class PlayfabManager {
                 method: "POST",
                 body: JSON.stringify({
                     CreateAccount: true,
-                    CustomId: "astro-starter_" + Math.round(Math.random() * 10000),
+                    CustomId: "astro-starter_" + this.accountId,
                     TitleId: "5EA1",
                 }),
                 headers: this.headers,
@@ -192,6 +194,11 @@ export class PlayfabManager {
 
     add(server: string) {
         this.servers.push(server)
+
+        const IPs = this.servers.reduce((a, c) => a + c, "")
+        const hash = createHash("md5");
+        hash.update(IPs);
+        this.accountId = hash.toString();
     }
 
     get(server: string): PlayfabServer | undefined {
