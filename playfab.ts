@@ -61,7 +61,7 @@ export class PlayfabManager {
         const fetchData = async () => {
 
             // generateXAUTH
-            await this.getAuth()
+            await this.ensureAuth()
 
             // fetch data from playfab
             const serverRes: {
@@ -117,7 +117,7 @@ export class PlayfabManager {
             // remove old servers
             this.serversData = []
 
-            // console.log(serverRes.data.GameCount)
+            // console.log(serverRes)
             // console.log(serverRes.data.Games.map(s => s.Tags.gameId))
 
             // read response data
@@ -174,22 +174,36 @@ export class PlayfabManager {
         }
     }
 
-    async getAuth() {
+    async ensureAuth() {
         // only refetch auth if it's older than one hour
         if (this.lastAuth + (3600 * 1000) < Date.now()) {
-            const resXAUTH = await fetch("https://5EA1.playfabapi.com/Client/LoginWithCustomID?sdk=" + skdVersion, {
-                method: "POST",
-                body: JSON.stringify({
-                    CreateAccount: true,
-                    CustomId: "astro-starter_" + this.accountId,
-                    TitleId: "5EA1",
-                }),
-                headers: this.headers,
-            });
-            this.headers["X-Authorization"] = (await resXAUTH.json()).data.SessionTicket;
 
+            // try to just login, don't create account
+            const resXAUTH = await this.sendLoginAuth(false)
+            if (resXAUTH.status === 400) {
+
+                // if fails create account
+                const resXAUTHCreate = await this.sendLoginAuth(true)
+                this.headers["X-Authorization"] = (await resXAUTHCreate.json()).data.SessionTicket;
+            } else {
+
+                // else just use existing account
+                this.headers["X-Authorization"] = (await resXAUTH.json()).data.SessionTicket;
+            }
             this.lastAuth = Date.now()
         }
+    }
+
+    sendLoginAuth(createAccount: boolean) {
+        return fetch("https://5EA1.playfabapi.com/Client/LoginWithCustomID?sdk=" + skdVersion, {
+            method: "POST",
+            body: JSON.stringify({
+                CreateAccount: createAccount,
+                CustomId: "astro-starter_" + this.accountId,
+                TitleId: "5EA1",
+            }),
+            headers: this.headers,
+        })
     }
 
     add(server: string) {
