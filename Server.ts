@@ -220,11 +220,13 @@ export class Server {
     }
 
     private async _start() {
-        infoWebhook("Starting server ", this.name, this.webhook)
         if (this.status_ !== Status.Stopped) {
             warn("Tried to start server that is not stopped, id: " + this.id)
             return
         }
+
+        infoWebhook(this.serverType === "local" ? "Starting server" : "Connecting to server",
+            this.name, this.webhook)
 
         // refetch public data
         await this.starter.fetchPublicData()
