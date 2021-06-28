@@ -417,6 +417,10 @@ export class PlayerManager {
                         }
                     }
                 })
+
+                // remove unnneccesary playfab matches
+                p1.idMatches = p1.idMatches.sort((a, b) => b.seen - a.seen).slice(0, 10)
+                console.log(p1.idMatches)
             })
         } else {
             // remove duplicate accounts (playfab)
