@@ -289,11 +289,12 @@ export class Server {
     }
 
     private _stop() {
-        infoWebhook("Stopping server ", this.name, this.webhook)
         if (!this.running) {
             warn("Tried to stop server that is not running, id: " + this.id)
             return
         }
+
+        infoWebhook("Stopping server", this.name, this.webhook)
 
         // save game
         this.rcon.saveGame()
