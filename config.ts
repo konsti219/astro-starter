@@ -26,6 +26,7 @@ interface ConfigFileServer {
     backupIntervalHours?: number
     restoreSaveName?: string
     noShutdown?: boolean
+    configFileExtra?: Record<string, string>
 }
 interface ConfigFile {
     webserverPort?: number
@@ -84,6 +85,7 @@ export const parseConfig = (configPath: string, starter: Starter) => {
             s.backupIntervalHours ?? 24,
             s.restoreSaveName ?? "",
             s.noShutdown ?? false,
+            s.configFileExtra ?? {},
             starter.owner,
             starter
         ))

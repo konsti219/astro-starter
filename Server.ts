@@ -73,6 +73,7 @@ export class Server {
         public backupIntervalHours: number,
         public restoreSaveName: string,
         public noShutdown: boolean,
+        public configFileExtra: Record<string, string>,
         public owner: string,
         public starter: Starter
     ) {
@@ -428,6 +429,10 @@ HeartbeatInterval=${this.customHeartbeat ? "0" : "55"}
                 },PlayerGuid="${p.guid}",PlayerRecentJoinName="${p.name}")`
         })
 
+        if (this.configFileExtra["AstroServerSettings.ini"]) {
+            astroConfig += this.configFileExtra["AstroServerSettings.ini"]
+        }
+
         await Deno.writeTextFile(path.join(configPath, "AstroServerSettings.ini"), astroConfig)
 
         // Engine.ini
@@ -444,6 +449,10 @@ MaxInternetClientRate=1000000
 [/Game/ChatMod/ChatManager.ChatManager_C]
 WebhookUrl="http://localhost:5001/api/astrochat/${this.id}"
 `
+        }
+
+        if (this.configFileExtra["Engine.ini"]) {
+            astroConfig += this.configFileExtra["AstroServerSettings.ini"]
         }
 
         await Deno.writeTextFile(path.join(configPath, "Engine.ini"), engineConfig)
