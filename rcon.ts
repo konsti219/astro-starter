@@ -8,7 +8,7 @@ import { io } from "./deps.ts";
 import { Server } from "./Server.ts";
 
 import { timeout } from "./util.ts";
-import { info, warn, error } from "./logging.ts"
+import { info, infoWebhook, warn, error } from "./logging.ts"
 
 
 interface RconStats {
@@ -29,7 +29,7 @@ interface RconStats {
     isAchievementProgressionDisabled: boolean
 }
 export interface RconPlayer {
-    playerGuid: string 
+    playerGuid: string
     playerCategory: string
     playerName: string
     inGame: boolean
@@ -48,12 +48,12 @@ export class RconManager {
 
     private queue: string[] = []
 
-    private statsPromiseRes = () => {}
-    private playersPromiseRes = () => {}
+    private statsPromiseRes = () => { }
+    private playersPromiseRes = () => { }
     private savesPromiseRes = () => { }
     private lastSuccesful = Date.now()
     private lastSuccesfulTotal = Date.now()
-    
+
     private conn?: Deno.Conn
     private connectInterval: number | undefined = undefined
     public isConnected = false
@@ -84,7 +84,7 @@ export class RconManager {
     // if this.connectInterval is set, it means the socket should be connecting
     // if this.isConnected is set to true it means there is an active tcp connection
     connect() {
-        info("Connecting to RCON port at " + this.consoleAddr)
+        info("Connecting to RCON port at " + this.consoleAddr, this.server.name)
 
         // When the socket is told to connect start an internal loop that will constantly try to
         // connect to the server if it's not connected. This is to make sure the socket stays connected.
@@ -106,7 +106,7 @@ export class RconManager {
         this.isConnected = false
         try {
             this.conn?.close()
-        } catch(_) {_}
+        } catch (_) { _ }
     }
 
     private async connectSocket() {
@@ -164,7 +164,7 @@ export class RconManager {
 
                     this.saves = JSON.parse(res).gameList
                     this.savesPromiseRes()
-                }  else {
+                } else {
                     if (res.length > 0) {
                         warn("unknown rcon response")
                         console.log(res)
@@ -277,9 +277,9 @@ export class RconManager {
         // check if it is time to abondon the socket
         if (Date.now() - this.lastSuccesful > 600 * 1000) {
             error("Could connect to connect to RCON for 10 minutes. Retrying in 1 minute")
+            infoWebhook("Lost connection to server", this.server.name, this.server.webhook)
 
             this.players = []
-            this.saves = []
             this.disconnect()
 
             setTimeout(() => this.connect(), 60000)

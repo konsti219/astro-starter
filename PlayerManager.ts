@@ -366,8 +366,10 @@ export class PlayerManager {
 
             // leaving
             if (!player.inGame && oldInGame) {
-                infoWebhook(`${humanName} leaving (${onlinePlayersNum}/${maxPlayers})`,
-                    this.server.name, this.server.webhook)
+                if (this.server.rcon.isConnected) {
+                    infoWebhook(`${humanName} leaving (${onlinePlayersNum}/${maxPlayers})`,
+                        this.server.name, this.server.webhook)
+                }
 
                 player.prevPlaytime = PlayerManager.playtime(player)
                 player.onlineSince = 0
