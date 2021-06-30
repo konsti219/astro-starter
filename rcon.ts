@@ -277,7 +277,6 @@ export class RconManager {
         // check if it is time to abondon the socket
         if (Date.now() - this.lastSuccesful > 600 * 1000) {
             error("Could connect to connect to RCON for 10 minutes. Retrying in 1 minute")
-            infoWebhook("Lost connection to server", this.server.name, this.server.webhook)
 
             this.players = []
             this.disconnect()
@@ -286,6 +285,7 @@ export class RconManager {
         }
 
         if (this.server.starter.rconErrorRestart && (Date.now() - this.lastSuccesful > 1800 * 1000)) {
+            infoWebhook("Lost connection to server", this.server.name, this.server.webhook)
             this.server.starter.shutdown(true)
         }
     }
