@@ -294,7 +294,8 @@ export class Server {
             return
         }
 
-        infoWebhook("Stopping server", this.name, this.webhook)
+        infoWebhook(this.serverType === "local" ? "Stopping server" : "Disconnecting from server",
+            this.name, this.webhook)
 
         // save game
         this.rcon.saveGame()
@@ -302,7 +303,7 @@ export class Server {
         // gave 8 seconds to save
         setTimeout(() => {
             // clean server shutdown with RCON
-            if (!this.noShutdown) this.rcon.shutdown()
+            if (this.serverType === "local") this.rcon.shutdown()
 
             // close rcon after 4s (it's probably fail before that /shrug)
             setTimeout(() => this.rcon.disconnect(), 4000)
