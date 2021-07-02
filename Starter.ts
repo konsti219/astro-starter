@@ -11,7 +11,7 @@ import { setLogDir, info, warn, critical } from "./logging.ts"
 
 
 export class Starter {
-    public version = "1.0.1"
+    public version = "1.0.2"
 
     public servers: Server[] = []
     public playfab = new PlayfabManager()
