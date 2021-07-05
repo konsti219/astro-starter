@@ -284,7 +284,7 @@ export class RconManager {
             setTimeout(() => this.connect(), 60000)
         }
 
-        if (this.server.starter.rconErrorRestart && (Date.now() - this.lastSuccesful > 1800 * 1000)) {
+        if (this.server.starter.rconErrorRestart && (Date.now() - this.lastSuccesfulTotal > 1800 * 1000)) {
             infoWebhook("Lost connection to server", this.server.name, this.server.webhook)
             this.server.starter.shutdown(true)
         }

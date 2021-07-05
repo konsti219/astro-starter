@@ -242,9 +242,7 @@ export class Starter {
         info("Shutting down servers and starter")
 
         if (silent) {
-            this.servers.forEach(s => (s.webhook = ""))
-            const data = new Uint8Array([])
-            Deno.writeFileSync("./silent", data)
+            Deno.writeFileSync("./silent", new Uint8Array([]))
         }
 
         this.servers.forEach(s => {
