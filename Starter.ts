@@ -101,7 +101,7 @@ export class Starter {
         for (const server of this.servers) {
             server.start()
         }
-        info("Server processes starting...")
+        info("Servers starting...")
 
         // main loop that regualarly checks data
         this.loop = setInterval(async () => {
@@ -114,7 +114,6 @@ export class Starter {
         }, 4000)
 
         // disable silent after 1 min
-
         setTimeout(() => {
             if (fs.existsSync("./silent")) {
                 Deno.removeSync("./silent")
