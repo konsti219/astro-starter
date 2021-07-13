@@ -11,6 +11,7 @@ interface ConfigFileServer {
     port?: number
     consolePort?: string
     consolePassword?: string
+    rconMode?: "active" | "passive"
     serverPassword?: string
     whitelist?: boolean
     maxPlayers?: number
@@ -70,6 +71,7 @@ export const parseConfig = (configPath: string, starter: Starter) => {
             s.port ?? 8777,
             s.consolePort ?? "_auto",
             s.consolePassword ?? "_random",
+            s.rconMode ?? "active",
             s.serverPassword ?? "",
             s.whitelist ?? false,
             s.maxPlayers ?? 8,

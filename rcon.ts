@@ -79,7 +79,7 @@ export class RconManager {
     public saves: RconSave[] = []
 
 
-    constructor(private consoleAddr: string, private consolePassword: string, private server: Server) { }
+    constructor(private consoleAddr: string, private consolePassword: string, private mode: "active" | "passive", private server: Server) { }
 
     // if this.connectInterval is set, it means the socket should be connecting
     // if this.isConnected is set to true it means there is an active tcp connection
