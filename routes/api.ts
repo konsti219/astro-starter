@@ -36,7 +36,46 @@ export class ApiRouter {
             ctx.response.type = "json"
         })
 
+        // GET
+        this.router.get<{ id: string, action: string }>("/servers/:id/:action", ctx => {
+            ctx.response.type = "json"
+
+            const err = () => {
+                ctx.response.body = { status: "NOT FOUND" }
+                ctx.response.status = Status.NotFound
+            }
+
+            // Server actions
+            if (ctx.params?.id && ctx.params?.action) {
+                const server = this.starter.servers.find(s => s.id === ctx.params.id)
+                if (server) {
+                    switch (ctx.params.action) {
+                        case "astrochat": {
+                            console.log("astrochat webhook")
+                            console.log(ctx.params)
+                            break
+                        }
+                        case "analytics": {
+                            console.log("analytics webhook")
+                            console.log(ctx.params)
+                            break
+                        }
+                        default:
+                            err()
+                    }
+
+                    ctx.response.body = { status: "OK" }
+
+                } else {
+                    err()
+                }
+            } else {
+                err()
+            }
+        });
+
         // TODO auth
+        // POST
         this.router.post<{ id: string, action: string }>("/servers/:id/:action", async ctx => {
             ctx.response.type = "json"
 
@@ -94,16 +133,6 @@ export class ApiRouter {
                             const body = (await ctx.request.body({ type: "json" }))
                             const { name } = (await body.value)
                             server.rcon.newGame(name)
-                            break
-                        }
-                        case "astrochat": {
-                            console.log("astrochat webhook")
-                            console.log(ctx.params)
-                            break
-                        }
-                        case "analytics": {
-                            console.log("analytics webhook")
-                            console.log(ctx.params)
                             break
                         }
                         default:
