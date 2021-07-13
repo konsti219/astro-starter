@@ -72,37 +72,65 @@ export class WebServer {
             if (ctx.params?.id && ctx.params?.action) {
                 const server = this.starter.servers.find(s => s.id === ctx.params.id)
                 if (server) {
-                    const act = ctx.params.action
-                    if (act === "start") {
-                        server.start()
-                    } else if (act === "stop") {
-                        server.stop()
-                    } else if (act === "restart") {
-                        server.restart()
-                    } else if (act === "rcon") {
-                        const body = (await ctx.request.body())
-                        const { command } = (await body.value)
-                        server.rcon.run(command)
-                    } else if (act === "setcategory") {
-                        const body = (await ctx.request.body({ type: "json" }))
-                        const { guid, category } = (await body.value)
-                        server.rcon.setPlayerCategory(guid, category)
-                    } else if (act === "kick") {
-                        const body = (await ctx.request.body({ type: "json" }))
-                        const { guid } = (await body.value)
-                        server.rcon.kickPlayer(guid)
-                    } else if (act === "gamesave") {
-                        server.rcon.saveGame()
-                    } else if (act === "gameload") {
-                        const body = (await ctx.request.body({ type: "json" }))
-                        const { name } = (await body.value)
-                        server.rcon.loadGame(name)
-                    } else if (act === "gamenew") {
-                        const body = (await ctx.request.body({ type: "json" }))
-                        const { name } = (await body.value)
-                        server.rcon.newGame(name)
-                    } else {
-                        err()
+                    switch (ctx.params.action) {
+                        case "start": {
+                            server.start()
+                            break
+                        }
+                        case "stop": {
+                            server.stop()
+                            break
+                        }
+                        case "restart": {
+                            server.restart()
+                            break
+                        }
+                        case "rcon": {
+                            const body = (await ctx.request.body())
+                            const { command } = (await body.value)
+                            server.rcon.run(command)
+                            break
+                        }
+                        case "setcategory": {
+                            const body = (await ctx.request.body({ type: "json" }))
+                            const { guid, category } = (await body.value)
+                            server.rcon.setPlayerCategory(guid, category)
+                            break
+                        }
+                        case "kick": {
+                            const body = (await ctx.request.body({ type: "json" }))
+                            const { guid } = (await body.value)
+                            server.rcon.kickPlayer(guid)
+                            break
+                        }
+                        case "gamesave": {
+                            server.rcon.saveGame()
+                            break
+                        }
+                        case "gameload": {
+                            const body = (await ctx.request.body({ type: "json" }))
+                            const { name } = (await body.value)
+                            server.rcon.loadGame(name)
+                            break
+                        }
+                        case "gamenew": {
+                            const body = (await ctx.request.body({ type: "json" }))
+                            const { name } = (await body.value)
+                            server.rcon.newGame(name)
+                            break
+                        }
+                        case "astrochat": {
+                            console.log("astrochat webhook")
+                            console.log(ctx.params)
+                            break
+                        }
+                        case "analytics": {
+                            console.log("analytics webhook")
+                            console.log(ctx.params)
+                            break
+                        }
+                        default:
+                            err()
                     }
 
                     ctx.response.body = { status: "OK" }
