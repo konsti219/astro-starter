@@ -233,7 +233,7 @@ export class Starter {
         info("Latest server version: " + this.latestVersion)
 
         // fetch Public IP
-        this.publicIP = (await (await fetch("https://ip4.seeip.org/")).text())
+        this.publicIP = (await (await fetch("https://api.ipify.org//")).text())
         info("Public IP: " + this.publicIP)
     }
 
