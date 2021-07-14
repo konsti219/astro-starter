@@ -19,7 +19,6 @@ interface ConfigFileServer {
     saveInterval?: number
     backupSaves?: boolean
     backupInterval?: number
-    enableAstrochatIntegration?: boolean
     customHeartbeat?: boolean
     discordWebhook?: string
     restartAt?: string
@@ -79,7 +78,6 @@ export const parseConfig = (configPath: string, starter: Starter) => {
             s.saveInterval ?? 900,
             s.backupSaves ?? true,
             s.backupInterval ?? 3600,
-            s.enableAstrochatIntegration ?? false,
             s.customHeartbeat ?? false,
             s.discordWebhook ?? "",
             s.restartAt ?? "",

@@ -66,7 +66,6 @@ export class Server {
         public saveInterval: number,
         public backupSaves: boolean,
         public backupInterval: number,
-        public enableAstrochatIntegration: boolean,
         public customHeartbeat: boolean,
         public webhook: string,
         public restartAt: string,
@@ -447,17 +446,13 @@ Port=${this.serverAddr.split(":")[1]}
 [/Script/OnlineSubsystemUtils.IpNetDriver]
 MaxClientRate=1000000
 MaxInternetClientRate=1000000
-`
 
-        if (this.enableAstrochatIntegration) {
-            engineConfig += `
 [/Game/ChatMod/ChatManager.ChatManager_C]
-WebhookUrl="http://localhost:5001/api/astrochat/${this.id}"
+WebhookUrl="http://localhost:${this.starter.webserverPort}/api/servers/${this.id}/astrochat"
 `
-        }
 
         if (this.configFileExtra["Engine.ini"]) {
-            astroConfig += this.configFileExtra["AstroServerSettings.ini"]
+            engineConfig += this.configFileExtra["Engine.ini"]
         }
 
         await Deno.writeTextFile(path.join(configPath, "Engine.ini"), engineConfig)

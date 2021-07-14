@@ -2,7 +2,7 @@ import { Router, Status } from "./../deps.ts"
 
 import { Starter } from "./../Starter.ts"
 
-//import { info, error } from "./../logging.ts"
+import { infoWebhook } from "./../logging.ts"
 
 export class ApiRouter {
     public router = new Router()
@@ -51,13 +51,15 @@ export class ApiRouter {
                 if (server) {
                     switch (ctx.params.action) {
                         case "astrochat": {
-                            console.log("astrochat webhook")
-                            console.log(ctx.params)
+                            if (ctx.request.url.searchParams.get("evt") === "chat") {
+                                infoWebhook(`:speech_balloon: **${ctx.request.url.searchParams.get("name")}**: ${ctx.request.url.searchParams.get("msg")}`,
+                                    server.name, server.webhook)
+                            }
                             break
                         }
                         case "analytics": {
                             console.log("analytics webhook")
-                            console.log(ctx.params)
+                            console.log(ctx.request.url)
                             break
                         }
                         default:
