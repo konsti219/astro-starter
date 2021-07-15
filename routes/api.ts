@@ -58,8 +58,21 @@ export class ApiRouter {
                             break
                         }
                         case "analytics": {
-                            console.log("analytics webhook")
-                            console.log(ctx.request.url)
+                            const playerStr = ctx.request.url.searchParams.get("players") ?? "[]"
+                            const stripDelimeter = playerStr.substring(0, playerStr.length - 3).substring(2)
+                            let players = stripDelimeter.split("],[").map(p => {
+                                const parts = p.replaceAll("\"", "").replace("(", "").replace(")", "").split(",")
+                                return {
+                                    name: parts[0],
+                                    x: parseFloat(parts[1]), y: parseFloat(parts[2]), z: parseFloat(parts[3])
+                                }
+                            })
+                            if (playerStr.length === 2) players = []
+                            console.log(players)
+
+                            const compactPlayers = players.map(p => `${p.name},${p.x},${p.y},${p.z};`).join("")
+                            console.log(compactPlayers)
+
                             break
                         }
                         default:
