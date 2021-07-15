@@ -55,7 +55,7 @@ export class ApiRouter {
                     switch (ctx.params.action) {
                         case "astrochat": {
                             if (ctx.request.url.searchParams.get("evt") === "chat") {
-                                infoWebhook(`:speech_balloon: **${ctx.request.url.searchParams.get("name")}**: ${ctx.request.url.searchParams.get("msg")}`,
+                                infoWebhook(`:speech_balloon: '${ctx.request.url.searchParams.get("name")}': ${ctx.request.url.searchParams.get("msg")}`,
                                     server.name, server.webhook)
                             }
 
