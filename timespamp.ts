@@ -36,3 +36,9 @@ export function getDate() {
 
     return `${year(now)}-${month(now)}-${date(now)}`
 }
+
+export function getDateHour() {
+    const now = new Date
+
+    return `${year(now)}-${month(now)}-${date(now)}-${hour(now)}`
+}

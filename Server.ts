@@ -107,9 +107,10 @@ export class Server {
             ? Math.random().toString(36).substring(2)
             : this.consolePassword
 
-        // configure server dir
+        // configure server dir + analytics log dir
         this.serverDir = path.join(this.starter.dir, "starterData", "servers", this.id)
         fs.ensureDirSync(this.serverDir)
+        fs.ensureDirSync(path.join(this.serverDir, "analytics"))
 
         // add to playfab server queries
         this.starter.playfab.add(this.serverAddr)

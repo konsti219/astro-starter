@@ -1,11 +1,14 @@
-import { Router, Status } from "./../deps.ts"
+import { Router, Status, path } from "./../deps.ts"
 
 import { Starter } from "./../Starter.ts"
 
 import { infoWebhook } from "./../logging.ts"
 
+import { getDateHour } from "../timespamp.ts";
+
 export class ApiRouter {
     public router = new Router()
+    public playersCache: { name: string, x: number, y: number, z: number }[] = []
 
     constructor(private starter: Starter) {
 
@@ -55,23 +58,41 @@ export class ApiRouter {
                                 infoWebhook(`:speech_balloon: **${ctx.request.url.searchParams.get("name")}**: ${ctx.request.url.searchParams.get("msg")}`,
                                     server.name, server.webhook)
                             }
+
+                            ctx.response.body = { status: "OK" }
+
                             break
                         }
                         case "analytics": {
-                            const playerStr = ctx.request.url.searchParams.get("players") ?? "[]"
-                            const stripDelimeter = playerStr.substring(0, playerStr.length - 3).substring(2)
-                            let players = stripDelimeter.split("],[").map(p => {
-                                const parts = p.replaceAll("\"", "").replace("(", "").replace(")", "").split(",")
-                                return {
-                                    name: parts[0],
-                                    x: parseFloat(parts[1]), y: parseFloat(parts[2]), z: parseFloat(parts[3])
-                                }
-                            })
-                            if (playerStr.length === 2) players = []
-                            console.log(players)
+                            // parse data coming from analytics mod
+                            const playerStr = ctx.request.url.searchParams.get("players")
 
-                            const compactPlayers = players.map(p => `${p.name},${p.x},${p.y},${p.z};`).join("")
-                            console.log(compactPlayers)
+                            // if param present means it's data coming in, else return cache
+                            if (playerStr) {
+                                const stripDelimeter = playerStr.substring(0, playerStr.length - 3).substring(2)
+                                let players = stripDelimeter.split("],[").map(p => {
+                                    const parts = p.replaceAll("\"", "").replace("(", "").replace(")", "").split(",")
+                                    return {
+                                        name: parts[0],
+                                        x: parseFloat(parts[1]), y: parseFloat(parts[2]), z: parseFloat(parts[3])
+                                    }
+                                })
+                                if (playerStr.length === 2) players = []
+
+                                // save to cache
+                                this.playersCache = players
+
+                                // if there are players online save their positions in a compact format
+                                if (players.length > 0) {
+                                    const compactPlayers = players.map(p => `${p.name},${p.x},${p.y},${p.z};`).join("")
+
+                                    Deno.writeTextFileSync(path.join(server.serverDir, "analytics", `log_${getDateHour()}`),
+                                        `${Date.now()};${compactPlayers}\n`
+                                        , { append: true })
+                                }
+                            }
+
+                            ctx.response.body = { players: this.playersCache }
 
                             break
                         }
@@ -79,7 +100,7 @@ export class ApiRouter {
                             err()
                     }
 
-                    ctx.response.body = { status: "OK" }
+
 
                 } else {
                     err()
