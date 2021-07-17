@@ -74,7 +74,9 @@ export class ApiRouter {
                                     const parts = p.replaceAll("\"", "").replace("(", "").replace(")", "").split(",")
                                     return {
                                         name: parts[0],
-                                        x: parseFloat(parts[1]), y: parseFloat(parts[2]), z: parseFloat(parts[3])
+                                        x: Math.round(parseFloat(parts[1])),
+                                        y: Math.round(parseFloat(parts[2])),
+                                        z: Math.round(parseFloat(parts[3]))
                                     }
                                 })
                                 if (playerStr.length === 2) players = []
