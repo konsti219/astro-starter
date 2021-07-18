@@ -34,6 +34,7 @@ export interface Player {
     prevPlaytime: number
 
     category: PlayerCategory
+    banned: boolean
 
     cached: boolean
 }
@@ -86,6 +87,7 @@ export class PlayerManager {
                     playtime: number
 
                     category: PlayerCategory
+                    banned?: boolean
                 }[]
             } = JSON.parse(await Deno.readTextFile(this.playersFile))
 
@@ -104,6 +106,7 @@ export class PlayerManager {
                     prevPlaytime: p.playtime,
 
                     category: p.category,
+                    banned: p.banned ?? false,
 
                     cached: true
                 })
@@ -170,6 +173,7 @@ export class PlayerManager {
                         prevPlaytime: 0,
 
                         category: PlayerManager.categoryToEnum(rconP.playerCategory),
+                        banned: false,
 
                         cached: true
                     })
@@ -197,6 +201,7 @@ export class PlayerManager {
                         prevPlaytime: 0,
 
                         category: PlayerCategory.Pending,
+                        banned: false,
 
                         cached: true
                     })
@@ -373,6 +378,11 @@ export class PlayerManager {
 
                 player.prevPlaytime = PlayerManager.playtime(player)
                 player.onlineSince = 0
+            }
+
+            // kick banning
+            if (player.banned) {
+                this.server.rcon.kickPlayer(player.guid)
             }
 
         })

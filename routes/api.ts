@@ -149,6 +149,12 @@ export class ApiRouter {
                             const body = (await ctx.request.body({ type: "json" }))
                             const { guid, category } = (await body.value)
                             server.rcon.setPlayerCategory(guid, category)
+
+                            const player = server.players.list().find(p => p.guid === guid)
+                            if (player) {
+                                player.banned = category === "Blacklisted"
+                            }
+
                             break
                         }
                         case "kick": {
