@@ -381,8 +381,9 @@ export class PlayerManager {
             }
 
             // kick banning
-            if (player.banned) {
+            if (player.banned && player.inGame) {
                 this.server.rcon.kickPlayer(player.guid)
+                info(`Auto kicking player ${humanName}`)
             }
 
         })
