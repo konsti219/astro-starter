@@ -63,24 +63,27 @@ export class ApiRouter {
 
                             break
                         }
-                        case "analytics": {
+                        case "admintools": {
                             // parse data coming from analytics mod
                             const playerStr = ctx.request.url.searchParams.get("players")
 
                             // if param present means it's data coming in, else return cache
                             if (playerStr) {
-                                const stripDelimeter = playerStr.substring(0, playerStr.length - 3).substring(2)
-                                let players = stripDelimeter.split("],[").map(p => {
-                                    const parts = p.replaceAll("\"", "").replace("(", "").replace(")", "").split(",")
-                                    return {
-                                        name: parts[0],
-                                        x: Math.round(parseFloat(parts[1])),
-                                        y: Math.round(parseFloat(parts[2])),
-                                        z: Math.round(parseFloat(parts[3]))
-                                    }
-                                })
-                                if (playerStr.length === 2) players = []
-
+                                let players: { name: string, x: number, y: number, z: number }[] = []
+                                if (playerStr.length > 3) {
+                                    players = playerStr.split(";").map(p => {
+                                        const parts = p.split(",")
+                                        return {
+                                            name: parts[0],
+                                            x: Math.round(parseFloat(parts[1])),
+                                            y: Math.round(parseFloat(parts[2])),
+                                            z: Math.round(parseFloat(parts[3])),
+                                            palette: parts[4],
+                                            suit: parts[5]
+                                        }
+                                    })
+                                    if (playerStr.length === 2) players = []
+                                }
                                 // save to cache
                                 this.playersCache = players
 
