@@ -74,7 +74,7 @@ export class ApiRouter {
                                     players = playerStr.split(";").map(p => {
                                         const parts = p.split(",")
                                         return {
-                                            name: parts[0],
+                                            name: parts[0].slice(1, -1),
                                             x: Math.round(parseFloat(parts[1])),
                                             y: Math.round(parseFloat(parts[2])),
                                             z: Math.round(parseFloat(parts[3])),
@@ -82,7 +82,7 @@ export class ApiRouter {
                                             suit: parts[5]
                                         }
                                     })
-                                    if (playerStr.length === 2) players = []
+                                    players.pop()
                                 }
                                 // save to cache
                                 this.playersCache = players
