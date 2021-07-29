@@ -74,12 +74,12 @@ export class ApiRouter {
                                     players = playerStr.split(";").map(p => {
                                         const parts = p.split(",")
                                         return {
-                                            name: parts[0].slice(1, -1),
+                                            name: parts[0],
                                             x: Math.round(parseFloat(parts[1])),
                                             y: Math.round(parseFloat(parts[2])),
                                             z: Math.round(parseFloat(parts[3])),
-                                            palette: parts[4],
-                                            suit: parts[5]
+                                            suit: parts[4],
+                                            palette: parts[5]
                                         }
                                     })
                                     players.pop()
