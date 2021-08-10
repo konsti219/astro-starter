@@ -249,8 +249,8 @@ const update = async () => {
                                 }),
                             })
                     );
-                    row.querySelector(".btnReset").disabled =
-                        !s.rconConnected || p.category === "Unlisted";
+                    //row.querySelector(".btnReset").disabled =
+                    //.    !s.rconConnected || p.category === "Unlisted";
                     row.querySelector(".btnReset").addEventListener(
                         "click",
                         (e) =>
