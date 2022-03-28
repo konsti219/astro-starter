@@ -111,7 +111,7 @@ export class Starter {
             for (const server of this.servers) {
                 server.update()
             }
-        }, 4000)
+        }, 20000)
 
         // disable silent after 1 min
         setTimeout(() => {

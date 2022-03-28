@@ -89,7 +89,7 @@ export class RconManager {
         // When the socket is told to connect start an internal loop that will constantly try to
         // connect to the server if it's not connected. This is to make sure the socket stays connected.
         if (!this.connectInterval) {
-            this.connectInterval = setInterval(() => this.connectSocket(), 1000)
+            this.connectInterval = setInterval(() => this.connectSocket(), 5000)
         }
 
         // reset this here just in case
